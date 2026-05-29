@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบลงทะเบียนอบรม</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+body{background:#eef2ff;color:#0f172a;font-size:14px;}
+
+/* LOGIN */
+#loginPage{position:fixed;inset:0;background:linear-gradient(135deg,#0f766e,#134e4a,#0c4a6e);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-card{background:white;border-radius:24px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.3);}
+.login-logo{font-size:40px;text-align:center;margin-bottom:8px;}
+.login-title{text-align:center;font-size:22px;font-weight:800;color:#0f766e;margin-bottom:4px;}
+.login-sub{text-align:center;font-size:12px;color:#64748b;margin-bottom:28px;}
+.login-field{margin-bottom:16px;}
+.login-field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;}
+.login-field input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;transition:border-color 0.2s;outline:none;}
+.login-field input:focus{border-color:#0f766e;}
+.login-btn{width:100%;padding:14px;background:#0f766e;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
+.login-btn:hover{background:#115e59;}
+.login-err{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:10px;font-size:12px;margin-top:12px;display:none;}
+.login-spinner{display:none;text-align:center;margin-top:12px;color:#0f766e;font-size:13px;}
+
+/* COURSE SELECTOR PAGE */
+#coursePage{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0f766e,#134e4a);z-index:8888;overflow:auto;padding:30px 20px;}
+.course-selector{max-width:700px;margin:0 auto;}
+.course-selector h2{color:white;font-size:22px;font-weight:800;margin-bottom:6px;}
+.course-selector p{color:rgba(255,255,255,0.7);font-size:13px;margin-bottom:24px;}
+.course-list{display:grid;gap:12px;margin-bottom:20px;}
+.course-item{background:white;border-radius:16px;padding:18px 20px;cursor:pointer;transition:all 0.2s;border:3px solid transparent;display:flex;align-items:center;justify-content:space-between;}
+.course-item:hover{border-color:#0f766e;box-shadow:0 8px 20px rgba(0,0,0,0.15);}
+.course-item-info h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px;}
+.course-item-info p{font-size:12px;color:#64748b;}
+.course-item-count{background:#f0fdfa;color:#0f766e;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;white-space:nowrap;}
+.new-course-form{background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;border:2px dashed rgba(255,255,255,0.4);}
+.new-course-form h3{color:white;font-size:14px;font-weight:700;margin-bottom:14px;}
+.nc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.nc-input{padding:10px 12px;border-radius:10px;border:none;font-size:13px;width:100%;}
+.nc-btn{width:100%;padding:12px;background:#f59e0b;color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;}
+.nc-btn:hover{background:#d97706;}
+
+/* TOPBAR */
+.topbar{background:#0f766e;color:white;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.12);border-radius:0 0 18px 18px;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.user-badge{background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.role-badge{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;}
+.role-superadmin{background:#fef3c7;color:#92400e;}
+.role-staff{background:#dbeafe;color:#1e40af;}
+.topbar-btn{background:rgba(255,255,255,0.2);border:none;color:white;padding:7px 12px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;}
+.topbar-btn:hover{background:rgba(255,255,255,0.3);}
+.course-badge{background:rgba(255,255,255,0.15);border-radius:10px;padding:5px 12px;font-size:11px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* MANAGE USERS */
+.manage-bar{background:#fff;border-radius:16px;padding:12px 18px;margin:12px 0;box-shadow:0 4px 12px rgba(15,118,110,0.08);display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.manage-bar.visible{display:flex;}
+.user-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;padding:20px;z-index:999;}
+.user-modal.open{display:flex;}
+.user-modal-content{background:white;width:100%;max-width:600px;border-radius:20px;padding:24px;max-height:85vh;overflow:auto;}
+.user-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;font-size:13px;}
+.user-item-info{display:flex;flex-direction:column;gap:2px;}
+.user-item-email{font-weight:600;}
+.user-item-name{font-size:11px;color:#64748b;}
+.user-item-actions{display:flex;gap:8px;align-items:center;}
+.select-role{padding:4px 8px;border:1px solid #cbd5e1;border-radius:8px;font-size:12px;}
+.del-btn{background:#fee2e2;color:#991b1b;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;}
+.add-user-form{background:#f8fafc;border-radius:14px;padding:16px;margin-bottom:16px;}
+.add-user-form h4{font-size:13px;font-weight:700;color:#0f766e;margin-bottom:12px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.form-row input,.form-row select{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;width:100%;}
+
+/* MAIN */
+.container{max-width:1280px;margin:0 auto;padding:14px;}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.search{flex:1;min-width:200px;max-width:340px;padding:10px 12px;border-radius:12px;border:1px solid #cbd5e1;font-size:14px;background:white;}
+.btn{border:none;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;}
+.btn-primary{background:#0f766e;color:white;}
+.btn-primary:hover{background:#115e59;}
+.btn-outline{background:white;color:#0f766e;border:2px solid #0f766e;}
+.btn-green{background:#16a34a;color:white;}
+.btn-green:hover{background:#15803d;}
+.table-wrap{overflow:auto;background:white;border-radius:20px;box-shadow:0 8px 20px rgba(15,118,110,0.08);padding:12px;}
+table{width:100%;min-width:1200px;border-collapse:collapse;table-layout:fixed;}
+th{background:#0f766e;color:white;padding:5px 6px;text-align:left;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+td{padding:4px 6px;border-bottom:1px solid #e2e8f0;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* กำหนดความกว้างแต่ละคอลัมน์ */
+table th:nth-child(1),table td:nth-child(1){width:45px;}   /* ลำดับ */
+table th:nth-child(2),table td:nth-child(2){width:150px;}  /* ชื่อ */
+table th:nth-child(3),table td:nth-child(3){width:110px;}  /* อปท. */
+table th:nth-child(4),table td:nth-child(4){width:110px;}  /* ตำแหน่ง */
+table th:nth-child(5),table td:nth-child(5){width:90px;}   /* โทร */
+table th:nth-child(6),table td:nth-child(6){width:65px;}   /* ตำบล */
+table th:nth-child(7),table td:nth-child(7){width:65px;}   /* จังหวัด */
+table th:nth-child(8),table td:nth-child(8){width:40px;}   /* เสื้อ */
+table th:nth-child(9),table td:nth-child(9){width:75px;}   /* ประเภทเบิก */
+table th:nth-child(10),table td:nth-child(10){width:65px;} /* วิธีชำระ */
+table th:nth-child(11),table td:nth-child(11){width:80px;} /* เจ้าหน้าที่ */
+table th:nth-child(12),table td:nth-child(12){width:55px;} /* รับอุปกรณ์ */
+table th:nth-child(13),table td:nth-child(13){width:65px;} /* วันที่ 1 */
+table th:nth-child(14),table td:nth-child(14){width:65px;} /* วันที่ 2 */
+table th:nth-child(15),table td:nth-child(15){width:65px;} /* วันที่ 3 */
+tr:hover{background:#f8fafc;}
+.status{padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;}
+.day-cell{cursor:pointer;}
+.day-cell:hover{background:#eef2ff;}
+.day-cell.done{cursor:default;}
+.success{background:#dcfce7;color:#166534;}
+.pending{background:#fee2e2;color:#991b1b;}
+
+/* SUMMARY CARDS */
+.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.summary-card{background:white;border-radius:16px;border:2px solid transparent;box-shadow:0 4px 12px rgba(15,118,110,0.06);padding:12px;}
+.summary-card.c0{border-color:#0f766e;}
+.summary-card.c1{border-color:#2563eb;}
+.summary-card.c2{border-color:#d97706;}
+.summary-card.c3{border-color:#16a34a;}
+.summary-card h3{margin:0 0 6px;font-size:12px;}
+.summary-card p{margin:0 0 6px;font-size:13px;font-weight:700;}
+.summary-list{display:grid;gap:3px;color:#334155;font-size:11px;}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;padding:20px;z-index:999;}
+.modal-content{background:white;width:100%;max-width:860px;border-radius:20px;padding:18px;max-height:92vh;overflow:auto;}
+.course-header-box{background:white;border-radius:18px;box-shadow:0 4px 16px rgba(15,118,110,0.08);padding:14px 18px;margin-bottom:12px;}
+.course-header-box h2{font-size:16px;margin-bottom:10px;color:#0f766e;}
+.course-header-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.chi{padding:9px 12px;border-radius:10px;border:1px solid #cbd5e1;font-size:13px;flex:1;min-width:140px;}
+.realtime-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">📋</div>
+    <div class="login-title">ระบบลงทะเบียนอบรม</div>
+    <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์</div>
+    <div class="login-field"><label>อีเมล</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
+    <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
+  </div>
+</div>
+
+<!-- COURSE SELECTOR -->
+<div id="coursePage">
+  <div class="course-selector">
+    <h2>📚 เลือกรุ่นอบรม</h2>
+    <p>เลือกรุ่นที่ต้องการหรือสร้างรุ่นใหม่</p>
+    <div class="course-list" id="courseList"><div style="color:rgba(255,255,255,0.7);text-align:center;padding:20px;">⏳ กำลังโหลด...</div></div>
+    <div class="new-course-form">
+      <h3>➕ สร้างรุ่นอบรมใหม่</h3>
+      <div class="nc-grid">
+        <input class="nc-input" id="nc_title" placeholder="ชื่อหลักสูตร / รุ่นที่">
+        <input class="nc-input" id="nc_location" placeholder="สถานที่อบรม">
+        <input class="nc-input" type="date" id="nc_start">
+        <input class="nc-input" type="date" id="nc_end">
+      </div>
+      <button class="nc-btn" onclick="createCourse()">✅ สร้างรุ่นใหม่</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      📋 ระบบลงทะเบียนอบรม
+      <span class="course-badge" id="topbarCourse">-</span>
+      <span class="realtime-dot" title="Realtime เชื่อมต่อแล้ว"></span>
+    </div>
+    <div class="topbar-right">
+      <div class="user-badge">👤 <span id="topbarName">-</span> <span class="role-badge" id="topbarRole"></span></div>
+      <button class="topbar-btn" onclick="goBackToCourseSelect()">🔄 เปลี่ยนรุ่น</button>
+      <button class="topbar-btn" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="manage-bar" id="manageBar">
+      <span style="font-size:13px;font-weight:700;color:#0f766e;">🔧 Super Admin</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="openUserModal()">👥 จัดการ Staff</button>
+      </div>
+    </div>
+
+    <!-- Course Header -->
+    <div class="course-header-box">
+      <h2>ข้อมูลหลักสูตร</h2>
+      <div class="course-header-row">
+        <input class="chi" id="courseTitleInput" placeholder="ชื่อหลักสูตร">
+        <input class="chi" type="date" id="startDateInput">
+        <input class="chi" type="date" id="endDateInput">
+        <input class="chi" id="locationInput" placeholder="สถานที่อบรม">
+        <button class="btn btn-primary" onclick="saveCourseHeader()">💾 บันทึก</button>
+      </div>
+      <div style="margin-top:10px;font-size:13px;color:#334155;">
+        <strong id="courseTitleDisplay">-</strong> &nbsp;|&nbsp;
+        <span id="courseDateDisplay">-</span> &nbsp;|&nbsp;
+        <span id="courseLocationDisplay">-</span>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-cards">
+      <div class="summary-card c0"><h3>ผู้เข้าอบรมทั้งหมด</h3><p id="s0">0 คน</p><div class="summary-list"><div>นับจากชื่อไม่ซ้ำ</div></div></div>
+      <div class="summary-card c1"><h3>ลงทะเบียน วันที่ 1</h3><p id="s1">0 คน</p><div id="s1t" class="summary-list"></div></div>
+      <div class="summary-card c2"><h3>ลงทะเบียน วันที่ 2</h3><p id="s2">0 คน</p><div id="s2t" class="summary-list"></div></div>
+      <div class="summary-card c3"><h3>สรุปการชำระ</h3><p id="s3">0 คน</p><div id="s3t" class="summary-list"></div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="text" id="search" class="search" placeholder="ค้นหา ลำดับ / ชื่อ / อปท.">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="document.getElementById('excelFile').click()">📁 Import Excel</button>
+        <button class="btn btn-green" onclick="exportExcel()">📤 Export Excel</button>
+        <input type="file" id="excelFile" hidden accept=".xlsx,.xls,.csv">
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>อปท.</th><th>ตำแหน่ง</th>
+            <th>โทรศัพท์</th><th>ตำบล</th><th>จังหวัด</th><th>เสื้อ</th>
+            <th>ประเภทเบิก</th><th>วิธีชำระ</th><th>เจ้าหน้าที่</th><th>รับอุปกรณ์</th>
+            <th>วันที่ 1</th><th>วันที่ 2</th><th>วันที่ 3</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGISTRATION -->
+<div class="modal" id="modal"><div class="modal-content" id="modalContent"></div></div>
+
+<!-- MODAL USER MANAGEMENT -->
+<div class="user-modal" id="userModal">
+  <div class="user-modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:16px;color:#0f766e;">👥 จัดการผู้ใช้งาน</h2>
+      <button class="btn" style="background:#f1f5f9;" onclick="closeUserModal()">✕ ปิด</button>
+    </div>
+    <div class="add-user-form">
+      <h4>➕ เพิ่มผู้ใช้งานใหม่</h4>
+      <div class="form-row">
+        <input type="text" id="newUserName" placeholder="ชื่อ-นามสกุล">
+        <input type="email" id="newUserEmail" placeholder="อีเมล">
+      </div>
+      <div class="form-row">
+        <input type="password" id="newUserPassword" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
+        <select id="newUserRole">
+          <option value="staff">Staff</option>
+          <option value="superadmin">Super Admin</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="addUser()">เพิ่มผู้ใช้งาน</button>
+      <div id="addUserMsg" style="margin-top:8px;font-size:12px;"></div>
+    </div>
+    <div id="userListContainer"><div style="text-align:center;color:#64748b;padding:20px;">⏳ กำลังโหลด...</div></div>
+  </div>
+</div>
+
+<script>
+// ==============================
+const SUPABASE_URL = "  https://opgkrhvcuhfkrykhrpid.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2tyaHZjdWhma3J5a2hycGlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTE0NzcsImV4cCI6MjA5NTUyNzQ3N30.awGPjHODxi8KANZCt8KH5Bo2amKPA8KNbjqDAtTVA4c";
+// ==============================
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+let currentCourse = null;
+let trainees = [];
+let currentIndex = null;
+let currentDay = 1;
+let realtimeChannel = null;
+
+// ===== AUTH =====
+async function doLogin(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const errEl = document.getElementById("loginErr");
+  const spinner = document.getElementById("loginSpinner");
+  errEl.style.display="none"; spinner.style.display="block";
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  spinner.style.display="none";
+  if(error){ errEl.textContent="เข้าสู่ระบบไม่สำเร็จ: "+(error.message==="Invalid login credentials"?"อีเมลหรือรหัสผ่านไม่ถูกต้อง":error.message); errEl.style.display="block"; return; }
+  currentUser = data.user;
+  await loadProfile();
+}
+
+async function loadProfile(){
+  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
+  currentProfile = data;
+  showCoursePage();
+}
+
+function showCoursePage(){
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("coursePage").style.display="block";
+  document.getElementById("mainApp").style.display="none";
+  loadCourseList();
+}
+
+async function doLogout(){
+  if(realtimeChannel) sb.removeChannel(realtimeChannel);
+  await sb.auth.signOut();
+  currentUser=null; currentProfile=null; currentCourse=null; trainees=[];
+  document.getElementById("loginPage").style.display="flex";
+  document.getElementById("coursePage").style.display="none";
+  document.getElementById("mainApp").style.display="none";
+  document.getElementById("manageBar").classList.remove("visible");
+  document.getElementById("loginEmail").value="";
+  document.getElementById("loginPassword").value="";
+}
+
+function goBackToCourseSelect(){
+  if(realtimeChannel) sb.removeChannel(realtimeChannel);
+  currentCourse=null; trainees=[];
+  showCoursePage();
+  document.getElementById("mainApp").style.display="none";
+}
+
+// ===== COURSE LIST =====
+async function loadCourseList(){
+  const container = document.getElementById("courseList");
+  container.innerHTML="<div style='color:rgba(255,255,255,0.7);text-align:center;padding:20px;'>⏳ กำลังโหลด...</div>";
+  const { data } = await sb.from("courses").select("*, trainees(count)").order("created_at", { ascending: false });
+  if(!data || data.length===0){
+    container.innerHTML="<div style='color:rgba(255,255,255,0.6);text-align:center;padding:20px;'>ยังไม่มีรุ่นอบรม — สร้างรุ่นใหม่ด้านล่างได้เลย</div>";
+    return;
+  }
+  container.innerHTML = data.map(c=>`
+    <div class="course-item" onclick="selectCourse('${c.id}')">
+      <div class="course-item-info">
+        <h3>${c.title||'ไม่มีชื่อ'}</h3>
+        <p>📍 ${c.location||'-'} &nbsp;|&nbsp; 📅 ${c.start_date||'-'}${c.end_date?' – '+c.end_date:''}</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="course-item-count">👥 ${c.trainees?.[0]?.count??0} คน</span>
+        ${currentProfile?.role==='superadmin'?`<button style="background:#fee2e2;color:#991b1b;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;" onclick="event.stopPropagation();deleteCourse('${c.id}')">ลบ</button>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function createCourse(){
+  const title = document.getElementById("nc_title").value.trim();
+  const location = document.getElementById("nc_location").value.trim();
+  const start = document.getElementById("nc_start").value;
+  const end = document.getElementById("nc_end").value;
+  if(!title){ alert("กรุณากรอกชื่อหลักสูตร"); return; }
+  const { data, error } = await sb.from("courses").insert({ title, location, start_date:start||null, end_date:end||null }).select().single();
+  if(error){ alert("เกิดข้อผิดพลาด: "+error.message); return; }
+  document.getElementById("nc_title").value="";
+  document.getElementById("nc_location").value="";
+  document.getElementById("nc_start").value="";
+  document.getElementById("nc_end").value="";
+  await loadCourseList();
+  selectCourse(data.id);
+}
+
+async function deleteCourse(id){
+  if(!confirm("ลบรุ่นนี้จะลบรายชื่อทั้งหมดด้วย ยืนยัน?")) return;
+  await sb.from("courses").delete().eq("id", id);
+  await loadCourseList();
+}
+
+async function selectCourse(id){
+  const { data } = await sb.from("courses").select("*").eq("id", id).single();
+  currentCourse = data;
+  document.getElementById("coursePage").style.display="none";
+  document.getElementById("mainApp").style.display="block";
+  // topbar
+  const name = currentProfile?.full_name || currentUser.email;
+  const role = currentProfile?.role || "staff";
+  document.getElementById("topbarName").textContent = name;
+  document.getElementById("topbarCourse").textContent = data.title||'-';
+  const roleEl = document.getElementById("topbarRole");
+  roleEl.textContent = role==="superadmin"?"Super Admin":"Staff";
+  roleEl.className = "role-badge "+(role==="superadmin"?"role-superadmin":"role-staff");
+  if(role==="superadmin") document.getElementById("manageBar").classList.add("visible");
+  // fill course header
+  document.getElementById("courseTitleInput").value = data.title||"";
+  document.getElementById("startDateInput").value = data.start_date||"";
+  document.getElementById("endDateInput").value = data.end_date||"";
+  document.getElementById("locationInput").value = data.location||"";
+  updateCourseHeaderDisplay();
+  await loadTrainees();
+  subscribeRealtime();
+}
+
+// ===== COURSE HEADER =====
+function getThaiDayName(date){ return ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][date.getDay()]; }
+function formatDate(s){ if(!s) return '-'; const d=new Date(s+'T00:00:00'); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} (วัน${getThaiDayName(d)})`; }
+
+function updateCourseHeaderDisplay(){
+  const t=document.getElementById("courseTitleInput").value;
+  const s=document.getElementById("startDateInput").value;
+  const e=document.getElementById("endDateInput").value;
+  const l=document.getElementById("locationInput").value;
+  document.getElementById("courseTitleDisplay").textContent=t||'-';
+  document.getElementById("courseDateDisplay").textContent=s?formatDate(s)+(e?' – '+formatDate(e):''):'-';
+  document.getElementById("courseLocationDisplay").textContent=l||'-';
+}
+
+async function saveCourseHeader(){
+  if(!currentCourse) return;
+  const title=document.getElementById("courseTitleInput").value.trim();
+  const start=document.getElementById("startDateInput").value;
+  const end=document.getElementById("endDateInput").value;
+  const location=document.getElementById("locationInput").value.trim();
+  await sb.from("courses").update({ title, start_date:start||null, end_date:end||null, location }).eq("id", currentCourse.id);
+  currentCourse={...currentCourse, title, start_date:start, end_date:end, location};
+  document.getElementById("topbarCourse").textContent=title||'-';
+  updateCourseHeaderDisplay();
+  alert("✅ บันทึกข้อมูลหลักสูตรแล้ว");
+}
+
+// ===== LOAD TRAINEES =====
+async function loadTrainees(){
+  const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
+  trainees = (data||[]).map(mapRow);
+  renderTable();
+}
+
+function mapRow(r){
+  return {
+    _id: r.id,
+    order_no: r.order_no||0,
+    full_name: r.full_name||"",
+    position: r.position||"",
+    phone: r.phone||"",
+    agency: r.agency||"",
+    district: r.district||"",
+    amphur: r.amphur||"",
+    province: r.province||"",
+    shirt_size: r.shirt_size||"",
+    claimType: r.claim_type||"",
+    paymentType: r.payment_type||"",
+    paymentMethod: r.payment_method||"",
+    staffName_day1: r.staff_name_day1||"",
+    staffName_day2: r.staff_name_day2||"",
+    staffName_day3: r.staff_name_day3||"",
+    day1: !!r.day1,
+    day2: !!r.day2,
+    day3: !!r.day3,
+    equipmentReceived: !!r.equipment_received,
+    receiptReceived: !!r.receipt_received,
+    certificateReceived: !!r.certificate_received,
+    dataCorrect: r.data_correct!==false,
+    editedFields: r.edited_fields ? JSON.parse(r.edited_fields) : [],
+    signature_day1: r.signature_day1||null,
+    signature_day2: r.signature_day2||null,
+    signature_day3: r.signature_day3||null,
+  };
+}
+
+// ===== REALTIME =====
+function subscribeRealtime(){
+  if(realtimeChannel) sb.removeChannel(realtimeChannel);
+  realtimeChannel = sb.channel('trainees-'+currentCourse.id)
+    .on('postgres_changes',{ event:'*', schema:'public', table:'trainees', filter:'course_id=eq.'+currentCourse.id },
+      payload => {
+        if(payload.eventType==='INSERT'){ trainees.push(mapRow(payload.new)); }
+        else if(payload.eventType==='UPDATE'){ const i=trainees.findIndex(t=>t._id===payload.new.id); if(i>=0) trainees[i]=mapRow(payload.new); }
+        else if(payload.eventType==='DELETE'){ trainees=trainees.filter(t=>t._id!==payload.old.id); }
+        renderTable();
+      }
+    ).subscribe();
+}
+
+// ===== EXCEL IMPORT =====
+document.getElementById("excelFile").addEventListener("change", handleExcel);
+document.getElementById("search").addEventListener("input", renderTable);
+
+function normalizeKey(k){ return String(k||'').trim().replace(/\s+/g,' ').toLowerCase(); }
+function getVal(row,key){ const f=Object.keys(row).find(c=>normalizeKey(c)===normalizeKey(key)); return f!==undefined?row[f]:''; }
+
+async function handleExcel(e){
+  const file=e.target.files[0]; if(!file||!currentCourse) return;
+  if(!confirm("Import จะเพิ่มรายชื่อใหม่เข้าในรุ่นนี้ ยืนยัน?")) return;
+  const reader=new FileReader();
+  reader.onload=async function(evt){
+    const data=new Uint8Array(evt.target.result);
+    const wb=XLSX.read(data,{type:'array'});
+    const sheet=wb.Sheets[wb.SheetNames[0]];
+    const json=XLSX.utils.sheet_to_json(sheet,{range:4});
+    const rows=json.map((row,i)=>({
+      course_id: currentCourse.id,
+      order_no: Number(getVal(row,"ลำดับ"))||i+1,
+      full_name: String(getVal(row,"ชื่อ - นามสกุล")||""),
+      position: String(getVal(row,"ตำแหน่ง")||""),
+      phone: String(getVal(row,"โทรศัพท์")||""),
+      agency: String(getVal(row,"อปท.")||""),
+      district: String(getVal(row,"ตำบล")||""),
+      amphur: String(getVal(row,"อำเภอ")||""),
+      province: String(getVal(row,"จังหวัด")||""),
+      shirt_size: String(getVal(row,"เสื้อ")||""),
+      payment_type: String(getVal(row,"วิธีชำระ")||""),
+      day1: !!getVal(row,"ลงชื่อ 1"),
+      day2: !!getVal(row,"ลงชื่อ 2"),
+      day3: !!getVal(row,"ลงชื่อ 3"),
+    }));
+    const CHUNK=50;
+    for(let i=0;i<rows.length;i+=CHUNK){
+      await sb.from("trainees").insert(rows.slice(i,i+CHUNK));
+    }
+    await loadTrainees();
+    e.target.value="";
+    alert("✅ Import สำเร็จ "+rows.length+" รายการ");
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ===== EXPORT EXCEL =====
+function exportExcel(){
+  if(!trainees.length){ alert("ไม่มีข้อมูล"); return; }
+  const rows=trainees.map(t=>({
+    "ลำดับ":t.order_no,"ชื่อ-นามสกุล":t.full_name,"อปท.":t.agency,
+    "ตำแหน่ง":t.position,"โทรศัพท์":t.phone,"ตำบล":t.district,"จังหวัด":t.province,
+    "เสื้อ":t.shirt_size,"ประเภทเบิก":t.claimType,"วิธีชำระ":t.paymentMethod,
+    "เจ้าหน้าที่วันที่1":t.staffName_day1,"เจ้าหน้าที่วันที่2":t.staffName_day2,"เจ้าหน้าที่วันที่3":t.staffName_day3,
+    "รับอุปกรณ์":t.equipmentReceived?"✓":"","วันที่1":t.day1?"✓":"","วันที่2":t.day2?"✓":"","วันที่3":t.day3?"✓":""
+  }));
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,ws,"รายชื่อ");
+  XLSX.writeFile(wb,(currentCourse?.title||"รายชื่อ")+"_export.xlsx");
+}
+
+// ===== RENDER TABLE =====
+function renderTable(){
+  const keyword=document.getElementById("search").value.toLowerCase().trim();
+  const tbody=document.getElementById("tbody");
+  tbody.innerHTML="";
+  const filtered=trainees.filter(t=>{
+    if(!keyword) return true;
+    const isNum=/^\d+$/.test(keyword);
+    if(isNum) return String(t.order_no)===String(keyword).trim();
+    return t.full_name.toLowerCase().includes(keyword)||t.agency.toLowerCase().includes(keyword);
+  });
+  filtered.forEach((t,i)=>{
+    const realIdx=trainees.indexOf(t);
+    tbody.innerHTML+=`<tr>
+      <td>${t.order_no}</td>
+      <td style="${t.editedFields?.includes('name')?'color:#dc2626;font-weight:700;':''}">${t.full_name}</td>
+      <td style="${t.editedFields?.includes('agency')?'color:#dc2626;font-weight:700;':''}">${t.agency}</td>
+      <td style="${t.editedFields?.includes('position')?'color:#dc2626;font-weight:700;':''}">${t.position}</td>
+      <td style="${t.editedFields?.includes('phone')?'color:#dc2626;font-weight:700;':''}">${t.phone}</td>
+      <td>${t.district}</td><td>${t.province}</td><td>${t.shirt_size}</td>
+      <td>${t.claimType||'-'}</td><td>${t.paymentMethod||'-'}</td><td>${t.staffName_day1||'-'}</td>
+      <td><span class="status ${t.equipmentReceived?'success':'pending'}">${t.equipmentReceived?'✓':'✗'}</span></td>
+      <td class="day-cell ${t.day1?'done':''}" onclick="openModal(${realIdx},1)"><span class="status ${t.day1?'success':'pending'}">${t.day1?'✓ สำเร็จ':'ลงทะเบียน'}</span></td>
+      <td class="day-cell ${t.day2?'done':''}" onclick="openModal(${realIdx},2)"><span class="status ${t.day2?'success':'pending'}">${t.day2?'✓ สำเร็จ':'ลงทะเบียน'}</span></td>
+      <td class="day-cell ${t.day3?'done':''}" onclick="openModal(${realIdx},3)"><span class="status ${t.day3?'success':'pending'}">${t.day3?'✓ สำเร็จ':'ลงทะเบียน'}</span></td>
+    </tr>`;
+  });
+  updateSummary();
+}
+
+function updateSummary(){
+  const d1=trainees.filter(t=>t.day1);
+  const d2=trainees.filter(t=>t.day2);
+  const names=new Set(trainees.map(t=>t.full_name.trim()).filter(n=>n));
+  document.getElementById("s0").textContent=names.size+" คน";
+  document.getElementById("s1").textContent=d1.length+" คน";
+  document.getElementById("s2").textContent=d2.length+" คน";
+  const payCounts={};
+  trainees.forEach(t=>{ const m=t.paymentMethod||t.paymentType||''; if(m){ payCounts[m]=(payCounts[m]||0)+1; }});
+  document.getElementById("s3").textContent=Object.values(payCounts).reduce((a,b)=>a+b,0)+" คน";
+  const typeCounts1={},typeCounts2={};
+  d1.forEach(t=>{ const v=t.paymentType||'ไม่ระบุ'; typeCounts1[v]=(typeCounts1[v]||0)+1; });
+  d2.forEach(t=>{ const v=t.paymentType||'ไม่ระบุ'; typeCounts2[v]=(typeCounts2[v]||0)+1; });
+  document.getElementById("s1t").innerHTML=Object.entries(typeCounts1).map(([k,v])=>`<div>${k}: ${v} คน</div>`).join('')||'<div>ไม่มีข้อมูล</div>';
+  document.getElementById("s2t").innerHTML=Object.entries(typeCounts2).map(([k,v])=>`<div>${k}: ${v} คน</div>`).join('')||'<div>ไม่มีข้อมูล</div>';
+  document.getElementById("s3t").innerHTML=Object.entries(payCounts).map(([k,v])=>`<div>${k}: ${v} คน</div>`).join('')||'<div>ไม่มีข้อมูล</div>';
+}
+
+// ===== MODAL =====
+function openModal(index,day){
+  currentIndex=index; currentDay=day;
+  const t=trainees[index];
+  document.getElementById("modal").style.display="flex";
+  let html=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <h2 style="color:#0f766e;font-size:18px;">📋 ลงทะเบียน วันที่ ${day}</h2>
+    <button class="btn" style="background:#f1f5f9;" onclick="closeModal()">✕ ปิด</button>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:18px;padding:18px;margin-bottom:16px;border:2px solid #0284c7;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <span style="background:#0284c7;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;">1</span>
+      <span style="font-size:16px;font-weight:800;color:#0c4a6e;">ส่วนของผู้เข้าอบรม</span>
+    </div>
+    <div style="background:white;border-radius:14px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;">ชื่อ-นามสกุล</div>
+      <div id="displayFullName" style="font-size:22px;font-weight:800;color:#0f172a;">${t.full_name}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="background:white;border-radius:14px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;">หน่วยงาน (อปท.)</div>
+        <div id="displayAgency" style="font-size:15px;font-weight:700;">${t.agency}</div>
+      </div>
+      <div style="background:white;border-radius:14px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;">จังหวัด</div>
+        <div style="font-size:15px;font-weight:700;">${t.province}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:white;border-radius:14px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;">ตำแหน่ง</div>
+        <div id="displayPosition" style="font-size:15px;font-weight:700;">${t.position||'-'}</div>
+      </div>
+      <div style="background:white;border-radius:14px;padding:14px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;">เบอร์ติดต่อ</div>
+        <div id="displayPhone" style="font-size:15px;font-weight:700;">${t.phone||'-'}</div>
+      </div>
+    </div>
+    <div style="background:white;border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;">🖊️ ลายเซ็นผู้เข้าอบรม (วันที่ ${day})</div>
+      ${(()=>{
+        const sigKey = day===1?'signature_day1':day===2?'signature_day2':'signature_day3';
+        const existingSig = t[sigKey];
+        if(existingSig){
+          return `<div style="margin-bottom:8px;"><img src="${existingSig}" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;max-height:120px;object-fit:contain;background:#f8fafc;"></div>
+          <div style="font-size:11px;color:#16a34a;font-weight:700;margin-bottom:8px;">✅ มีลายเซ็นแล้ว — วาดใหม่เพื่อเปลี่ยน</div>`;
+        }
+        return '';
+      })()}
+      <div style="position:relative;border-radius:10px;border:2px solid #cbd5e1;overflow:hidden;">
+        <canvas id="signatureCanvas" width="800" height="150" style="width:100%;height:150px;touch-action:none;cursor:crosshair;display:block;background:white;"></canvas>
+        <button onclick="clearSignature()" style="position:absolute;top:6px;right:6px;background:#fee2e2;color:#991b1b;border:none;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;">ล้าง</button>
+        <div style="position:absolute;bottom:6px;left:10px;font-size:10px;color:#94a3b8;">วาดลายเซ็นในกรอบนี้</div>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:#0c4a6e;margin-bottom:10px;">ข้อมูลถูกต้องหรือไม่?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button id="btnCorrect" onclick="setDataCorrect(true)" style="padding:14px;border-radius:14px;border:3px solid #16a34a;background:#dcfce7;color:#166534;font-size:16px;font-weight:800;cursor:pointer;">✅ ข้อมูลถูกต้อง</button>
+      <button id="btnIncorrect" onclick="setDataCorrect(false)" style="padding:14px;border-radius:14px;border:3px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:16px;font-weight:800;cursor:pointer;">✏️ ข้อมูลไม่ถูกต้อง</button>
+    </div>
+    <div id="editSection" style="display:none;margin-top:14px;background:white;border-radius:14px;padding:14px;border:2px solid #f59e0b;">
+      <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:10px;">✏️ แก้ไขข้อมูล (เฉพาะส่วนที่ไม่ถูกต้อง)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ชื่อ-นามสกุล</label>
+          <input type="text" id="editNameInput" placeholder="ชื่อ-นามสกุล" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">หน่วยงาน (อปท.)</label>
+          <input type="text" id="editAgencyInput" placeholder="หน่วยงาน" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ตำแหน่ง</label>
+          <input type="text" id="editPositionInput" placeholder="ตำแหน่ง" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เบอร์ติดต่อ</label>
+          <input type="text" id="editPhoneInput" placeholder="เบอร์ติดต่อ" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="saveEdits()">💾 บันทึกการแก้ไข</button>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#fef9ee,#fef3c7);border-radius:18px;padding:18px;margin-bottom:16px;border:2px solid #f59e0b;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <span style="background:#d97706;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;">2</span>
+      <span style="font-size:16px;font-weight:800;color:#92400e;">ส่วนของเจ้าหน้าที่</span>
+    </div>`;
+
+  if(day===1){
+    html+=`
+    <div style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">📁 เบิกจ่ายจากที่ไหน?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <label id="lbl_cf" style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:14px;font-weight:700;">
+          <input type="radio" name="claimType" value="กองทุนฯ" onchange="styleRadio('lbl_cf','lbl_ca')" style="width:18px;height:18px;"> เบิกนามกองทุนฯ
+        </label>
+        <label id="lbl_ca" style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:14px;font-weight:700;">
+          <input type="radio" name="claimType" value="หน่วยงาน" onchange="styleRadio('lbl_ca','lbl_cf')" style="width:18px;height:18px;"> เบิกนามหน่วยงาน
+        </label>
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">💳 วิธีชำระเงิน</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        ${['โอน N','โอน P','โอน B','เงินสด'].map((v,i)=>`
+        <label id="lbl_p${i}" style="display:flex;flex-direction:column;align-items:center;background:white;border-radius:12px;padding:12px 8px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;text-align:center;">
+          <input type="radio" name="paymentMethod" value="${v}" onchange="stylePayRadio('lbl_p${i}')" style="margin-bottom:4px;"> ${v}
+        </label>`).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">🎒 รับอุปกรณ์</div>
+      <label id="lbl_eq" style="display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:15px;font-weight:700;" onclick="toggleCheck('equipmentReceived','lbl_eq')">
+        <input type="checkbox" id="equipmentReceived" style="width:20px;height:20px;"> ยืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์เรียบร้อยแล้ว
+      </label>
+    </div>`;
+  } else if(day===2){
+    if(t.day1){
+      html+=`<div style="background:#dcfce7;border-radius:12px;padding:12px;margin-bottom:14px;color:#166534;font-weight:700;">✅ ลงทะเบียนวันที่ 1 แล้ว</div>`;
+    } else {
+      html+=`<div style="background:#fee2e2;border-radius:12px;padding:12px;margin-bottom:14px;color:#991b1b;font-weight:700;">⚠️ ยังไม่ได้ลงทะเบียนวันที่ 1</div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">📁 เบิกจ่ายจากที่ไหน?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <label id="lbl_cf" style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:14px;font-weight:700;">
+            <input type="radio" name="claimType" value="กองทุนฯ" onchange="styleRadio('lbl_cf','lbl_ca')" style="width:18px;height:18px;"> เบิกนามกองทุนฯ
+          </label>
+          <label id="lbl_ca" style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:14px;font-weight:700;">
+            <input type="radio" name="claimType" value="หน่วยงาน" onchange="styleRadio('lbl_ca','lbl_cf')" style="width:18px;height:18px;"> เบิกนามหน่วยงาน
+          </label>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">💳 วิธีชำระเงิน</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          ${['โอน N','โอน P','โอน B','เงินสด'].map((v,i)=>`
+          <label id="lbl_p${i}" style="display:flex;flex-direction:column;align-items:center;background:white;border-radius:12px;padding:12px 8px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;text-align:center;">
+            <input type="radio" name="paymentMethod" value="${v}" onchange="stylePayRadio('lbl_p${i}')" style="margin-bottom:4px;"> ${v}
+          </label>`).join('')}
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">🎒 รับอุปกรณ์</div>
+        <label id="lbl_eq" style="display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:15px;font-weight:700;" onclick="toggleCheck('equipmentReceived','lbl_eq')">
+          <input type="checkbox" id="equipmentReceived" style="width:20px;height:20px;"> ยืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์เรียบร้อยแล้ว
+        </label>
+      </div>`;
+    }
+  } else if(day===3){
+    html+=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <label id="lbl_rec" style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:14px;font-weight:700;" onclick="toggleCheck('receiptReceived','lbl_rec')">
+        <input type="checkbox" id="receiptReceived" style="width:20px;height:20px;"> 🧾 ได้รับใบเสร็จแล้ว
+      </label>
+      <label id="lbl_cert" style="display:flex;align-items:center;gap:10px;background:white;border-radius:12px;padding:14px;border:3px solid #e2e8f0;cursor:pointer;font-size:14px;font-weight:700;" onclick="toggleCheck('certificateReceived','lbl_cert')">
+        <input type="checkbox" id="certificateReceived" style="width:20px;height:20px;"> 🏅 ได้รับวุฒิบัตรแล้ว
+      </label>
+    </div>`;
+  }
+
+  html+=`
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">✍️ ชื่อเจ้าหน้าที่ผู้ลงทะเบียน</div>
+      <input type="text" id="staffName" placeholder="กรอกชื่อเจ้าหน้าที่" style="width:100%;padding:12px 14px;border-radius:12px;border:2px solid #f59e0b;font-size:15px;font-weight:700;">
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:4px;">
+    <button class="btn btn-primary" style="padding:16px;font-size:16px;border-radius:14px;" onclick="saveRegistration()">✅ ยืนยันลงทะเบียน</button>
+    ${t['day'+day]?`<button class="btn" style="background:#fee2e2;color:#991b1b;border:2px solid #fca5a5;padding:16px 14px;font-size:14px;border-radius:14px;font-weight:700;" onclick="cancelRegistration(${currentDay})">🔄 ยกเลิกวันที่ ${day}</button>`:''}
+  </div>`;
+
+  // init signature canvas after html is set
+  document.getElementById("modalContent").innerHTML=html;
+  if(currentProfile?.full_name){ const sf=document.getElementById("staffName"); if(sf) sf.value=currentProfile.full_name; }
+  setTimeout(()=>initSignatureCanvas(), 50);
+}
+
+function closeModal(){ document.getElementById("modal").style.display="none"; }
+
+function styleRadio(aId,bId){
+  const a=document.getElementById(aId),b=document.getElementById(bId);
+  if(a){a.style.borderColor="#0f766e";a.style.background="#f0fdfa";}
+  if(b){b.style.borderColor="#e2e8f0";b.style.background="white";}
+}
+function stylePayRadio(aId){
+  ['lbl_p0','lbl_p1','lbl_p2','lbl_p3'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.style.borderColor=id===aId?"#0f766e":"#e2e8f0";
+    el.style.background=id===aId?"#f0fdfa":"white";
+  });
+}
+function toggleCheck(cbId,lblId){
+  setTimeout(()=>{
+    const cb=document.getElementById(cbId),lbl=document.getElementById(lblId);
+    if(cb&&lbl){lbl.style.borderColor=cb.checked?"#16a34a":"#e2e8f0";lbl.style.background=cb.checked?"#dcfce7":"white";}
+  },0);
+}
+function setDataCorrect(ok){
+  const bOk=document.getElementById("btnCorrect"),bBad=document.getElementById("btnIncorrect"),es=document.getElementById("editSection");
+  if(ok){
+    bOk.style.cssText="padding:14px;border-radius:14px;border:3px solid #16a34a;background:#dcfce7;color:#166534;font-size:16px;font-weight:800;cursor:pointer;";
+    bBad.style.cssText="padding:14px;border-radius:14px;border:3px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:16px;font-weight:800;cursor:pointer;";
+    es.style.display="none";
+    const n=document.getElementById("displayFullName"); if(n) n.style.color="#0f172a";
+  } else {
+    bBad.style.cssText="padding:14px;border-radius:14px;border:3px solid #dc2626;background:#fee2e2;color:#991b1b;font-size:16px;font-weight:800;cursor:pointer;";
+    bOk.style.cssText="padding:14px;border-radius:14px;border:3px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:16px;font-weight:800;cursor:pointer;";
+    es.style.display="block";
+    const t=trainees[currentIndex];
+    // บันทึกค่าต้นฉบับก่อน pre-fill
+    window._editOriginals={full_name:t.full_name, agency:t.agency, position:t.position||"", phone:t.phone||""};
+    document.getElementById("editNameInput").value=t.full_name;
+    document.getElementById("editAgencyInput").value=t.agency;
+    document.getElementById("editPositionInput").value=t.position||"";
+    document.getElementById("editPhoneInput").value=t.phone||"";
+  }
+}
+function saveEdits(){
+  const t=trainees[currentIndex];
+  const n=document.getElementById("editNameInput").value.trim();
+  const a=document.getElementById("editAgencyInput").value.trim();
+  const p=document.getElementById("editPositionInput").value.trim();
+  const ph=document.getElementById("editPhoneInput").value.trim();
+
+  const nameEl=document.getElementById("displayFullName");
+  const agEl=document.getElementById("displayAgency");
+  const posEl=document.getElementById("displayPosition");
+  const phoneEl=document.getElementById("displayPhone");
+
+  // เทียบกับ originalValues ที่บันทึกตอนเปิด editSection
+  const orig=window._editOriginals||{};
+
+  const setRed=(el,val)=>{ if(el){el.textContent=val;el.style.color="#dc2626";el.style.fontWeight="800";} };
+  const setNormal=(el,val)=>{ if(el){el.textContent=val;el.style.color="#0f172a";el.style.fontWeight="700";} };
+
+  const edited=[];
+  if(n!==orig.full_name){ t.full_name=n; edited.push('name'); setRed(nameEl,n); } else { setNormal(nameEl,n); }
+  if(a!==orig.agency){ t.agency=a; edited.push('agency'); setRed(agEl,a); } else { setNormal(agEl,a); }
+  if(p!==orig.position){ t.position=p; edited.push('position'); setRed(posEl,p); } else { setNormal(posEl,p||'-'); }
+  if(ph!==orig.phone){ t.phone=ph; edited.push('phone'); setRed(phoneEl,ph); } else { setNormal(phoneEl,ph||'-'); }
+  t.editedFields=edited;
+
+  document.getElementById("editSection").style.display="none";
+  const bb=document.getElementById("btnIncorrect"); if(bb) bb.textContent="✏️ แก้ไขแล้ว ✓";
+}
+
+async function saveRegistration(){
+  const t=trainees[currentIndex];
+  const staffName=document.getElementById("staffName").value.trim();
+  if(!staffName){alert("กรุณากรอกชื่อเจ้าหน้าที่");return;}
+  const bOk=document.getElementById("btnCorrect");
+  const bBad=document.getElementById("btnIncorrect");
+  const isOk=bOk&&bOk.style.background==='rgb(220, 252, 231)';
+  const isBad=bBad&&(bBad.style.background==='rgb(254, 226, 226)'||bBad.textContent.includes('✓'));
+  if(!isOk&&!isBad){alert("กรุณาตรวจสอบข้อมูลผู้เข้าอบรมก่อน");return;}
+
+  // เก็บ signature
+  const canvas=document.getElementById("signatureCanvas");
+  const signatureData = canvas ? canvas.toDataURL() : null;
+  const hasSignature = signatureData && !isCanvasBlank(canvas);
+
+  const updates={};
+  if(currentDay===1){
+    const claim=document.querySelector('input[name="claimType"]:checked');
+    const pay=document.querySelector('input[name="paymentMethod"]:checked');
+    const eq=document.getElementById("equipmentReceived");
+    if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
+    if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
+    if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
+    Object.assign(updates,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+    if(hasSignature) updates.signature_day1=signatureData;
+    t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.staffName_day1=staffName; t.day1=true;
+  } else if(currentDay===2){
+    if(!t.day1){
+      const claim=document.querySelector('input[name="claimType"]:checked');
+      const pay=document.querySelector('input[name="paymentMethod"]:checked');
+      const eq=document.getElementById("equipmentReceived");
+      if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
+      if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
+      if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
+      Object.assign(updates,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,day1:true});
+      t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.day1=true;
+    }
+    Object.assign(updates,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+    if(hasSignature) updates.signature_day2=signatureData;
+    t.staffName_day2=staffName; t.day2=true;
+  } else if(currentDay===3){
+    const rec=document.getElementById("receiptReceived");
+    const cert=document.getElementById("certificateReceived");
+    if(!rec||!rec.checked){alert("กรุณายืนยันว่าได้รับใบเสร็จ");return;}
+    if(!cert||!cert.checked){alert("กรุณายืนยันว่าได้รับวุฒิบัตร");return;}
+    Object.assign(updates,{receipt_received:true,certificate_received:true,staff_name_day3:staffName,day3:true});
+    if(hasSignature) updates.signature_day3=signatureData;
+    t.receiptReceived=true; t.certificateReceived=true; t.staffName_day3=staffName; t.day3=true;
+  }
+
+  const { error } = await sb.from("trainees").update(updates).eq("id",t._id);
+  if(error){alert("บันทึกไม่สำเร็จ: "+error.message);return;}
+  renderTable(); closeModal(); alert("✅ บันทึกสำเร็จ");
+}
+
+// ===== SIGNATURE CANVAS =====
+let isDrawing=false, lastX=0, lastY=0;
+function initSignatureCanvas(){
+  const canvas=document.getElementById("signatureCanvas"); if(!canvas) return;
+  const ctx=canvas.getContext("2d");
+  ctx.strokeStyle="#1e293b"; ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round";
+
+  function getPos(e){
+    const r=canvas.getBoundingClientRect();
+    const scaleX=canvas.width/r.width, scaleY=canvas.height/r.height;
+    if(e.touches){ return {x:(e.touches[0].clientX-r.left)*scaleX, y:(e.touches[0].clientY-r.top)*scaleY}; }
+    return {x:(e.clientX-r.left)*scaleX, y:(e.clientY-r.top)*scaleY};
+  }
+  canvas.addEventListener("mousedown",e=>{isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;});
+  canvas.addEventListener("mousemove",e=>{if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;});
+  canvas.addEventListener("mouseup",()=>isDrawing=false);
+  canvas.addEventListener("mouseleave",()=>isDrawing=false);
+  canvas.addEventListener("touchstart",e=>{e.preventDefault();isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;},{passive:false});
+  canvas.addEventListener("touchmove",e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;},{passive:false});
+  canvas.addEventListener("touchend",()=>isDrawing=false);
+}
+function clearSignature(){ const c=document.getElementById("signatureCanvas"); if(c) c.getContext("2d").clearRect(0,0,c.width,c.height); }
+function isCanvasBlank(canvas){ const ctx=canvas.getContext("2d"); const d=ctx.getImageData(0,0,canvas.width,canvas.height).data; return !d.some(v=>v!==0); }
+
+async function cancelRegistration(day){
+  if(!confirm(`ยืนยันยกเลิกการลงทะเบียนวันที่ ${day}?`)) return;
+  const t=trainees[currentIndex];
+  const updates={};
+  if(day===1){
+    Object.assign(updates,{day1:false,staff_name_day1:null,claim_type:null,payment_method:null,equipment_received:false,signature_day1:null});
+    t.day1=false; t.staffName_day1=""; t.claimType=""; t.paymentMethod=""; t.equipmentReceived=false; t.signature_day1=null;
+  } else if(day===2){
+    Object.assign(updates,{day2:false,staff_name_day2:null,signature_day2:null});
+    t.day2=false; t.staffName_day2=""; t.signature_day2=null;
+  } else if(day===3){
+    Object.assign(updates,{day3:false,staff_name_day3:null,receipt_received:false,certificate_received:false,signature_day3:null});
+    t.day3=false; t.staffName_day3=""; t.receiptReceived=false; t.certificateReceived=false; t.signature_day3=null;
+  }
+  const { error }=await sb.from("trainees").update(updates).eq("id",t._id);
+  if(error){alert("ยกเลิกไม่สำเร็จ: "+error.message);return;}
+  renderTable(); closeModal(); alert(`✅ ยกเลิกวันที่ ${day} เรียบร้อย`);
+}
+
+// ===== USER MANAGEMENT =====
+async function openUserModal(){ document.getElementById("userModal").classList.add("open"); await loadUserList(); }
+function closeUserModal(){ document.getElementById("userModal").classList.remove("open"); }
+async function loadUserList(){
+  const c=document.getElementById("userListContainer");
+  c.innerHTML="<div style='text-align:center;color:#64748b;padding:20px;'>⏳ กำลังโหลด...</div>";
+  const { data } = await sb.from("profiles").select("*").order("email");
+  if(!data||!data.length){c.innerHTML="<div style='color:#64748b;padding:10px;'>ไม่มีผู้ใช้งาน</div>";return;}
+  c.innerHTML="<h4 style='font-size:13px;font-weight:700;margin-bottom:10px;'>รายชื่อผู้ใช้งาน</h4>"+
+    data.map(u=>`<div class="user-item">
+      <div class="user-item-info"><span class="user-item-email">${u.email||'-'}</span><span class="user-item-name">${u.full_name||'-'}</span></div>
+      <div class="user-item-actions">
+        <select class="select-role" onchange="updateRole('${u.id}',this.value)">
+          <option value="staff" ${u.role==='staff'?'selected':''}>Staff</option>
+          <option value="superadmin" ${u.role==='superadmin'?'selected':''}>Super Admin</option>
+        </select>
+        ${u.id!==currentUser.id?`<button class="del-btn" onclick="deleteUser('${u.id}')">ลบ</button>`:'<span style="font-size:11px;color:#64748b;">(ตัวเอง)</span>'}
+      </div>
+    </div>`).join('');
+}
+async function addUser(){
+  const name=document.getElementById("newUserName").value.trim();
+  const email=document.getElementById("newUserEmail").value.trim();
+  const password=document.getElementById("newUserPassword").value;
+  const role=document.getElementById("newUserRole").value;
+  const msg=document.getElementById("addUserMsg");
+  if(!name||!email||!password){msg.style.color="#991b1b";msg.textContent="กรุณากรอกข้อมูลให้ครบ";return;}
+  msg.style.color="#0f766e";msg.textContent="⏳ กำลังสร้าง...";
+  const { data,error }=await sb.auth.signUp({email,password});
+  if(error){msg.style.color="#991b1b";msg.textContent="ไม่สำเร็จ: "+error.message;return;}
+  if(data.user) await sb.from("profiles").upsert({id:data.user.id,email,full_name:name,role});
+  msg.style.color="#166534";msg.textContent="✓ สร้างสำเร็จ";
+  document.getElementById("newUserName").value="";
+  document.getElementById("newUserEmail").value="";
+  document.getElementById("newUserPassword").value="";
+  await loadUserList();
+}
+async function updateRole(uid,role){ await sb.from("profiles").update({role}).eq("id",uid); }
+async function deleteUser(uid){ if(!confirm("ยืนยันลบ?"))return; await sb.from("profiles").delete().eq("id",uid); await loadUserList(); }
+
+// ===== SESSION CHECK =====
+window.addEventListener("load", async()=>{
+  const { data }=await sb.auth.getSession();
+  if(data.session){ currentUser=data.session.user; await loadProfile(); }
+});
+</script>
+</body>
+</html>
