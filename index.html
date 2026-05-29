@@ -510,9 +510,25 @@ async function saveCourseHeader(){
 
 // ===== LOAD TRAINEES =====
 async function loadTrainees(){
-  const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
-  trainees = (data||[]).map(mapRow);
+  try {
+    const { data, error } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
+    if(error) throw error;
+    trainees = (data||[]).map(mapRow);
+  } catch(e) {
+    console.error("loadTrainees error:", e);
+    trainees = [];
+  }
   renderTable();
+  // fallback สำหรับ Safari: โหลดใหม่อีกครั้งหลัง 1 วินาที
+  setTimeout(async()=>{
+    try {
+      const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
+      if(data && data.length > 0){
+        trainees = data.map(mapRow);
+        renderTable();
+      }
+    } catch(e) {}
+  }, 1000);
 }
 
 function mapRow(r){
