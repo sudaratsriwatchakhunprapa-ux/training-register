@@ -396,6 +396,7 @@ function showCoursePage(){
 
 async function doLogout(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
+  stopPolling();
   await sb.auth.signOut();
   currentUser=null; currentProfile=null; currentCourse=null; trainees=[];
   document.getElementById("loginPage").style.display="flex";
@@ -408,6 +409,7 @@ async function doLogout(){
 
 function goBackToCourseSelect(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
+  stopPolling();
   currentCourse=null; trainees=[];
   showCoursePage();
   document.getElementById("mainApp").style.display="none";
@@ -480,6 +482,7 @@ async function selectCourse(id){
   updateCourseHeaderDisplay();
   await loadTrainees();
   subscribeRealtime();
+  startPolling();
 }
 
 // ===== COURSE HEADER =====
@@ -510,26 +513,48 @@ async function saveCourseHeader(){
 }
 
 // ===== LOAD TRAINEES =====
+let _pollInterval = null;
+
 async function loadTrainees(){
+  if(!currentCourse) return;
   try {
     const { data, error } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
     if(error) throw error;
     trainees = (data||[]).map(mapRow);
   } catch(e) {
     console.error("loadTrainees error:", e);
-    trainees = [];
-  }
-  renderTable();
-  // fallback สำหรับ Safari: โหลดใหม่อีกครั้งหลัง 1 วินาที
-  setTimeout(async()=>{
+    // retry ครั้งเดียวหลัง 1.5 วินาที
+    await new Promise(r=>setTimeout(r,1500));
     try {
       const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
-      if(data && data.length > 0){
-        trainees = data.map(mapRow);
-        renderTable();
+      trainees = (data||[]).map(mapRow);
+    } catch(e2){ trainees = []; }
+  }
+  renderTable();
+}
+
+// Polling backup สำหรับ Safari/iPad ที่ Realtime WebSocket อาจไม่ทำงาน
+function startPolling(){
+  stopPolling();
+  _pollInterval = setInterval(async()=>{
+    if(!currentCourse) return;
+    try {
+      const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
+      if(data){
+        // อัปเดตเฉพาะถ้าข้อมูลเปลี่ยน (เปรียบเทียบจำนวนและ id)
+        const newIds = data.map(r=>r.id).join(',');
+        const oldIds = trainees.map(r=>r._id).join(',');
+        if(newIds !== oldIds){
+          trainees = data.map(mapRow);
+          renderTable();
+        }
       }
-    } catch(e) {}
-  }, 1000);
+    } catch(e){}
+  }, 8000); // poll ทุก 8 วินาที
+}
+
+function stopPolling(){
+  if(_pollInterval){ clearInterval(_pollInterval); _pollInterval = null; }
 }
 
 function mapRow(r){
@@ -572,25 +597,39 @@ function subscribeRealtime(){
       payload => {
         if(payload.eventType==='INSERT'){ trainees.push(mapRow(payload.new)); }
         else if(payload.eventType==='UPDATE'){
-  const i=trainees.findIndex(t=>t._id===payload.new.id);
-  if(i>=0){
-    const existing=trainees[i];
-    const updated=mapRow(payload.new);
-    if(!updated.signature_day1 && existing.signature_day1) updated.signature_day1=existing.signature_day1;
-    if(!updated.signature_day2 && existing.signature_day2) updated.signature_day2=existing.signature_day2;
-    if(!updated.signature_day3 && existing.signature_day3) updated.signature_day3=existing.signature_day3;
-    trainees[i]=updated;
-  }
-}
+          const i=trainees.findIndex(t=>t._id===payload.new.id);
+          if(i>=0){
+            const existing=trainees[i];
+            const updated=mapRow(payload.new);
+            if(!updated.signature_day1 && existing.signature_day1) updated.signature_day1=existing.signature_day1;
+            if(!updated.signature_day2 && existing.signature_day2) updated.signature_day2=existing.signature_day2;
+            if(!updated.signature_day3 && existing.signature_day3) updated.signature_day3=existing.signature_day3;
+            trainees[i]=updated;
+          }
+        }
         else if(payload.eventType==='DELETE'){ trainees=trainees.filter(t=>t._id!==payload.old.id); }
         renderTable();
       }
-    ).subscribe();
+    )
+    .subscribe((status)=>{
+      if(status === 'SUBSCRIBED'){
+        stopPolling(); // Realtime ใช้งานได้ ไม่ต้อง poll
+      } else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+        startPolling(); // Realtime ใช้ไม่ได้ เปิด polling แทน
+      }
+    });
+  // กรณี subscribe ไม่ตอบกลับภายใน 5 วินาที ให้เริ่ม polling ทันที
+  setTimeout(()=>{ if(!_pollInterval) startPolling(); }, 5000);
 }
 
 // ===== EXCEL IMPORT =====
-document.getElementById("excelFile").addEventListener("change", handleExcel);
-document.getElementById("search").addEventListener("input", renderTable);
+// ใช้ DOMContentLoaded เพื่อให้แน่ใจว่า element พร้อมแล้วบน Safari/iPad
+document.addEventListener("DOMContentLoaded", function(){
+  const excelFile = document.getElementById("excelFile");
+  const searchEl = document.getElementById("search");
+  if(excelFile) excelFile.addEventListener("change", handleExcel);
+  if(searchEl) searchEl.addEventListener("input", renderTable);
+});
 
 function normalizeKey(k){ return String(k||'').trim().replace(/\s+/g,' ').toLowerCase(); }
 function getVal(row,key){ const f=Object.keys(row).find(c=>normalizeKey(c)===normalizeKey(key)); return f!==undefined?row[f]:''; }
@@ -1387,8 +1426,24 @@ async function deleteTrainee(){
 }
 // ===== SESSION CHECK =====
 let sessionLoaded = false;
+let _authInitDone = false;
+
+// แสดง loading overlay ขณะรอ session
+(function showInitLoader(){
+  const el = document.getElementById("loginPage");
+  if(el) el.innerHTML += '<div id="initLoader" style="position:absolute;inset:0;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;border-radius:0;"><div style="color:white;font-size:14px;font-weight:700;">⏳ กำลังตรวจสอบ session...</div></div>';
+})();
+
+function hideInitLoader(){
+  const el = document.getElementById("initLoader");
+  if(el) el.remove();
+}
 
 sb.auth.onAuthStateChange(async(event, session)=>{
+  if(!_authInitDone){
+    _authInitDone = true;
+    hideInitLoader();
+  }
   if((event==="SIGNED_IN" || event==="INITIAL_SESSION") && session && !sessionLoaded){
     sessionLoaded = true;
     currentUser = session.user;
@@ -1401,14 +1456,21 @@ sb.auth.onAuthStateChange(async(event, session)=>{
   }
 });
 
-window.addEventListener("load", async()=>{
-  const { data } = await sb.auth.getSession();
-  if(data.session && !sessionLoaded){
-    sessionLoaded = true;
-    currentUser = data.session.user;
-    await loadProfile();
+// Fallback: ถ้า onAuthStateChange ไม่ fire ภายใน 3 วินาที (Safari บางรุ่น)
+setTimeout(async()=>{
+  if(!_authInitDone){
+    _authInitDone = true;
+    hideInitLoader();
+    try {
+      const { data } = await sb.auth.getSession();
+      if(data.session && !sessionLoaded){
+        sessionLoaded = true;
+        currentUser = data.session.user;
+        await loadProfile();
+      }
+    } catch(e){ console.warn("session fallback error:", e); }
   }
-});
+}, 3000);
 </script>
 </body>
 </html>
