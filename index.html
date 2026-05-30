@@ -137,6 +137,7 @@ tr:hover{background:#f8fafc;}
   .summary-cards{grid-template-columns:repeat(3,minmax(0,1fr));}
   .summary-card-pay{grid-row:auto;grid-column:auto;}
   table{min-width:900px;}
+  .summary-toolbar-row{grid-column:1 / -1 !important;}
 }
 
 @media (max-width:768px){
@@ -182,7 +183,7 @@ tr:hover{background:#f8fafc;}
     <div class="login-title">ระบบลงทะเบียนอบรม</div>
     <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์</div>
     <div class="login-field"><label>อีเมล</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
-    <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()"></div>
     <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
     <div class="login-err" id="loginErr"></div>
     <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
@@ -257,10 +258,10 @@ tr:hover{background:#f8fafc;}
   <div class="summary-card c3"><h3>สรุปการชำระ</h3><p id="s3">0 คน</p></div>
   <div class="summary-card-pay"><h3 style="margin-bottom:8px;">วิธีชำระ</h3><div id="s3t" class="summary-list"></div></div>
 
-  <div style="grid-column:1/6;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:2px;">
+  <div class="summary-toolbar-row" style="grid-column:1/6;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:2px;">
     <input type="text" id="search" class="search" placeholder="ค้นหา ลำดับ / ชื่อ / อปท.">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="document.getElementById('excelFile').click()">📁 Import Excel</button>
+      <label for="excelFile" class="btn btn-primary" style="cursor:pointer;">📁 Import Excel</label>
       <button class="btn btn-green" onclick="exportExcel()">📤 Export Excel</button>
       <button class="btn" style="background:#7c3aed;color:white;" onclick="openAddTraineeModal()">➕ เพิ่มรายชื่อ</button>
       <button class="btn" style="background:#dc2626;color:white;" onclick="deleteTrainee()">🗑️ ลบรายชื่อ</button>
@@ -643,7 +644,19 @@ function exportExcel(){
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.json_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb,ws,"รายชื่อ");
-  XLSX.writeFile(wb,(currentCourse?.title||"รายชื่อ")+"_export.xlsx");
+  // ใช้ Blob แทน writeFile เพื่อรองรับ Safari/iPad
+  try {
+    const wbout = XLSX.write(wb, { bookType:'xlsx', type:'array' });
+    const blob = new Blob([wbout], { type:'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const fileName = (currentCourse?.title||"รายชื่อ")+"_export.xlsx";
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName; a.style.display='none';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  } catch(e) {
+    XLSX.writeFile(wb,(currentCourse?.title||"รายชื่อ")+"_export.xlsx");
+  }
 }
 
 // ===== RENDER TABLE =====
@@ -1003,14 +1016,21 @@ const _viewDrawing={};
 
 function initViewSigCanvas(d){
   const canvas=document.getElementById('sigCanvas_'+d); if(!canvas) return;
+
+  // คำนวณขนาด canvas จริงตาม devicePixelRatio เพื่อให้ลายเซ็นตรงตำแหน่งบน iPad
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+
   const ctx=canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
   ctx.strokeStyle='#1e293b'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round';
   let drawing=false, lx=0, ly=0;
   function getPos(e){
     const r=canvas.getBoundingClientRect();
-    const sx=canvas.width/r.width, sy=canvas.height/r.height;
-    if(e.touches) return {x:(e.touches[0].clientX-r.left)*sx, y:(e.touches[0].clientY-r.top)*sy};
-    return {x:(e.clientX-r.left)*sx, y:(e.clientY-r.top)*sy};
+    if(e.touches) return {x:(e.touches[0].clientX-r.left), y:(e.touches[0].clientY-r.top)};
+    return {x:(e.clientX-r.left), y:(e.clientY-r.top)};
   }
   canvas.addEventListener('mousedown',e=>{drawing=true;const p=getPos(e);lx=p.x;ly=p.y;});
   canvas.addEventListener('mousemove',e=>{if(!drawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;});
@@ -1191,14 +1211,21 @@ if(currentDay===1){
 let isDrawing=false, lastX=0, lastY=0;
 function initSignatureCanvas(){
   const canvas=document.getElementById("signatureCanvas"); if(!canvas) return;
+
+  // คำนวณขนาด canvas จริงตาม devicePixelRatio เพื่อให้ลายเซ็นตรงตำแหน่งบน iPad
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+
   const ctx=canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
   ctx.strokeStyle="#1e293b"; ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round";
 
   function getPos(e){
     const r=canvas.getBoundingClientRect();
-    const scaleX=canvas.width/r.width, scaleY=canvas.height/r.height;
-    if(e.touches){ return {x:(e.touches[0].clientX-r.left)*scaleX, y:(e.touches[0].clientY-r.top)*scaleY}; }
-    return {x:(e.clientX-r.left)*scaleX, y:(e.clientY-r.top)*scaleY};
+    if(e.touches){ return {x:(e.touches[0].clientX-r.left), y:(e.touches[0].clientY-r.top)}; }
+    return {x:(e.clientX-r.left), y:(e.clientY-r.top)};
   }
   canvas.addEventListener("mousedown",e=>{isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;});
   canvas.addEventListener("mousemove",e=>{if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;});
@@ -1208,7 +1235,11 @@ function initSignatureCanvas(){
   canvas.addEventListener("touchmove",e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;},{passive:false});
   canvas.addEventListener("touchend",()=>isDrawing=false);
 }
-function clearSignature(){ const c=document.getElementById("signatureCanvas"); if(c) c.getContext("2d").clearRect(0,0,c.width,c.height); }
+function clearSignature(){
+  const c=document.getElementById("signatureCanvas"); if(!c) return;
+  const ctx=c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+}
 function isCanvasBlank(canvas){ const ctx=canvas.getContext("2d"); const d=ctx.getImageData(0,0,canvas.width,canvas.height).data; return !d.some(v=>v!==0); }
 
 async function cancelRegistration(day){
