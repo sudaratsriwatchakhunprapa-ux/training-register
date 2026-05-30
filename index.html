@@ -1354,6 +1354,14 @@ async function deleteTrainee(){
     alert("✅ ลบเรียบร้อย");
   }
 }
+// ===== SESSION CHECK =====
+window.addEventListener("load", async()=>{
+  const { data } = await sb.auth.getSession();
+  if(data.session && !currentUser){
+    currentUser = data.session.user;
+    await loadProfile();
+  }
+});
 </script>
 </body>
 </html>
