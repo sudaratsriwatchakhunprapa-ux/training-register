@@ -2,175 +2,643 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ระบบลงทะเบียนอบรม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
-body{background:#eef2ff;color:#0f172a;font-size:14px;}
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM — Training Register
+   Aesthetic: Clean Government-Grade Professional
+   Primary: iPad / Mobile-first
+═══════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Noto+Serif+Thai:wght@600;700&display=swap');
 
-/* LOGIN */
-#loginPage{position:fixed;inset:0;background:linear-gradient(135deg,#0f766e,#134e4a,#0c4a6e);display:flex;align-items:center;justify-content:center;z-index:9999;}
-.login-card{background:white;border-radius:24px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.3);}
-.login-logo{font-size:40px;text-align:center;margin-bottom:8px;}
-.login-title{text-align:center;font-size:22px;font-weight:800;color:#0f766e;margin-bottom:4px;}
-.login-sub{text-align:center;font-size:12px;color:#64748b;margin-bottom:28px;}
-.login-field{margin-bottom:16px;}
-.login-field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;}
-.login-field input{width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;font-size:14px;transition:border-color 0.2s;outline:none;}
-.login-field input:focus{border-color:#0f766e;}
-.login-btn{width:100%;padding:14px;background:#0f766e;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;}
-.login-btn:hover{background:#115e59;}
-.login-err{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:10px;font-size:12px;margin-top:12px;display:none;}
-.login-spinner{display:none;text-align:center;margin-top:12px;color:#0f766e;font-size:13px;}
+:root {
+  /* Brand */
+  --c-primary:    #0d6e64;
+  --c-primary-dk: #094e46;
+  --c-primary-lt: #e8f5f3;
+  --c-primary-md: #b2dbd6;
+  --c-accent:     #f59e0b;
+  --c-accent-dk:  #d97706;
+  --c-accent-lt:  #fef3c7;
 
-/* COURSE SELECTOR PAGE */
-#coursePage{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0f766e,#134e4a);z-index:8888;overflow:auto;padding:30px 20px;}
-.course-selector{max-width:700px;margin:0 auto;}
-.course-selector h2{color:white;font-size:22px;font-weight:800;margin-bottom:6px;}
-.course-selector p{color:rgba(255,255,255,0.7);font-size:13px;margin-bottom:24px;}
-.course-list{display:grid;gap:12px;margin-bottom:20px;}
-.course-item{background:white;border-radius:16px;padding:18px 20px;cursor:pointer;transition:all 0.2s;border:3px solid transparent;display:flex;align-items:center;justify-content:space-between;}
-.course-item:hover{border-color:#0f766e;box-shadow:0 8px 20px rgba(0,0,0,0.15);}
-.course-item-info h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px;}
-.course-item-info p{font-size:12px;color:#64748b;}
-.course-item-count{background:#f0fdfa;color:#0f766e;border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;white-space:nowrap;}
-.new-course-form{background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;border:2px dashed rgba(255,255,255,0.4);}
-.new-course-form h3{color:white;font-size:14px;font-weight:700;margin-bottom:14px;}
-.nc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.nc-input{padding:10px 12px;border-radius:10px;border:none;font-size:13px;width:100%;}
-.nc-btn{width:100%;padding:12px;background:#f59e0b;color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;}
-.nc-btn:hover{background:#d97706;}
+  /* Neutrals */
+  --c-bg:         #f0f4f3;
+  --c-surface:    #ffffff;
+  --c-surface-2:  #f7fafa;
+  --c-border:     #dce8e6;
+  --c-border-2:   #c4d9d6;
+  --c-text:       #0d1f1d;
+  --c-text-2:     #3d5754;
+  --c-muted:      #7a9c98;
 
-/* TOPBAR */
-.topbar{background:#0f766e;color:white;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.12);border-radius:0 0 18px 18px;}
-.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.user-badge{background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
-.role-badge{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;}
-.role-superadmin{background:#fef3c7;color:#92400e;}
-.role-staff{background:#dbeafe;color:#1e40af;}
-.topbar-btn{background:rgba(255,255,255,0.2);border:none;color:white;padding:7px 12px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;}
-.topbar-btn:hover{background:rgba(255,255,255,0.3);}
-.course-badge{background:rgba(255,255,255,0.15);border-radius:10px;padding:5px 12px;font-size:11px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* Status */
+  --c-success:    #059669;
+  --c-success-lt: #d1fae5;
+  --c-danger:     #dc2626;
+  --c-danger-lt:  #fee2e2;
+  --c-blue:       #2563eb;
+  --c-blue-lt:    #dbeafe;
+  --c-purple:     #7c3aed;
+  --c-purple-lt:  #ede9fe;
+  --c-orange:     #ea580c;
 
-/* MANAGE USERS */
-.manage-bar{background:#fff;border-radius:16px;padding:12px 18px;margin:12px 0;box-shadow:0 4px 12px rgba(15,118,110,0.08);display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.manage-bar.visible{display:flex;}
-.user-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;padding:20px;z-index:999;}
-.user-modal.open{display:flex;}
-.user-modal-content{background:white;width:100%;max-width:600px;border-radius:20px;padding:24px;max-height:85vh;overflow:auto;}
-.user-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;font-size:13px;}
-.user-item-info{display:flex;flex-direction:column;gap:2px;}
-.user-item-email{font-weight:600;}
-.user-item-name{font-size:11px;color:#64748b;}
-.user-item-actions{display:flex;gap:8px;align-items:center;}
-.select-role{padding:4px 8px;border:1px solid #cbd5e1;border-radius:8px;font-size:12px;}
-.del-btn{background:#fee2e2;color:#991b1b;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;}
-.add-user-form{background:#f8fafc;border-radius:14px;padding:16px;margin-bottom:16px;}
-.add-user-form h4{font-size:13px;font-weight:700;color:#0f766e;margin-bottom:12px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.form-row input,.form-row select{padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;width:100%;}
+  /* Radius */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 28px;
 
-/* MAIN */
-.container{max-width:1280px;margin:0 auto;padding:14px;}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
-.search{flex:1;min-width:200px;max-width:340px;padding:10px 12px;border-radius:12px;border:1px solid #cbd5e1;font-size:14px;background:white;}
-.btn{border:none;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;}
-.btn-primary{background:#0f766e;color:white;}
-.btn-primary:hover{background:#115e59;}
-.btn-outline{background:white;color:#0f766e;border:2px solid #0f766e;}
-.btn-green{background:#16a34a;color:white;}
-.btn-green:hover{background:#15803d;}
-.table-wrap{overflow:auto;background:white;border-radius:20px;box-shadow:0 8px 20px rgba(15,118,110,0.08);padding:12px;}
-table{width:100%;min-width:1200px;border-collapse:collapse;table-layout:fixed;}
-th{background:#0f766e;color:white;padding:5px 6px;text-align:left;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-td{padding:4px 6px;border-bottom:1px solid #e2e8f0;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-/* กำหนดความกว้างแต่ละคอลัมน์ */
-table th:nth-child(1),table td:nth-child(1){width:45px;}   /* ลำดับ */
-table th:nth-child(2),table td:nth-child(2){width:150px;}  /* ชื่อ */
-table th:nth-child(3),table td:nth-child(3){width:110px;}  /* อปท. */
-table th:nth-child(4),table td:nth-child(4){width:110px;}  /* ตำแหน่ง */
-table th:nth-child(5),table td:nth-child(5){width:90px;}   /* โทร */
-table th:nth-child(6),table td:nth-child(6){width:65px;}   /* ตำบล */
-table th:nth-child(7),table td:nth-child(7){width:65px;}   /* จังหวัด */
-table th:nth-child(8),table td:nth-child(8){width:40px;}   /* เสื้อ */
-table th:nth-child(9),table td:nth-child(9){width:75px;}   /* ประเภทเบิก */
-table th:nth-child(10),table td:nth-child(10){width:65px;} /* วิธีชำระ */
-table th:nth-child(11),table td:nth-child(11){width:80px;} /* เจ้าหน้าที่ */
-table th:nth-child(12),table td:nth-child(12){width:55px;} /* รับอุปกรณ์ */
-table th:nth-child(13),table td:nth-child(13){width:65px;} /* วันที่ 1 */
-table th:nth-child(14),table td:nth-child(14){width:65px;} /* วันที่ 2 */
-table th:nth-child(15),table td:nth-child(15){width:65px;} /* วันที่ 3 */
-tr:hover{background:#f8fafc;}
-.status{padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;}
-.day-cell{cursor:pointer;}
-.day-cell:hover{background:#eef2ff;}
-.day-cell.done{cursor:default;}
-.success{background:#dcfce7;color:#166534;}
-.pending{background:#fee2e2;color:#991b1b;}
+  /* Shadow */
+  --sh-xs: 0 1px 4px rgba(13,110,100,.06);
+  --sh-sm: 0 2px 10px rgba(13,110,100,.08);
+  --sh-md: 0 6px 24px rgba(13,110,100,.11);
+  --sh-lg: 0 16px 48px rgba(13,110,100,.15);
+  --sh-xl: 0 28px 72px rgba(0,0,0,.18);
 
-/* SUMMARY CARDS */
-.summary-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) 160px;gap:10px;margin-bottom:12px;align-items:start;}
-.summary-card-pay{background:white;border-radius:16px;border:2px solid #6d28d9;box-shadow:0 4px 12px rgba(15,118,110,0.06);padding:12px;grid-row:1/3;grid-column:6;}
-.summary-card{background:white;border-radius:16px;border:2px solid transparent;box-shadow:0 4px 12px rgba(15,118,110,0.06);padding:12px;}
-.summary-card.c0{border-color:#0f766e;}
-.summary-card.c1{border-color:#2563eb;}
-.summary-card.c2{border-color:#d97706;}
-.summary-card.c3{border-color:#16a34a;}
-.summary-card h3{margin:0 0 6px;font-size:12px;}
-.summary-card p{margin:0 0 6px;font-size:13px;font-weight:700;}
-.summary-list{display:grid;gap:3px;color:#334155;font-size:11px;}
-
-/* MODAL */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;padding:20px;z-index:999;}
-.modal-content{background:white;width:100%;max-width:860px;border-radius:20px;padding:18px;max-height:92vh;overflow:auto;}
-.course-header-box{background:white;border-radius:18px;box-shadow:0 4px 16px rgba(15,118,110,0.08);padding:14px 18px;margin-bottom:12px;}
-.course-header-box h2{font-size:16px;margin-bottom:10px;color:#0f766e;}
-.course-header-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
-.chi{padding:9px 12px;border-radius:10px;border:1px solid #cbd5e1;font-size:13px;flex:1;min-width:140px;}
-.realtime-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-/* RESPONSIVE */
-@media (max-width:1024px){
-  /* iPad */
-  .summary-cards{grid-template-columns:repeat(3,minmax(0,1fr));}
-  .summary-card-pay{grid-row:auto;grid-column:auto;}
-  table{min-width:900px;}
-  .summary-toolbar-row{grid-column:1 / -1 !important;}
+  /* Typography */
+  --font-body:    'Noto Sans Thai', sans-serif;
+  --font-display: 'Noto Serif Thai', serif;
 }
 
-@media (max-width:768px){
-  /* มือถือ */
-  .summary-cards{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .summary-card-pay{grid-row:auto;grid-column:auto;}
+/* ─── RESET ─── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--c-border-2); border-radius:99px; }
 
-  .topbar{flex-direction:column;align-items:flex-start;gap:8px;}
-  .topbar-right{flex-wrap:wrap;gap:6px;}
-  .course-badge{max-width:100%;}
+/* ═══════════════════════════════
+   LOGIN PAGE
+═══════════════════════════════ */
+#loginPage {
+  position:fixed; inset:0; z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  background: #071a18;
+}
+.login-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(13,110,100,.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(9,78,70,.45) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 60% 20%, rgba(245,158,11,.12) 0%, transparent 50%);
+}
+/* Animated grid lines */
+.login-grid {
+  position:absolute; inset:0; opacity:.07;
+  background-image:
+    linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.login-orb {
+  position:absolute; border-radius:50%;
+  filter:blur(60px); pointer-events:none;
+}
+.login-orb-1 { width:400px; height:400px; background:rgba(13,110,100,.3); top:-100px; right:-100px; animation:orbFloat 8s ease-in-out infinite; }
+.login-orb-2 { width:300px; height:300px; background:rgba(245,158,11,.15); bottom:-80px; left:-60px; animation:orbFloat 10s ease-in-out infinite reverse; }
+@keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(20px,-20px) scale(1.05);} }
 
-  .container{padding:8px;}
+.login-wrap {
+  position:relative; z-index:2;
+  width:100%; max-width:420px; padding:20px;
+  animation: loginReveal .6s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes loginReveal {
+  from { opacity:0; transform:translateY(32px) scale(.97); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+.login-card {
+  background: rgba(255,255,255,.97);
+  border-radius: var(--r-xl);
+  padding: 44px 40px 40px;
+  box-shadow: var(--sh-xl), 0 0 0 1px rgba(255,255,255,.1);
+  backdrop-filter: blur(20px);
+}
+.login-brand {
+  text-align:center; margin-bottom:32px;
+}
+.login-logo-wrap {
+  width:72px; height:72px; border-radius:22px;
+  background: linear-gradient(145deg, var(--c-primary), var(--c-primary-dk));
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 18px;
+  box-shadow: 0 10px 30px rgba(13,110,100,.4), 0 0 0 8px rgba(13,110,100,.08);
+  font-size:30px;
+}
+.login-title {
+  font-family: var(--font-display);
+  font-size:20px; font-weight:700;
+  color: var(--c-primary-dk);
+  margin-bottom:6px;
+}
+.login-sub { font-size:13px; color:var(--c-muted); }
 
-  .modal-content{padding:12px;border-radius:14px;}
+.login-field { margin-bottom:18px; }
+.login-field label {
+  display:block; font-size:11px; font-weight:700;
+  color:var(--c-text-2); letter-spacing:.8px;
+  text-transform:uppercase; margin-bottom:8px;
+}
+.login-field input {
+  width:100%; padding:14px 16px;
+  border:2px solid var(--c-border);
+  border-radius:var(--r-sm);
+  font-size:15px; font-family:var(--font-body);
+  background:var(--c-surface-2); color:var(--c-text);
+  outline:none; transition:all .2s;
+}
+.login-field input:focus {
+  border-color:var(--c-primary);
+  background:white;
+  box-shadow:0 0 0 4px rgba(13,110,100,.1);
+}
+.login-btn {
+  width:100%; padding:16px;
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-dk) 100%);
+  color:white; border:none; border-radius:var(--r-sm);
+  font-size:15px; font-weight:700; font-family:var(--font-body);
+  cursor:pointer; margin-top:4px;
+  box-shadow: 0 4px 18px rgba(13,110,100,.38);
+  transition: all .2s;
+  position:relative; overflow:hidden;
+}
+.login-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+  pointer-events:none;
+}
+.login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(13,110,100,.44); }
+.login-btn:active { transform:translateY(0); }
+.login-err {
+  background:var(--c-danger-lt); color:#991b1b;
+  border:1px solid #fca5a5; border-radius:var(--r-xs);
+  padding:12px 14px; font-size:13px; margin-top:14px; display:none;
+  animation:shake .35s ease;
+}
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+.login-spinner { display:none; text-align:center; margin-top:14px; color:var(--c-primary); font-size:13px; font-weight:600; }
 
-  .form-row{grid-template-columns:1fr;}
+/* ═══════════════════════════════
+   COURSE PAGE
+═══════════════════════════════ */
+#coursePage {
+  display:none; position:fixed; inset:0; z-index:8888;
+  overflow:auto;
+  background: #071a18;
+}
+.cp-bg {
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 25%, rgba(13,110,100,.5) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 70% at 85% 75%, rgba(9,78,70,.4) 0%, transparent 55%);
+  pointer-events:none;
+}
+.cp-grid {
+  position:fixed; inset:0; opacity:.05; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+  background-size:48px 48px;
+}
+.course-page-inner {
+  position:relative; z-index:1;
+  max-width:680px; margin:0 auto;
+  padding:clamp(20px,4vw,40px) clamp(16px,4vw,24px) 48px;
+}
+.course-page-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:32px;
+}
+.cp-logo { display:flex; align-items:center; gap:14px; }
+.cp-logo-icon {
+  width:46px; height:46px; border-radius:14px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; backdrop-filter:blur(12px);
+}
+.cp-logo-text h1 { font-size:16px; font-weight:700; color:white; font-family:var(--font-display); }
+.cp-logo-text p  { font-size:11px; color:rgba(255,255,255,.55); margin-top:2px; }
+.cp-logout {
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  color:white; padding:9px 18px; border-radius:var(--r-sm);
+  font-size:13px; font-weight:600; font-family:var(--font-body);
+  cursor:pointer; backdrop-filter:blur(8px);
+  transition:background .2s, transform .15s;
+}
+.cp-logout:hover { background:rgba(255,255,255,.2); transform:translateY(-1px); }
 
-  .nc-grid{grid-template-columns:1fr;}
-
-  table{min-width:800px;}
-
-  .btn{padding:8px 10px;font-size:12px;}
-
-  /* ปุ่มใน toolbar */
-  div[style*="display:flex;gap:8px"]{flex-wrap:wrap;}
+.cp-section-label {
+  font-size:10px; font-weight:700; color:rgba(255,255,255,.45);
+  letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;
+}
+.course-list { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+.course-item {
+  background:rgba(255,255,255,.95);
+  border-radius:var(--r-md); padding:18px 20px;
+  cursor:pointer; border:2px solid transparent;
+  display:flex; align-items:center; justify-content:space-between;
+  transition:all .2s; box-shadow:var(--sh-sm);
+}
+.course-item:hover, .course-item:active {
+  border-color:var(--c-primary); background:white;
+  box-shadow:var(--sh-md); transform:translateY(-2px);
+}
+.course-item-info h3 { font-size:15px; font-weight:700; color:var(--c-text); margin-bottom:3px; }
+.course-item-info p  { font-size:12px; color:var(--c-muted); }
+.course-item-count {
+  background:var(--c-primary-lt); color:var(--c-primary);
+  border-radius:var(--r-xs); padding:5px 12px;
+  font-size:12px; font-weight:700; white-space:nowrap;
 }
 
-@media (max-width:480px){
-  /* มือถือเล็ก */
-  .summary-cards{grid-template-columns:1fr 1fr;}
-  .topbar{font-size:13px;}
-  .search{max-width:100%;width:100%;}
-  table{min-width:700px;}
+.new-course-card {
+  background:rgba(255,255,255,.08);
+  border:1.5px dashed rgba(255,255,255,.25);
+  border-radius:var(--r-md); padding:22px;
+  backdrop-filter:blur(10px);
+}
+.new-course-card h3 { color:white; font-size:14px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.nc-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.nc-input {
+  padding:12px 14px; border-radius:var(--r-sm);
+  border:1.5px solid rgba(255,255,255,.15);
+  font-size:13px; font-family:var(--font-body); width:100%;
+  background:rgba(255,255,255,.9); color:var(--c-text);
+  outline:none; transition:all .2s;
+}
+.nc-input:focus { border-color:white; background:white; }
+.nc-btn {
+  width:100%; padding:13px;
+  background:linear-gradient(135deg, var(--c-accent), var(--c-accent-dk));
+  color:white; border:none; border-radius:var(--r-sm);
+  font-size:14px; font-weight:700; font-family:var(--font-body); cursor:pointer;
+  box-shadow:0 4px 14px rgba(245,158,11,.35);
+  transition:all .15s;
+}
+.nc-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,158,11,.4); }
+
+/* ═══════════════════════════════
+   TOPBAR
+═══════════════════════════════ */
+.topbar {
+  background:var(--c-primary-dk);
+  color:white; padding:0 20px; height:58px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+  box-shadow: 0 2px 0 rgba(255,255,255,.06), 0 4px 20px rgba(0,0,0,.25);
+}
+.topbar-left { display:flex; align-items:center; gap:12px; min-width:0; flex:1; }
+.topbar-logo { font-size:20px; flex-shrink:0; }
+.topbar-title {
+  font-family:var(--font-display);
+  font-size:15px; font-weight:700; white-space:nowrap;
+  color:rgba(255,255,255,.95);
+}
+.topbar-divider { width:1px; height:18px; background:rgba(255,255,255,.18); flex-shrink:0; }
+.course-badge {
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--r-xs); padding:5px 12px;
+  font-size:12px; font-weight:500; max-width:200px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.realtime-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:#34d399; flex-shrink:0;
+  animation:pulse 2.5s infinite;
+  box-shadow: 0 0 0 0 rgba(52,211,153,.4);
+}
+@keyframes pulse {
+  0%   { box-shadow:0 0 0 0 rgba(52,211,153,.5); }
+  70%  { box-shadow:0 0 0 5px rgba(52,211,153,0); }
+  100% { box-shadow:0 0 0 0 rgba(52,211,153,0); }
+}
+.topbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.user-badge {
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--r-xs); padding:5px 12px;
+  font-size:12px; font-weight:600;
+  display:flex; align-items:center; gap:6px;
+}
+.role-badge {
+  padding:2px 8px; border-radius:99px;
+  font-size:10px; font-weight:700; letter-spacing:.3px;
+}
+.role-superadmin { background:#fef3c7; color:#92400e; }
+.role-staff       { background:#dbeafe; color:#1e40af; }
+.topbar-btn {
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
+  color:white; padding:7px 14px; border-radius:var(--r-xs);
+  cursor:pointer; font-size:12px; font-weight:600; font-family:var(--font-body);
+  transition:all .15s; white-space:nowrap;
+}
+.topbar-btn:hover { background:rgba(255,255,255,.2); transform:translateY(-1px); }
+.topbar-btn.danger { background:rgba(220,38,38,.18); border-color:rgba(220,38,38,.3); }
+.topbar-btn.danger:hover { background:rgba(220,38,38,.32); }
+
+/* ═══════════════════════════════
+   MAIN CONTAINER
+═══════════════════════════════ */
+.container { max-width:1440px; margin:0 auto; padding:18px 20px; }
+
+/* ─── MANAGE BAR ─── */
+.manage-bar {
+  background:linear-gradient(135deg,#fffbf0,#fef9e7);
+  border:1px solid #fde68a; border-radius:var(--r-md);
+  padding:12px 18px; margin-bottom:14px;
+  box-shadow:var(--sh-xs);
+  display:none; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+.manage-bar.visible { display:flex; }
+
+/* ─── COURSE HEADER BOX ─── */
+.course-header-box {
+  background:var(--c-surface);
+  border-radius:var(--r-md); padding:18px 20px;
+  margin-bottom:14px;
+  box-shadow:var(--sh-xs); border:1px solid var(--c-border);
+}
+.course-header-box h2 {
+  font-size:11px; font-weight:700; color:var(--c-primary);
+  letter-spacing:.8px; text-transform:uppercase;
+  margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.course-header-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.chi {
+  padding:10px 14px; border-radius:var(--r-xs);
+  border:1.5px solid var(--c-border); font-size:13px; font-family:var(--font-body);
+  flex:1; min-width:140px; color:var(--c-text); background:var(--c-surface-2);
+  transition:all .2s; outline:none;
+}
+.chi:focus { border-color:var(--c-primary); background:white; box-shadow:0 0 0 3px rgba(13,110,100,.08); }
+.course-info-display {
+  margin-top:10px; padding:10px 14px;
+  background:var(--c-primary-lt); border-radius:var(--r-xs);
+  font-size:13px; color:var(--c-primary-dk); font-weight:500;
+  border-left:3px solid var(--c-primary);
+}
+
+/* ═══════════════════════════════
+   SUMMARY CARDS
+═══════════════════════════════ */
+.summary-cards {
+  display:grid;
+  grid-template-columns:repeat(5,1fr) 160px;
+  gap:10px; margin-bottom:12px; align-items:start;
+}
+.summary-card {
+  background:var(--c-surface);
+  border-radius:var(--r-md);
+  border:1px solid var(--c-border);
+  box-shadow:var(--sh-xs); padding:16px 18px;
+  transition:all .2s; position:relative; overflow:hidden;
+}
+.summary-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:3px; border-radius:var(--r-md) var(--r-md) 0 0;
+}
+.summary-card:hover { box-shadow:var(--sh-md); transform:translateY(-1px); }
+.summary-card h3 {
+  font-size:10px; font-weight:700; color:var(--c-muted);
+  text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;
+}
+.summary-card p {
+  font-size:26px; font-weight:800; font-family:var(--font-display);
+  line-height:1;
+}
+.summary-card .s-label { font-size:11px; color:var(--c-muted); margin-top:4px; }
+
+.summary-card.c0::before { background:var(--c-primary); }     .summary-card.c0 p{color:var(--c-primary);}
+.summary-card.c1::before { background:var(--c-blue); }         .summary-card.c1 p{color:var(--c-blue);}
+.summary-card.c2::before { background:var(--c-accent-dk); }    .summary-card.c2 p{color:var(--c-accent-dk);}
+.summary-card.c3::before { background:var(--c-success); }      .summary-card.c3 p{color:var(--c-success);}
+.summary-card.c4::before { background:var(--c-purple); }       .summary-card.c4 p{color:var(--c-purple);}
+
+.summary-card-pay {
+  background:var(--c-surface); border-radius:var(--r-md);
+  border:1px solid var(--c-border); box-shadow:var(--sh-xs);
+  padding:16px 18px; grid-row:1/3; grid-column:6;
+  position:relative; overflow:hidden;
+}
+.summary-card-pay::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:3px; background:var(--c-purple);
+}
+.summary-card-pay h3 { font-size:10px; font-weight:700; color:var(--c-purple); text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px; }
+.summary-list { display:grid; gap:5px; font-size:12px; }
+.summary-list-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:5px 8px; background:var(--c-surface-2); border-radius:6px;
+  color:var(--c-text-2);
+}
+
+/* ─── TOOLBAR ROW ─── */
+.summary-toolbar-row {
+  grid-column:1/6;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; flex-wrap:wrap; margin-top:2px;
+}
+.search {
+  flex:1; min-width:200px; max-width:300px;
+  padding:10px 16px; border-radius:var(--r-xs);
+  border:1.5px solid var(--c-border);
+  font-size:13px; font-family:var(--font-body);
+  background:var(--c-surface); outline:none;
+  transition:all .2s;
+}
+.search:focus { border-color:var(--c-primary); box-shadow:0 0 0 3px rgba(13,110,100,.08); }
+
+/* ═══════════════════════════════
+   BUTTONS
+═══════════════════════════════ */
+.btn {
+  border:none; padding:10px 16px; border-radius:var(--r-xs);
+  cursor:pointer; font-weight:700; font-size:12px; font-family:var(--font-body);
+  display:inline-flex; align-items:center; gap:5px;
+  transition:all .15s; white-space:nowrap;
+}
+.btn:hover  { transform:translateY(-1px); filter:brightness(1.06); }
+.btn:active { transform:translateY(0);    filter:brightness(.94); }
+.btn-primary { background:var(--c-primary);   color:white; box-shadow:0 2px 8px rgba(13,110,100,.25); }
+.btn-outline  { background:white; color:var(--c-primary); border:2px solid var(--c-primary); }
+.btn-green    { background:var(--c-success);   color:white; box-shadow:0 2px 8px rgba(5,150,105,.25); }
+.btn-purple   { background:var(--c-purple);    color:white; box-shadow:0 2px 8px rgba(124,58,237,.25); }
+.btn-danger   { background:var(--c-danger);    color:white; box-shadow:0 2px 8px rgba(220,38,38,.25); }
+
+/* ═══════════════════════════════
+   TABLE
+═══════════════════════════════ */
+.table-wrap {
+  overflow:auto; background:var(--c-surface);
+  border-radius:var(--r-md);
+  box-shadow:var(--sh-sm);
+  border:1px solid var(--c-border);
+}
+table { width:100%; min-width:1100px; border-collapse:collapse; table-layout:fixed; }
+thead { position:sticky; top:0; z-index:10; }
+th {
+  background:var(--c-primary-dk); color:white;
+  padding:11px 10px; text-align:left;
+  font-size:10px; font-weight:700;
+  letter-spacing:.5px; text-transform:uppercase;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+th:first-child { padding-left:14px; }
+td {
+  padding:10px; border-bottom:1px solid var(--c-border);
+  font-size:12px; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+  color:var(--c-text); transition:background .12s;
+}
+td:first-child { padding-left:14px; }
+tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:var(--c-primary-lt) !important; }
+tbody tr:nth-child(even) td { background:var(--c-surface-2); }
+tbody tr:nth-child(even):hover td { background:var(--c-primary-lt); }
+
+table th:nth-child(1),  table td:nth-child(1)  { width:44px;  text-align:center; }
+table th:nth-child(2),  table td:nth-child(2)  { width:150px; }
+table th:nth-child(3),  table td:nth-child(3)  { width:110px; }
+table th:nth-child(4),  table td:nth-child(4)  { width:110px; }
+table th:nth-child(5),  table td:nth-child(5)  { width:92px;  }
+table th:nth-child(6),  table td:nth-child(6)  { width:66px;  }
+table th:nth-child(7),  table td:nth-child(7)  { width:66px;  }
+table th:nth-child(8),  table td:nth-child(8)  { width:42px;  text-align:center; }
+table th:nth-child(9),  table td:nth-child(9)  { width:76px;  }
+table th:nth-child(10), table td:nth-child(10) { width:66px;  }
+table th:nth-child(11), table td:nth-child(11) { width:80px;  }
+table th:nth-child(12), table td:nth-child(12) { width:56px;  text-align:center; }
+table th:nth-child(13), table td:nth-child(13) { width:66px;  text-align:center; }
+table th:nth-child(14), table td:nth-child(14) { width:66px;  text-align:center; }
+table th:nth-child(15), table td:nth-child(15) { width:66px;  text-align:center; }
+
+.status { padding:3px 9px; border-radius:99px; font-size:10px; font-weight:700; display:inline-block; }
+.success { background:var(--c-success-lt); color:#065f46; }
+.pending  { background:var(--c-danger-lt);  color:#991b1b;  }
+.day-cell { cursor:pointer; transition:background .12s; }
+.day-cell:hover { background:var(--c-primary-lt) !important; }
+.day-cell.done  { cursor:default; }
+
+/* ═══════════════════════════════
+   MODAL
+═══════════════════════════════ */
+.modal {
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  display:none; justify-content:center; align-items:center;
+  padding:16px; z-index:999; backdrop-filter:blur(6px);
+}
+.modal-content {
+  background:white; width:100%; max-width:880px;
+  border-radius:var(--r-xl); padding:28px;
+  max-height:94vh; overflow:auto;
+  box-shadow:var(--sh-xl);
+  animation:modalIn .25s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes modalIn {
+  from { opacity:0; transform:scale(.95) translateY(10px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
+}
+.modal-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:22px; padding-bottom:16px;
+  border-bottom:1px solid var(--c-border);
+}
+.modal-header h2 { font-size:17px; font-weight:700; color:var(--c-primary-dk); font-family:var(--font-display); }
+.modal-close {
+  background:var(--c-surface-2); border:1px solid var(--c-border);
+  color:var(--c-muted); width:36px; height:36px;
+  border-radius:var(--r-xs); cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.modal-close:hover { background:var(--c-border); color:var(--c-text); }
+
+.user-modal { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; justify-content:center; align-items:center; padding:16px; z-index:999; backdrop-filter:blur(6px); }
+.user-modal.open { display:flex; }
+.user-modal-content { background:white; width:100%; max-width:620px; border-radius:var(--r-xl); padding:28px; max-height:90vh; overflow:auto; box-shadow:var(--sh-xl); animation:modalIn .25s cubic-bezier(.16,1,.3,1) both; }
+
+.user-item { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1.5px solid var(--c-border); border-radius:var(--r-sm); margin-bottom:8px; font-size:13px; transition:border-color .2s; }
+.user-item:hover { border-color:var(--c-primary); }
+.user-item-info { display:flex; flex-direction:column; gap:2px; }
+.user-item-email { font-weight:600; color:var(--c-text); }
+.user-item-name  { font-size:11px; color:var(--c-muted); }
+.user-item-actions { display:flex; gap:8px; align-items:center; }
+.select-role { padding:5px 10px; border:1.5px solid var(--c-border); border-radius:8px; font-size:12px; font-family:var(--font-body); outline:none; }
+.select-role:focus { border-color:var(--c-primary); }
+.del-btn { background:var(--c-danger-lt); color:#991b1b; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:700; font-family:var(--font-body); }
+
+.add-user-form { background:var(--c-surface-2); border-radius:var(--r-md); padding:18px; margin-bottom:18px; border:1px solid var(--c-border); }
+.add-user-form h4 { font-size:13px; font-weight:700; color:var(--c-primary); margin-bottom:14px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.form-input, .form-row input, .form-row select {
+  padding:10px 13px; border:1.5px solid var(--c-border); border-radius:var(--r-xs);
+  font-size:13px; width:100%; font-family:var(--font-body);
+  outline:none; background:white; color:var(--c-text); transition:border-color .2s;
+}
+.form-input:focus, .form-row input:focus, .form-row select:focus { border-color:var(--c-primary); }
+
+/* Canvas */
+canvas { touch-action:none; cursor:crosshair; display:block; }
+
+/* ═══════════════════════════════
+   RESPONSIVE — iPad first
+═══════════════════════════════ */
+@media (max-width:1200px) {
+  .summary-cards { grid-template-columns:repeat(3,1fr) 160px; }
+  .summary-card-pay { grid-row:1/3; grid-column:4; }
+  .summary-toolbar-row { grid-column:1/4; }
+}
+@media (max-width:1024px) {
+  .summary-cards { grid-template-columns:repeat(3,1fr); }
+  .summary-card-pay { grid-row:auto; grid-column:auto; }
+  .summary-toolbar-row { grid-column:1 / -1 !important; }
+  .topbar-title { display:none; }
+  table { min-width:900px; }
+}
+@media (max-width:768px) {
+  .summary-cards { grid-template-columns:1fr 1fr; }
+  .summary-card-pay { grid-column:span 2; }
+  .topbar { padding:0 14px; height:54px; }
+  .user-badge span:not(.role-badge) { display:none; }
+  .container { padding:12px 14px; }
+  .course-header-row { flex-direction:column; }
+  .chi { min-width:100%; }
+  .form-row { grid-template-columns:1fr; }
+  .nc-grid { grid-template-columns:1fr; }
+  .btn { padding:9px 12px; font-size:12px; }
+  .search { max-width:100%; }
+  table { min-width:800px; }
+  .login-card { padding:32px 24px 28px; }
+  .new-course-card { padding:16px; }
+  .summary-toolbar-row { flex-direction:column; align-items:stretch; }
+  .summary-toolbar-row > div { display:flex; flex-wrap:wrap; gap:6px; }
+  .summary-toolbar-row .search { max-width:100%; }
+}
+@media (max-width:480px) {
+  .summary-cards { grid-template-columns:1fr 1fr; }
+  .summary-card p { font-size:22px; }
+  .course-page-inner { padding:20px 14px 32px; }
+  table { min-width:700px; }
+  .login-card { padding:28px 18px; }
+  .login-logo-wrap { width:60px; height:60px; font-size:26px; }
+  .login-title { font-size:18px; }
 }
 </style>
 </head>
@@ -178,25 +646,54 @@ tr:hover{background:#f8fafc;}
 
 <!-- LOGIN -->
 <div id="loginPage">
-  <div class="login-card">
-    <div class="login-logo">📋</div>
-    <div class="login-title">ระบบลงทะเบียนอบรม</div>
-    <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์</div>
-    <div class="login-field"><label>อีเมล</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
-    <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()"></div>
-    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
-    <div class="login-err" id="loginErr"></div>
-    <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
+  <div class="login-bg"></div>
+  <div class="login-grid"></div>
+  <div class="login-orb login-orb-1"></div>
+  <div class="login-orb login-orb-2"></div>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-logo-wrap">📋</div>
+        <div class="login-title">ระบบลงทะเบียนอบรม</div>
+        <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์</div>
+      </div>
+      <div class="login-field">
+        <label>อีเมล</label>
+        <input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>รหัสผ่าน</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()" autocomplete="current-password">
+      </div>
+      <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <div class="login-err" id="loginErr"></div>
+      <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
+    </div>
   </div>
 </div>
 
 <!-- COURSE SELECTOR -->
 <div id="coursePage">
-  <div class="course-selector">
-    <h2>📚 เลือกรุ่นอบรม</h2>
-    <p>เลือกรุ่นที่ต้องการหรือสร้างรุ่นใหม่</p>
-    <div class="course-list" id="courseList"><div style="color:rgba(255,255,255,0.7);text-align:center;padding:20px;">⏳ กำลังโหลด...</div></div>
-    <div class="new-course-form">
+  <div class="cp-bg"></div>
+  <div class="cp-grid"></div>
+  <div class="course-page-inner">
+    <div class="course-page-header">
+      <div class="cp-logo">
+        <div class="cp-logo-icon">📋</div>
+        <div class="cp-logo-text">
+          <h1>ระบบลงทะเบียนอบรม</h1>
+          <p>เลือกรุ่นที่ต้องการจัดการ</p>
+        </div>
+      </div>
+      <button class="cp-logout" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+
+    <div class="cp-section-label">รุ่นอบรมทั้งหมด</div>
+    <div class="course-list" id="courseList">
+      <div style="color:rgba(255,255,255,.5);text-align:center;padding:28px;font-size:14px;">⏳ กำลังโหลด...</div>
+    </div>
+
+    <div class="new-course-card">
       <h3>➕ สร้างรุ่นอบรมใหม่</h3>
       <div class="nc-grid">
         <input class="nc-input" id="nc_title" placeholder="ชื่อหลักสูตร / รุ่นที่">
@@ -212,21 +709,23 @@ tr:hover{background:#f8fafc;}
 <!-- MAIN APP -->
 <div id="mainApp" style="display:none;">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px;">
-      📋 ระบบลงทะเบียนอบรม
+    <div class="topbar-left">
+      <span class="topbar-logo">📋</span>
+      <span class="topbar-title">ระบบลงทะเบียนอบรม</span>
+      <div class="topbar-divider"></div>
       <span class="course-badge" id="topbarCourse">-</span>
       <span class="realtime-dot" title="Realtime เชื่อมต่อแล้ว"></span>
     </div>
     <div class="topbar-right">
       <div class="user-badge">👤 <span id="topbarName">-</span> <span class="role-badge" id="topbarRole"></span></div>
       <button class="topbar-btn" onclick="goBackToCourseSelect()">🔄 เปลี่ยนรุ่น</button>
-      <button class="topbar-btn" onclick="doLogout()">ออกจากระบบ</button>
+      <button class="topbar-btn danger" onclick="doLogout()">ออกจากระบบ</button>
     </div>
   </div>
 
   <div class="container">
     <div class="manage-bar" id="manageBar">
-      <span style="font-size:13px;font-weight:700;color:#0f766e;">🔧 Super Admin</span>
+      <span style="font-size:13px;font-weight:700;color:#92400e;">🔧 Super Admin</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-outline" onclick="openUserModal()">👥 จัดการ Staff</button>
       </div>
@@ -234,7 +733,7 @@ tr:hover{background:#f8fafc;}
 
     <!-- Course Header -->
     <div class="course-header-box">
-      <h2>ข้อมูลหลักสูตร</h2>
+      <h2>📁 ข้อมูลหลักสูตร</h2>
       <div class="course-header-row">
         <input class="chi" id="courseTitleInput" placeholder="ชื่อหลักสูตร">
         <input class="chi" type="date" id="startDateInput">
@@ -242,33 +741,36 @@ tr:hover{background:#f8fafc;}
         <input class="chi" id="locationInput" placeholder="สถานที่อบรม">
         <button class="btn btn-primary" onclick="saveCourseHeader()">💾 บันทึก</button>
       </div>
-      <div style="margin-top:10px;font-size:13px;color:#334155;">
+      <div class="course-info-display">
         <strong id="courseTitleDisplay">-</strong> &nbsp;|&nbsp;
         <span id="courseDateDisplay">-</span> &nbsp;|&nbsp;
         <span id="courseLocationDisplay">-</span>
       </div>
     </div>
 
-    <!-- Summary -->
+    <!-- Summary Cards -->
     <div class="summary-cards">
-  <div class="summary-card c0"><h3>ผู้เข้าอบรมทั้งหมด</h3><p id="s0">0 คน</p></div>
-  <div class="summary-card c1"><h3>ลงทะเบียน วันที่ 1</h3><p id="s1">0 คน</p></div>
-  <div class="summary-card c2"><h3>ลงทะเบียน วันที่ 2</h3><p id="s2">0 คน</p></div>
-  <div class="summary-card" style="border-color:#16a34a;"><h3>ลงทะเบียน วันที่ 3</h3><p id="s4">0 คน</p></div>
-  <div class="summary-card c3"><h3>สรุปการชำระ</h3><p id="s3">0 คน</p></div>
-  <div class="summary-card-pay"><h3 style="margin-bottom:8px;">วิธีชำระ</h3><div id="s3t" class="summary-list"></div></div>
+      <div class="summary-card c0"><h3>ผู้เข้าอบรมทั้งหมด</h3><p id="s0">0</p></div>
+      <div class="summary-card c1"><h3>ลงทะเบียน วันที่ 1</h3><p id="s1">0</p></div>
+      <div class="summary-card c2"><h3>ลงทะเบียน วันที่ 2</h3><p id="s2">0</p></div>
+      <div class="summary-card c3"><h3>ลงทะเบียน วันที่ 3</h3><p id="s4">0</p></div>
+      <div class="summary-card c4"><h3>สรุปการชำระ</h3><p id="s3">0</p></div>
+      <div class="summary-card-pay">
+        <h3>วิธีชำระ</h3>
+        <div id="s3t" class="summary-list"></div>
+      </div>
 
-  <div class="summary-toolbar-row" style="grid-column:1/6;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:2px;">
-    <input type="text" id="search" class="search" placeholder="ค้นหา ลำดับ / ชื่อ / อปท.">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <label for="excelFile" class="btn btn-primary" style="cursor:pointer;">📁 Import Excel</label>
-      <button class="btn btn-green" onclick="exportExcel()">📤 Export Excel</button>
-      <button class="btn" style="background:#7c3aed;color:white;" onclick="openAddTraineeModal()">➕ เพิ่มรายชื่อ</button>
-      <button class="btn" style="background:#dc2626;color:white;" onclick="deleteTrainee()">🗑️ ลบรายชื่อ</button>
-      <input type="file" id="excelFile" hidden accept=".xlsx,.xls,.csv">
+      <div class="summary-toolbar-row">
+        <input type="text" id="search" class="search" placeholder="🔍  ค้นหา ลำดับ / ชื่อ / อปท.">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <label for="excelFile" class="btn btn-primary" style="cursor:pointer;">📁 Import Excel</label>
+          <button class="btn btn-green" onclick="exportExcel()">📤 Export Excel</button>
+          <button class="btn btn-purple" onclick="openAddTraineeModal()">➕ เพิ่มรายชื่อ</button>
+          <button class="btn btn-danger" onclick="deleteTrainee()">🗑️ ลบรายชื่อ</button>
+          <input type="file" id="excelFile" hidden accept=".xlsx,.xls,.csv">
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <div class="table-wrap">
       <table>
@@ -292,9 +794,9 @@ tr:hover{background:#f8fafc;}
 <!-- MODAL USER MANAGEMENT -->
 <div class="user-modal" id="userModal">
   <div class="user-modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h2 style="font-size:16px;color:#0f766e;">👥 จัดการผู้ใช้งาน</h2>
-      <button class="btn" style="background:#f1f5f9;" onclick="closeUserModal()">✕ ปิด</button>
+    <div class="modal-header">
+      <h2>👥 จัดการผู้ใช้งาน</h2>
+      <button class="modal-close" onclick="closeUserModal()">✕</button>
     </div>
     <div class="add-user-form">
       <h4>➕ เพิ่มผู้ใช้งานใหม่</h4>
@@ -312,42 +814,55 @@ tr:hover{background:#f8fafc;}
       <button class="btn btn-primary" style="width:100%;" onclick="addUser()">เพิ่มผู้ใช้งาน</button>
       <div id="addUserMsg" style="margin-top:8px;font-size:12px;"></div>
     </div>
-    <div id="userListContainer"><div style="text-align:center;color:#64748b;padding:20px;">⏳ กำลังโหลด...</div></div>
+    <div id="userListContainer"><div style="text-align:center;color:var(--muted);padding:20px;">⏳ กำลังโหลด...</div></div>
   </div>
 </div>
+
 <!-- MODAL เพิ่มรายชื่อ -->
 <div class="user-modal" id="addTraineeModal">
   <div class="user-modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h2 style="font-size:16px;color:#0f766e;">➕ เพิ่มรายชื่อผู้เข้าอบรม</h2>
-      <button class="btn" style="background:#f1f5f9;" onclick="closeAddTraineeModal()">✕ ปิด</button>
+    <div class="modal-header">
+      <h2>➕ เพิ่มรายชื่อผู้เข้าอบรม</h2>
+      <button class="modal-close" onclick="closeAddTraineeModal()">✕</button>
     </div>
     <div class="add-user-form">
       <div class="form-row">
-        <div><label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ชื่อ-นามสกุล *</label>
-        <input type="text" id="nt_name" placeholder="ชื่อ-นามสกุล" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;"></div>
-        <div><label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">หน่วยงาน (อปท.) *</label>
-        <input type="text" id="nt_agency" placeholder="หน่วยงาน" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;"></div>
+        <div>
+          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">ชื่อ-นามสกุล *</label>
+          <input class="form-input" type="text" id="nt_name" placeholder="ชื่อ-นามสกุล">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">หน่วยงาน (อปท.) *</label>
+          <input class="form-input" type="text" id="nt_agency" placeholder="หน่วยงาน">
+        </div>
       </div>
       <div class="form-row">
-        <div><label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ตำแหน่ง</label>
-        <input type="text" id="nt_position" placeholder="ตำแหน่ง" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;"></div>
-        <div><label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">โทรศัพท์</label>
-        <input type="text" id="nt_phone" placeholder="โทรศัพท์" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;"></div>
+        <div>
+          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">ตำแหน่ง</label>
+          <input class="form-input" type="text" id="nt_position" placeholder="ตำแหน่ง">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">โทรศัพท์</label>
+          <input class="form-input" type="text" id="nt_phone" placeholder="โทรศัพท์">
+        </div>
       </div>
       <div class="form-row">
-        <div><label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">จังหวัด</label>
-        <input type="text" id="nt_province" placeholder="จังหวัด" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;"></div>
-        <div><label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ขนาดเสื้อ</label>
-        <select id="nt_shirt" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;">
-          <option value="">-- เลือก --</option>
-          <option>S</option><option>M</option><option>L</option>
-          <option>XL</option><option>2XL</option><option>3XL</option>
-        </select></div>
+        <div>
+          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">จังหวัด</label>
+          <input class="form-input" type="text" id="nt_province" placeholder="จังหวัด">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">ขนาดเสื้อ</label>
+          <select class="form-input" id="nt_shirt">
+            <option value="">-- เลือก --</option>
+            <option>S</option><option>M</option><option>L</option>
+            <option>XL</option><option>2XL</option><option>3XL</option>
+          </select>
+        </div>
       </div>
     </div>
-    <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;" onclick="saveNewTrainee()">✅ เพิ่มรายชื่อ</button>
-    <div id="addTraineeMsg" style="margin-top:8px;font-size:12px;text-align:center;"></div>
+    <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;" onclick="saveNewTrainee()">✅ เพิ่มรายชื่อ</button>
+    <div id="addTraineeMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
   </div>
 </div>
 <script>
@@ -368,23 +883,65 @@ let currentDay = 1;
 let realtimeChannel = null;
 
 // ===== AUTH =====
+let _loginInProgress = false;
+
 async function doLogin(){
+  if(_loginInProgress) return;
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
   const errEl = document.getElementById("loginErr");
   const spinner = document.getElementById("loginSpinner");
-  errEl.style.display="none"; spinner.style.display="block";
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  spinner.style.display="none";
-  if(error){ errEl.textContent="เข้าสู่ระบบไม่สำเร็จ: "+(error.message==="Invalid login credentials"?"อีเมลหรือรหัสผ่านไม่ถูกต้อง":error.message); errEl.style.display="block"; return; }
-  currentUser = data.user;
-  await loadProfile();
+  if(!email || !password){
+    errEl.textContent = "กรุณากรอกอีเมลและรหัสผ่าน";
+    errEl.style.display = "block"; return;
+  }
+  errEl.style.display="none";
+  spinner.style.display="block";
+  _loginInProgress = true;
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){
+      const msg = error.message === "Invalid login credentials"
+        ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
+        : error.message === "Email not confirmed"
+        ? "กรุณายืนยันอีเมลก่อน Login"
+        : error.message;
+      errEl.textContent = "เข้าสู่ระบบไม่สำเร็จ: " + msg;
+      errEl.style.display = "block";
+      return;
+    }
+    // สำเร็จ — ให้ onAuthStateChange จัดการต่อ (ไม่ต้องเรียก loadProfile ซ้ำ)
+    currentUser = data.user;
+    sessionLoaded = true;
+    await loadProfile();
+  } catch(e){
+    errEl.textContent = "เกิดข้อผิดพลาด: " + e.message;
+    errEl.style.display = "block";
+  } finally {
+    spinner.style.display = "none";
+    _loginInProgress = false;
+  }
 }
 
 async function loadProfile(){
-  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
-  currentProfile = data;
-  showCoursePage();
+  try {
+    const { data, error } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
+    if(error) throw error;
+    currentProfile = data;
+    showCoursePage();
+  } catch(e){
+    // retry 1 ครั้งหลัง 1.5 วินาที (iPad network ช้า)
+    await new Promise(r=>setTimeout(r, 1500));
+    try {
+      const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
+      currentProfile = data;
+      showCoursePage();
+    } catch(e2){
+      // ถ้า profile ไม่มีในตาราง ให้ใช้ค่า default แล้วเข้าได้เลย
+      currentProfile = { role: "user" };
+      showCoursePage();
+    }
+  }
 }
 
 function showCoursePage(){
@@ -670,31 +1227,128 @@ async function handleExcel(e){
   reader.readAsArrayBuffer(file);
 }
 
-// ===== EXPORT EXCEL =====
-function exportExcel(){
+// ===== EXPORT EXCEL (with signature images via ExcelJS) =====
+async function exportExcel(){
   if(!trainees.length){ alert("ไม่มีข้อมูล"); return; }
-  const rows=trainees.map(t=>({
-    "ลำดับ":t.order_no,"ชื่อ-นามสกุล":t.full_name,"อปท.":t.agency,
-    "ตำแหน่ง":t.position,"โทรศัพท์":t.phone,"ตำบล":t.district,"จังหวัด":t.province,
-    "เสื้อ":t.shirt_size,"ประเภทเบิก":t.claimType,"วิธีชำระ":t.paymentMethod,
-    "เจ้าหน้าที่วันที่1":t.staffName_day1,"เจ้าหน้าที่วันที่2":t.staffName_day2,"เจ้าหน้าที่วันที่3":t.staffName_day3,
-    "รับอุปกรณ์":t.equipmentReceived?"✓":"","วันที่1":t.day1?"✓":"","วันที่2":t.day2?"✓":"","วันที่3":t.day3?"✓":""
-  }));
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.book_append_sheet(wb,ws,"รายชื่อ");
-  // ใช้ Blob แทน writeFile เพื่อรองรับ Safari/iPad
+
+  const btn = document.querySelector('button[onclick="exportExcel()"]');
+  if(btn){ btn.disabled=true; btn.textContent="⏳ กำลัง Export..."; }
+
   try {
-    const wbout = XLSX.write(wb, { bookType:'xlsx', type:'array' });
-    const blob = new Blob([wbout], { type:'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("รายชื่อ");
+
+    const ROW_HEIGHT   = 80;  // ความสูงแถว (pt)
+    const SIG_PADDING  = 0.05; // เว้นขอบเล็กน้อย
+
+    const headers = [
+      "ลำดับ","ชื่อ-นามสกุล","อปท.","ตำแหน่ง","โทรศัพท์",
+      "ตำบล","จังหวัด","เสื้อ","ประเภทเบิก","วิธีชำระ",
+      "เจ้าหน้าที่วันที่1","เจ้าหน้าที่วันที่2","เจ้าหน้าที่วันที่3",
+      "รับอุปกรณ์",
+      "ลายเซ็น วันที่1","ลายเซ็น วันที่2","ลายเซ็น วันที่3"
+    ];
+
+    // ขนาดคอลัมน์ (character width)
+    const colWidths = [5,22,18,16,12,10,10,6,12,10,14,14,14,10,22,22,22];
+    colWidths.forEach((w,i)=>{ ws.getColumn(i+1).width = w; });
+
+    // border style ใช้ซ้ำทุกเซลล์
+    const border = {
+      top:   { style:"thin", color:{ argb:"FFB0BEC5" } },
+      left:  { style:"thin", color:{ argb:"FFB0BEC5" } },
+      bottom:{ style:"thin", color:{ argb:"FFB0BEC5" } },
+      right: { style:"thin", color:{ argb:"FFB0BEC5" } }
+    };
+    const sigBorder = {
+      top:   { style:"medium", color:{ argb:"FF0F766E" } },
+      left:  { style:"medium", color:{ argb:"FF0F766E" } },
+      bottom:{ style:"medium", color:{ argb:"FF0F766E" } },
+      right: { style:"medium", color:{ argb:"FF0F766E" } }
+    };
+
+    // Header row
+    const headerRow = ws.addRow(headers);
+    headerRow.height = 28;
+    headerRow.eachCell(cell=>{
+      cell.font      = { bold:true, color:{ argb:"FFFFFFFF" }, size:11 };
+      cell.fill      = { type:"pattern", pattern:"solid", fgColor:{ argb:"FF0F766E" } };
+      cell.alignment = { horizontal:"center", vertical:"middle", wrapText:true };
+      cell.border    = border;
+    });
+
+    function dataUrlToBase64(d){ return d ? d.split(",")[1] : null; }
+
+    // สร้างแถวข้อมูลก่อน เพื่อให้ทุกแถว height เท่ากัน
+    for(let i=0; i<trainees.length; i++){
+      const t = trainees[i];
+      const rowIdx = i + 2;
+
+      const values = [
+        t.order_no, t.full_name, t.agency, t.position, t.phone,
+        t.district, t.province, t.shirt_size, t.claimType||"", t.paymentMethod||"",
+        t.staffName_day1||"", t.staffName_day2||"", t.staffName_day3||"",
+        t.equipmentReceived?"✓":"",
+        "","",""   // placeholder ลายเซ็น
+      ];
+      const dataRow = ws.addRow(values);
+      dataRow.height = ROW_HEIGHT;  // ทุกแถวสูงเท่ากัน
+
+      // ตั้ง style ทุกเซลล์ในแถว
+      dataRow.eachCell({ includeEmpty:true }, (cell, colNum)=>{
+        cell.alignment = {
+          vertical:"middle",
+          horizontal: colNum===1 ? "center" : "left",
+          wrapText: colNum <= 4
+        };
+        // แถวสลับสี (zebra striping)
+        cell.fill = { type:"pattern", pattern:"solid",
+          fgColor:{ argb: i%2===0 ? "FFFAFAFA" : "FFE8F5F3" } };
+        // คอลัมน์ลายเซ็นใช้ border เขียวเข้ม
+        cell.border = (colNum >= 15) ? sigBorder : border;
+      });
+
+      // ฝังรูปลายเซ็น — กำหนดขนาดเป็น pixel และจัดกึ่งกลางเซลล์
+      // colWidth 32 chars ≈ 230px, rowHeight 100pt ≈ 133px
+      const SIG_W = 148; // ความกว้างรูป (px) — col 22 char * 7px ≈ 154px
+      const SIG_H = 68;  // ความสูงรูป (px) — แถว 80pt ≈ 107px มี margin พอดี
+      // offX = (154-148)/2 = 3, offY = (107-68)/2 = 19
+      const offX = 3;
+      const offY = 19;
+
+      for(const [day, col] of [["signature_day1",15],["signature_day2",16],["signature_day3",17]]){
+        const sig = t[day];
+        if(!sig) continue;
+        const b64 = dataUrlToBase64(sig);
+        if(!b64) continue;
+        const imgId = wb.addImage({ base64:b64, extension:"png" });
+        ws.addImage(imgId, {
+          tl:{ nativeCol: col-1, nativeColOff: offX * 9525,
+               nativeRow: rowIdx-1, nativeRowOff: offY * 9525 },
+          ext:{ width: SIG_W, height: SIG_H }
+        });
+      }
+    }
+
+    // Freeze header + auto filter
+    ws.views = [{ state:"frozen", ySplit:1 }];
+    ws.autoFilter = { from:{ row:1, column:1 }, to:{ row:1, column:headers.length } };
+
+    // Download
     const fileName = (currentCourse?.title||"รายชื่อ")+"_export.xlsx";
-    const a = document.createElement('a');
-    a.href = url; a.download = fileName; a.style.display='none';
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href=url; a.download=fileName; a.style.display="none";
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-  } catch(e) {
-    XLSX.writeFile(wb,(currentCourse?.title||"รายชื่อ")+"_export.xlsx");
+
+  } catch(err){
+    console.error("Export error:", err);
+    alert("❌ Export ไม่สำเร็จ: "+err.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent="📤 Export Excel"; }
   }
 }
 
@@ -1444,12 +2098,14 @@ sb.auth.onAuthStateChange(async(event, session)=>{
     _authInitDone = true;
     hideInitLoader();
   }
-  if((event==="SIGNED_IN" || event==="INITIAL_SESSION") && session && !sessionLoaded){
+  // INITIAL_SESSION: ตรวจสอบ session ที่บันทึกไว้ (auto-login)
+  if(event === "INITIAL_SESSION" && session && !sessionLoaded){
     sessionLoaded = true;
     currentUser = session.user;
-    if(!currentProfile) await loadProfile();
+    await loadProfile();
   }
-  if(event==="SIGNED_OUT"){
+  // SIGNED_IN: มาจาก doLogin() ซึ่ง sessionLoaded=true ไปแล้ว ข้ามได้เลย
+  if(event === "SIGNED_OUT"){
     sessionLoaded = false;
     currentUser = null;
     currentProfile = null;
