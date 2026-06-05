@@ -2,888 +2,1461 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ระบบลงทะเบียนอบรม</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบลงทะเบียนอบรม - Premium Edition</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════
-   DESIGN SYSTEM — Training Register
-   Aesthetic: Clean Government-Grade Professional
-   Primary: iPad / Mobile-first
-═══════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Noto+Serif+Thai:wght@600;700&display=swap');
-
 :root {
-  /* Brand — Indigo/Purple Modern */
-  --c-primary:    #4f46e5;
-  --c-primary-dk: #3730a3;
-  --c-primary-lt: #eef2ff;
-  --c-primary-md: #c7d2fe;
-  --c-accent:     #a855f7;
-  --c-accent-dk:  #7e22ce;
-  --c-accent-lt:  #f3e8ff;
-
-  /* Neutrals */
-  --c-bg:         #f0f0fb;
-  --c-surface:    #ffffff;
-  --c-surface-2:  #f5f5ff;
-  --c-border:     #e0def4;
-  --c-border-2:   #c7c5e8;
-  --c-text:       #1e1b4b;
-  --c-text-2:     #4338ca;
-  --c-muted:      #7472a0;
-
-  /* Card accent colors — Indigo palette */
-  --c-card0:      #4f46e5;  /* Indigo      — ทั้งหมด */
-  --c-card0-lt:   #eef2ff;
-  --c-card1:      #7c3aed;  /* Violet      — วันที่ 1 */
-  --c-card1-lt:   #f5f3ff;
-  --c-card2:      #a21caf;  /* Fuchsia     — วันที่ 2 */
-  --c-card2-lt:   #fdf4ff;
-  --c-card3:      #0369a1;  /* Sky         — วันที่ 3 */
-  --c-card3-lt:   #f0f9ff;
-  --c-card4:      #c026d3;  /* Pink-purple — ชำระ */
-  --c-card4-lt:   #fdf4ff;
-
-  /* Status */
-  --c-success:    #059669;
-  --c-success-lt: #d1fae5;
-  --c-danger:     #dc2626;
-  --c-danger-lt:  #fee2e2;
-  --c-blue:       #0ea5e9;
-  --c-blue-lt:    #e0f2fe;
-  --c-purple:     #7c3aed;
-  --c-purple-lt:  #ede9fe;
-  --c-orange:     #f97316;
-
-  /* Radius */
-  --r-xs: 8px;
-  --r-sm: 12px;
-  --r-md: 16px;
-  --r-lg: 20px;
-  --r-xl: 28px;
-
-  /* Shadow */
-  --sh-xs: 0 1px 4px rgba(13,110,100,.06);
-  --sh-sm: 0 2px 10px rgba(13,110,100,.08);
-  --sh-md: 0 6px 24px rgba(13,110,100,.11);
-  --sh-lg: 0 16px 48px rgba(13,110,100,.15);
-  --sh-xl: 0 28px 72px rgba(0,0,0,.18);
-
-  /* Typography */
-  --font-body:    'Noto Sans Thai', sans-serif;
-  --font-display: 'Noto Serif Thai', serif;
+  --primary: #0d9488;       /* Teal 600 */
+  --primary-hover: #0f766e; /* Teal 700 */
+  --primary-light: #f0fdfa; /* Teal 50 */
+  --primary-border: #ccfbf1;/* Teal 100 */
+  --primary: #4f46e5;       /* Indigo 600 */
+  --primary-hover: #4338ca; /* Indigo 700 */
+  --primary-light: #eef2ff; /* Indigo 50 */
+  --primary-border: #e0e7ff;/* Indigo 100 */
+  
+  --secondary: #6366f1;     /* Indigo 500 */
+  --secondary-hover: #4f46e5;
+  --secondary-light: #e0e7ff;
+  --secondary: #0ea5e9;     /* Sky 500 */
+  --secondary-hover: #0284c7; /* Sky 600 */
+  --secondary-light: #f0f9ff;
+  --secondary-border: #e0f2fe;
+  
+  --dark: #0f172a;          /* Slate 900 */
+  --gray-dark: #334155;     /* Slate 700 */
+  --gray: #64748b;          /* Slate 500 */
+  --gray-light: #cbd5e1;    /* Slate 300 */
+  --bg: #f8fafc;            /* Slate 50 */
+  --border: #e2e8f0;        /* Slate 200 */
+  
+  --success: #10b981;       /* Emerald 500 */
+  --success-bg: #ecfdf5;    /* Emerald 50 */
+  --success-text: #065f46;  /* Emerald 800 */
+  
+  --danger: #ef4444;        /* Red 500 */
+  --danger-bg: #fef2f2;     /* Red 50 */
+  --danger-text: #991b1b;   /* Red 800 */
+  
+  --warning: #f59e0b;       /* Amber 500 */
+  --warning-bg: #fffbeb;    /* Amber 50 */
+  --warning-text: #92400e;  /* Amber 800 */
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 }
-
-/* ─── RESET ─── */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { -webkit-text-size-adjust:100%; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Prompt", "Inter", sans-serif;
+}
 body {
-  font-family: var(--font-body);
-  background: var(--c-bg);
-  color: var(--c-text);
+  background: var(--bg);
+  color: var(--dark);
   font-size: 14px;
-  line-height: 1.5;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
-::-webkit-scrollbar { width:4px; height:4px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--c-border-2); border-radius:99px; }
-
-/* ═══════════════════════════════
-   LOGIN PAGE
-═══════════════════════════════ */
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gray-light);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray);
+}
+/* Custom UI Elements */
+input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="number"], select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--dark);
+  outline: none;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+/* Button variants */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+.btn-outline {
+  background: transparent;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.btn-outline:hover {
+  background: var(--primary-light);
+}
+.btn-secondary {
+  background: var(--secondary);
+  color: #ffffff;
+}
+.btn-secondary:hover {
+  background: var(--secondary-hover);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+.btn-green {
+  background: var(--success);
+  color: #ffffff;
+}
+.btn-green:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+.btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--gray-dark);
+}
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+/* LOGIN SCREEN */
 #loginPage {
-  position:fixed; inset:0; z-index:9999;
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden;
-  background: #0f0e2e;
-}
-.login-bg {
-  position:absolute; inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(79,70,229,.55) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(55,48,163,.45) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 40% at 60% 20%, rgba(168,85,247,.2) 0%, transparent 50%);
-}
-/* Animated grid lines */
-.login-grid {
-  position:absolute; inset:0; opacity:.07;
-  background-image:
-    linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-.login-orb {
-  position:absolute; border-radius:50%;
-  filter:blur(60px); pointer-events:none;
-}
-.login-orb-1 { width:400px; height:400px; background:rgba(79,70,229,.3); top:-100px; right:-100px; animation:orbFloat 8s ease-in-out infinite; }
-.login-orb-2 { width:300px; height:300px; background:rgba(168,85,247,.2); bottom:-80px; left:-60px; animation:orbFloat 10s ease-in-out infinite reverse; }
-@keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(20px,-20px) scale(1.05);} }
-
-.login-wrap {
-  position:relative; z-index:2;
-  width:100%; max-width:420px; padding:20px;
-  animation: loginReveal .6s cubic-bezier(.16,1,.3,1) both;
-}
-@keyframes loginReveal {
-  from { opacity:0; transform:translateY(32px) scale(.97); }
-  to   { opacity:1; transform:translateY(0) scale(1); }
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, rgb(4, 47, 46) 0%, rgb(15, 23, 42) 90%);
+  background: radial-gradient(circle at 10% 20%, #1e1b4b 0%, #0f172a 90%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 .login-card {
-  background: rgba(255,255,255,.97);
-  border-radius: var(--r-xl);
-  padding: 44px 40px 40px;
-  box-shadow: var(--sh-xl), 0 0 0 1px rgba(255,255,255,.1);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  padding: 44px 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
 }
-.login-brand {
-  text-align:center; margin-bottom:32px;
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 5px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
 }
-.login-logo-wrap {
-  width:72px; height:72px; border-radius:22px;
-  background: linear-gradient(145deg, var(--c-primary), var(--c-primary-dk));
-  display:flex; align-items:center; justify-content:center;
-  margin:0 auto 18px;
-  box-shadow: 0 10px 30px rgba(13,110,100,.4), 0 0 0 8px rgba(13,110,100,.08);
-  font-size:30px;
+.login-logo {
+  font-size: 44px;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 .login-title {
-  font-family: var(--font-display);
-  font-size:20px; font-weight:700;
-  color: var(--c-primary-dk);
-  margin-bottom:6px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f2d2a;
+  color: #1e1b4b;
+  margin-bottom: 6px;
 }
-.login-sub { font-size:13px; color:var(--c-muted); }
-
-.login-field { margin-bottom:18px; }
+.login-sub {
+  text-align: center;
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 32px;
+}
+.login-field {
+  margin-bottom: 20px;
+}
 .login-field label {
-  display:block; font-size:11px; font-weight:700;
-  color:var(--c-text-2); letter-spacing:.8px;
-  text-transform:uppercase; margin-bottom:8px;
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin-bottom: 8px;
 }
-.login-field input {
-  width:100%; padding:14px 16px;
-  border:2px solid var(--c-border);
-  border-radius:var(--r-sm);
-  font-size:15px; font-family:var(--font-body);
-  background:var(--c-surface-2); color:var(--c-text);
-  outline:none; transition:all .2s;
-}
-.login-field input:focus {
-  border-color:var(--c-primary);
-  background:white;
-  box-shadow:0 0 0 4px rgba(13,110,100,.1);
-}
-.login-btn {
-  width:100%; padding:16px;
-  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-dk) 100%);
-  color:white; border:none; border-radius:var(--r-sm);
-  font-size:15px; font-weight:700; font-family:var(--font-body);
-  cursor:pointer; margin-top:4px;
-  box-shadow: 0 4px 18px rgba(13,110,100,.38);
-  transition: all .2s;
-  position:relative; overflow:hidden;
-}
-.login-btn::after {
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
-  pointer-events:none;
-}
-.login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(13,110,100,.44); }
-.login-btn:active { transform:translateY(0); }
 .login-err {
-  background:var(--c-danger-lt); color:#991b1b;
-  border:1px solid #fca5a5; border-radius:var(--r-xs);
-  padding:12px 14px; font-size:13px; margin-top:14px; display:none;
-  animation:shake .35s ease;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  margin-top: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  display: none;
 }
-@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
-.login-spinner { display:none; text-align:center; margin-top:14px; color:var(--c-primary); font-size:13px; font-weight:600; }
-
-/* ═══════════════════════════════
-   COURSE PAGE
-═══════════════════════════════ */
+.login-spinner {
+  display: none;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+/* COURSE SELECTOR PAGE */
 #coursePage {
-  display:none; position:fixed; inset:0; z-index:8888;
-  overflow:auto;
-  background: #0f0e2e;
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, rgb(13, 74, 69) 0%, rgb(15, 23, 42) 90%);
+  background: radial-gradient(circle at 10% 20%, #1e1b4b 0%, #0f172a 90%);
+  z-index: 8888;
+  overflow: auto;
+  padding: 40px 20px;
 }
-.cp-bg {
-  position:fixed; inset:0;
-  background:
-    radial-gradient(ellipse 70% 50% at 15% 25%, rgba(79,70,229,.5) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 70% at 85% 75%, rgba(55,48,163,.4) 0%, transparent 55%);
-  pointer-events:none;
+.course-selector {
+  max-width: 800px;
+  margin: 0 auto;
 }
-.cp-grid {
-  position:fixed; inset:0; opacity:.05; pointer-events:none;
-  background-image:
-    linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
-  background-size:48px 48px;
+.course-selector h2 {
+  color: white;
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
-.course-page-inner {
-  position:relative; z-index:1;
-  max-width:680px; margin:0 auto;
-  padding:clamp(20px,4vw,40px) clamp(16px,4vw,24px) 48px;
+.course-selector p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-bottom: 32px;
 }
-.course-page-header {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:32px;
+.course-list {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 32px;
 }
-.cp-logo { display:flex; align-items:center; gap:14px; }
-.cp-logo-icon {
-  width:46px; height:46px; border-radius:14px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.2);
-  display:flex; align-items:center; justify-content:center;
-  font-size:22px; backdrop-filter:blur(12px);
-}
-.cp-logo-text h1 { font-size:16px; font-weight:700; color:white; font-family:var(--font-display); }
-.cp-logo-text p  { font-size:11px; color:rgba(255,255,255,.55); margin-top:2px; }
-.cp-logout {
-  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
-  color:white; padding:9px 18px; border-radius:var(--r-sm);
-  font-size:13px; font-weight:600; font-family:var(--font-body);
-  cursor:pointer; backdrop-filter:blur(8px);
-  transition:background .2s, transform .15s;
-}
-.cp-logout:hover { background:rgba(255,255,255,.2); transform:translateY(-1px); }
-
-.cp-section-label {
-  font-size:10px; font-weight:700; color:rgba(255,255,255,.45);
-  letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;
-}
-.course-list { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
 .course-item {
-  background:rgba(255,255,255,.95);
-  border-radius:var(--r-md); padding:18px 20px;
-  cursor:pointer; border:2px solid transparent;
-  display:flex; align-items:center; justify-content:space-between;
-  transition:all .2s; box-shadow:var(--sh-sm);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-md);
+  padding: 22px 26px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-.course-item:hover, .course-item:active {
-  border-color:var(--c-primary); background:white;
-  box-shadow:var(--sh-md); transform:translateY(-2px);
+.course-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
-.course-item-info h3 { font-size:15px; font-weight:700; color:var(--c-text); margin-bottom:3px; }
-.course-item-info p  { font-size:12px; color:var(--c-muted); }
+.course-item-info h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+.course-item-info p {
+  font-size: 13px;
+  color: var(--gray-dark);
+  margin-bottom: 0;
+}
 .course-item-count {
-  background:var(--c-primary-lt); color:var(--c-primary);
-  border-radius:var(--r-xs); padding:5px 12px;
-  font-size:12px; font-weight:700; white-space:nowrap;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1px solid var(--primary-border);
+  white-space: nowrap;
 }
-
-.new-course-card {
-  background:rgba(255,255,255,.08);
-  border:1.5px dashed rgba(255,255,255,.25);
-  border-radius:var(--r-md); padding:22px;
-  backdrop-filter:blur(10px);
+.new-course-form {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
 }
-.new-course-card h3 { color:white; font-size:14px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-.nc-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-.nc-input {
-  padding:12px 14px; border-radius:var(--r-sm);
-  border:1.5px solid rgba(255,255,255,.15);
-  font-size:13px; font-family:var(--font-body); width:100%;
-  background:rgba(255,255,255,.9); color:var(--c-text);
-  outline:none; transition:all .2s;
+.new-course-form h3 {
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.nc-input:focus { border-color:white; background:white; }
-.nc-btn {
-  width:100%; padding:13px;
-  background:linear-gradient(135deg, var(--c-accent), var(--c-accent-dk));
-  color:white; border:none; border-radius:var(--r-sm);
-  font-size:14px; font-weight:700; font-family:var(--font-body); cursor:pointer;
-  box-shadow:0 4px 14px rgba(245,158,11,.35);
-  transition:all .15s;
+.nc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
 }
-.nc-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,158,11,.4); }
-
-/* ═══════════════════════════════
-   TOPBAR
-═══════════════════════════════ */
+.new-course-form input {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+}
+/* TOPBAR */
 .topbar {
-  background:var(--c-primary-dk);
-  color:white; padding:0 20px; height:58px;
-  display:flex; align-items:center; justify-content:space-between;
-  position:sticky; top:0; z-index:100;
-  box-shadow: 0 2px 0 rgba(255,255,255,.08), 0 4px 20px rgba(0,0,0,.28);
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  color: white;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-md);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.topbar-left { display:flex; align-items:center; gap:12px; min-width:0; flex:1; }
-.topbar-logo { font-size:20px; flex-shrink:0; }
 .topbar-title {
-  font-family:var(--font-display);
-  font-size:15px; font-weight:700; white-space:nowrap;
-  color:rgba(255,255,255,.95);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 700;
 }
-.topbar-divider { width:1px; height:18px; background:rgba(255,255,255,.18); flex-shrink:0; }
-.course-badge {
-  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18);
-  border-radius:var(--r-xs); padding:5px 12px;
-  font-size:12px; font-weight:500; max-width:200px;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.realtime-dot {
-  width:7px; height:7px; border-radius:50%;
-  background:#34d399; flex-shrink:0;
-  animation:pulse 2.5s infinite;
-  box-shadow: 0 0 0 0 rgba(52,211,153,.4);
-}
-@keyframes pulse {
-  0%   { box-shadow:0 0 0 0 rgba(52,211,153,.5); }
-  70%  { box-shadow:0 0 0 5px rgba(52,211,153,0); }
-  100% { box-shadow:0 0 0 0 rgba(52,211,153,0); }
-}
-.topbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 .user-badge {
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.13);
-  border-radius:var(--r-xs); padding:5px 12px;
-  font-size:12px; font-weight:600;
-  display:flex; align-items:center; gap:6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .role-badge {
-  padding:2px 8px; border-radius:99px;
-  font-size:10px; font-weight:700; letter-spacing:.3px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
-.role-superadmin { background:#fef3c7; color:#92400e; }
-.role-staff       { background:#dbeafe; color:#1e40af; }
+.role-superadmin {
+  background: #fef3c7;
+  color: #92400e;
+}
+.role-staff {
+  background: #dbeafe;
+  color: #1e40af;
+}
 .topbar-btn {
-  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.16);
-  color:white; padding:7px 14px; border-radius:var(--r-xs);
-  cursor:pointer; font-size:12px; font-weight:600; font-family:var(--font-body);
-  transition:all .15s; white-space:nowrap;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.topbar-btn:hover { background:rgba(255,255,255,.2); transform:translateY(-1px); }
-.topbar-btn.danger { background:rgba(220,38,38,.18); border-color:rgba(220,38,38,.3); }
-.topbar-btn.danger:hover { background:rgba(220,38,38,.32); }
-
-/* ═══════════════════════════════
-   MAIN CONTAINER
-═══════════════════════════════ */
-.container { max-width:1440px; margin:0 auto; padding:18px 20px; }
-
-/* ─── MANAGE BAR ─── */
+.topbar-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.course-badge {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* APP TABS */
+.tabs-container {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0 16px 0;
+  background: #ffffff;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  width: max-content;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-dark);
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.tab-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s;
+}
+.tab-btn:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+}
+.tab-btn.active svg {
+  transform: scale(1.05);
+}
+/* CONTAINER */
+.container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 24px 40px 24px;
+}
+/* MAIN APP PANELS */
+.view-panel {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+.view-panel.active {
+  display: block;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* MANAGE BAR */
 .manage-bar {
-  background:linear-gradient(135deg,#fffbf0,#fef9e7);
-  border:1px solid #fde68a; border-radius:var(--r-md);
-  padding:12px 18px; margin-bottom:14px;
-  box-shadow:var(--sh-xs);
-  display:none; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  padding: 14px 22px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--primary-border);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.manage-bar.visible { display:flex; }
-
-/* ─── COURSE HEADER BOX ─── */
+.manage-bar.visible {
+  display: flex;
+}
+/* COURSE HEADER BOX */
 .course-header-box {
-  background:var(--c-surface);
-  border-radius:var(--r-md); padding:18px 20px;
-  margin-bottom:14px;
-  box-shadow:var(--sh-xs); border:1px solid var(--c-border);
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 .course-header-box h2 {
-  font-size:11px; font-weight:700; color:var(--c-primary);
-  letter-spacing:.8px; text-transform:uppercase;
-  margin-bottom:12px; display:flex; align-items:center; gap:8px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--primary-hover);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.course-header-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
-.chi {
-  padding:10px 14px; border-radius:var(--r-xs);
-  border:1.5px solid var(--c-border); font-size:13px; font-family:var(--font-body);
-  flex:1; min-width:140px; color:var(--c-text); background:var(--c-surface-2);
-  transition:all .2s; outline:none;
+   .course-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
 }
-.chi:focus { border-color:var(--c-primary); background:white; box-shadow:0 0 0 3px rgba(13,110,100,.08); }
-.course-info-display {
-  margin-top:10px; padding:10px 14px;
-  background:var(--c-primary-lt); border-radius:var(--r-xs);
-  font-size:13px; color:var(--c-primary-dk); font-weight:500;
-  border-left:3px solid var(--c-primary);
+.course-header-field {
+  flex: 1;
+  min-width: 140px;
 }
-
-/* ═══════════════════════════════
-   SUMMARY CARDS
-═══════════════════════════════ */
-.summary-cards {
-  display:grid;
-  grid-template-columns: repeat(5,1fr) minmax(160px,200px);
-  grid-template-rows: auto auto;
-  gap:10px; margin-bottom:12px;
+.course-header-field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gray);
+  margin-bottom: 5px;
 }
-
-/* Solid colored cards */
-.summary-card {
-  border-radius:var(--r-md); padding:18px 20px;
-  transition:all .2s; position:relative; overflow:hidden;
-  box-shadow:var(--sh-sm); border:none; cursor:default;
+.course-details-display {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--gray-dark);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
 }
-.summary-card:hover { transform:translateY(-2px); box-shadow:var(--sh-md); }
-.summary-card h3 {
-  font-size:10px; font-weight:700; letter-spacing:.7px;
-  text-transform:uppercase; margin-bottom:10px; color:rgba(255,255,255,.8);
+/* TOOLBAR & SEARCH */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
-.summary-card p {
-  font-size:28px; font-weight:800; font-family:var(--font-display);
-  line-height:1; color:white;
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+  max-width: 400px;
 }
-.summary-card .s-label { font-size:11px; margin-top:5px; color:rgba(255,255,255,.65); }
-.summary-card::after {
-  content:attr(data-icon); position:absolute;
-  right:12px; bottom:8px; font-size:38px;
-  opacity:.13; pointer-events:none; line-height:1;
-}
-.summary-card.c0 { background:linear-gradient(135deg,#4f46e5 0%,#3730a3 100%); grid-column:1; grid-row:1; }
-.summary-card.c1 { background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%); grid-column:2; grid-row:1; }
-.summary-card.c2 { background:linear-gradient(135deg,#a21caf 0%,#86198f 100%); grid-column:3; grid-row:1; }
-.summary-card.c3 { background:linear-gradient(135deg,#0369a1 0%,#075985 100%); grid-column:4; grid-row:1; }
-.summary-card.c4 { background:linear-gradient(135deg,#c026d3 0%,#9d174d 100%); grid-column:5; grid-row:1; }
-
-/* Payment card — same row as cards */
-.summary-card-pay {
-  background:var(--c-surface); border-radius:var(--r-md);
-  border:1.5px solid var(--c-primary-md);
-  box-shadow:var(--sh-sm); padding:16px 18px;
-  grid-column:6; grid-row:1;
-  position:relative; overflow:hidden;
-}
-.summary-card-pay::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:3px;
-  background:linear-gradient(90deg,#4f46e5,#a855f7);
-}
-.summary-card-pay h3 {
-  font-size:10px; font-weight:700; color:var(--c-primary);
-  text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;
-}
-.summary-list { display:flex; flex-direction:column; gap:5px; font-size:12px; }
-.summary-list-item {
-  display:flex; justify-content:space-between; align-items:center;
-  padding:5px 9px; background:var(--c-primary-lt); border-radius:6px; color:var(--c-text);
-}
-.summary-list-item span:last-child { font-weight:700; color:var(--c-primary); }
-
-/* ─── TOOLBAR ROW — แถวที่ 2 เต็มความกว้าง ─── */
-.summary-toolbar-row {
-  grid-column: 1 / -1;
-  grid-row: 2;
-  display:flex; align-items:center; justify-content:space-between;
-  gap:10px; flex-wrap:wrap;
+.search-wrapper svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--gray);
 }
 .search {
-  flex:1; min-width:200px; max-width:340px;
-  padding:10px 16px; border-radius:var(--r-xs);
-  border:1.5px solid var(--c-border);
-  font-size:13px; font-family:var(--font-body);
-  background:var(--c-surface); outline:none; transition:all .2s;
+  padding-left: 42px !important;
 }
-.search:focus { border-color:var(--c-primary); box-shadow:0 0 0 3px rgba(79,70,229,.1); }
-
-/* ═══════════════════════════════
-   BUTTONS
-═══════════════════════════════ */
-.btn {
-  border:none; padding:10px 16px; border-radius:var(--r-xs);
-  cursor:pointer; font-weight:700; font-size:12px; font-family:var(--font-body);
-  display:inline-flex; align-items:center; gap:5px;
-  transition:all .15s; white-space:nowrap;
-}
-.btn:hover  { transform:translateY(-1px); filter:brightness(1.06); }
-.btn:active { transform:translateY(0);    filter:brightness(.94); }
-.btn-primary { background:var(--c-primary);   color:white; box-shadow:0 2px 8px rgba(13,110,100,.25); }
-.btn-outline  { background:white; color:var(--c-primary); border:2px solid var(--c-primary); }
-.btn-green    { background:var(--c-success);   color:white; box-shadow:0 2px 8px rgba(5,150,105,.25); }
-.btn-purple   { background:var(--c-purple);    color:white; box-shadow:0 2px 8px rgba(124,58,237,.25); }
-.btn-danger   { background:var(--c-danger);    color:white; box-shadow:0 2px 8px rgba(220,38,38,.25); }
-
-/* ═══════════════════════════════
-   TABLE
-═══════════════════════════════ */
+/* DATA TABLE */
 .table-wrap {
-  overflow:auto; background:var(--c-surface);
-  border-radius:var(--r-md);
-  box-shadow:var(--sh-sm);
-  border:1px solid var(--c-border);
+  overflow: auto;
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  padding: 10px;
 }
-table { width:100%; min-width:1100px; border-collapse:collapse; table-layout:fixed; }
-thead { position:sticky; top:0; z-index:10; }
+table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 th {
-  background:var(--c-primary-dk); color:white;
-  padding:11px 10px; text-align:left;
-  font-size:10px; font-weight:700;
-  letter-spacing:.5px; text-transform:uppercase;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  background: var(--primary-light);
+  color: var(--primary-hover);
+  padding: 12px 8px;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--primary-border);
 }
-th:first-child { padding-left:14px; }
 td {
-  padding:10px; border-bottom:1px solid var(--c-border);
-  font-size:12px; white-space:nowrap;
-  overflow:hidden; text-overflow:ellipsis;
-  color:var(--c-text); transition:background .12s;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--gray-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-td:first-child { padding-left:14px; }
-tr:last-child td { border-bottom:none; }
-tbody tr:hover td { background:var(--c-primary-lt) !important; }
-tbody tr:nth-child(even) td { background:var(--c-surface-2); }
-tbody tr:nth-child(even):hover td { background:var(--c-primary-lt); }
-
-table th:nth-child(1),  table td:nth-child(1)  { width:44px;  text-align:center; }
-table th:nth-child(2),  table td:nth-child(2)  { width:150px; }
-table th:nth-child(3),  table td:nth-child(3)  { width:110px; }
-table th:nth-child(4),  table td:nth-child(4)  { width:110px; }
-table th:nth-child(5),  table td:nth-child(5)  { width:92px;  }
-table th:nth-child(6),  table td:nth-child(6)  { width:66px;  }
-table th:nth-child(7),  table td:nth-child(7)  { width:66px;  }
-table th:nth-child(8),  table td:nth-child(8)  { width:42px;  text-align:center; }
-table th:nth-child(9),  table td:nth-child(9)  { width:76px;  }
-table th:nth-child(10), table td:nth-child(10) { width:66px;  }
-table th:nth-child(11), table td:nth-child(11) { width:80px;  }
-table th:nth-child(12), table td:nth-child(12) { width:56px;  text-align:center; }
-table th:nth-child(13), table td:nth-child(13) { width:66px;  text-align:center; }
-table th:nth-child(14), table td:nth-child(14) { width:66px;  text-align:center; }
-table th:nth-child(15), table td:nth-child(15) { width:66px;  text-align:center; }
-
-.status { padding:3px 9px; border-radius:99px; font-size:10px; font-weight:700; display:inline-block; }
-.success { background:var(--c-success-lt); color:#065f46; }
-.pending  { background:var(--c-danger-lt);  color:#991b1b;  }
-.day-cell { cursor:pointer; transition:background .12s; }
-.day-cell:hover { background:var(--c-primary-lt) !important; }
-.day-cell.done  { cursor:default; }
-
-/* ═══════════════════════════════
-   MODAL
-═══════════════════════════════ */
-.modal {
-  position:fixed; inset:0; background:rgba(0,0,0,.5);
-  display:none; justify-content:center; align-items:center;
-  padding:16px; z-index:999; backdrop-filter:blur(6px);
+tr:hover td {
+  background: var(--bg);
 }
-.modal-content {
-  background:white; width:100%; max-width:880px;
-  border-radius:var(--r-xl); padding:28px;
-  max-height:94vh; overflow:auto;
-  box-shadow:var(--sh-xl);
-  animation:modalIn .25s cubic-bezier(.16,1,.3,1) both;
+table th:nth-child(1), table td:nth-child(1) { width: 50px; text-align: center; } /* ลำดับ */
+table th:nth-child(2), table td:nth-child(2) { width: 170px; font-weight: 600; color: var(--dark); } /* ชื่อ */
+table th:nth-child(3), table td:nth-child(3) { width: 130px; } /* อปท. */
+table th:nth-child(4), table td:nth-child(4) { width: 130px; } /* ตำแหน่ง */
+table th:nth-child(5), table td:nth-child(5) { width: 100px; } /* โทร */
+table th:nth-child(6), table td:nth-child(6) { width: 80px; }  /* ตำบล */
+table th:nth-child(7), table td:nth-child(7) { width: 80px; }  /* จังหวัด */
+table th:nth-child(8), table td:nth-child(8) { width: 55px; text-align: center; }  /* เสื้อ */
+table th:nth-child(9), table td:nth-child(9) { width: 95px; }  /* ประเภทเบิก */
+table th:nth-child(10), table td:nth-child(10) { width: 85px; } /* วิธีชำระ */
+table th:nth-child(11), table td:nth-child(11) { width: 95px; } /* เจ้าหน้าที่ */
+table th:nth-child(12), table td:nth-child(12) { width: 75px; text-align: center; } /* รับอุปกรณ์ */
+table th:nth-child(13), table td:nth-child(13) { width: 95px; text-align: center; } /* วันที่ 1 */
+table th:nth-child(14), table td:nth-child(14) { width: 95px; text-align: center; } /* วันที่ 2 */
+table th:nth-child(15), table td:nth-child(15) { width: 95px; text-align: center; } /* วันที่ 3 */
+/* STATUS BADGES */
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
-@keyframes modalIn {
-  from { opacity:0; transform:scale(.95) translateY(10px); }
-  to   { opacity:1; transform:scale(1)   translateY(0); }
+.success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid rgba(16, 185, 129, 0.15);
 }
-.modal-header {
-  display:flex; justify-content:space-between; align-items:center;
-  margin-bottom:22px; padding-bottom:16px;
-  border-bottom:1px solid var(--c-border);
+.pending {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid rgba(239, 68, 68, 0.15);
 }
-.modal-header h2 { font-size:17px; font-weight:700; color:var(--c-primary-dk); font-family:var(--font-display); }
-.modal-close {
-  background:var(--c-surface-2); border:1px solid var(--c-border);
-  color:var(--c-muted); width:36px; height:36px;
-  border-radius:var(--r-xs); cursor:pointer; font-size:16px;
-  display:flex; align-items:center; justify-content:center;
-  transition:all .15s;
+.day-cell {
+  cursor: pointer;
+  transition: background 0.2s;
 }
-.modal-close:hover { background:var(--c-border); color:var(--c-text); }
-
-.user-modal { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; justify-content:center; align-items:center; padding:16px; z-index:999; backdrop-filter:blur(6px); }
-.user-modal.open { display:flex; }
-.user-modal-content { background:white; width:100%; max-width:620px; border-radius:var(--r-xl); padding:28px; max-height:90vh; overflow:auto; box-shadow:var(--sh-xl); animation:modalIn .25s cubic-bezier(.16,1,.3,1) both; }
-
-.user-item { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1.5px solid var(--c-border); border-radius:var(--r-sm); margin-bottom:8px; font-size:13px; transition:border-color .2s; }
-.user-item:hover { border-color:var(--c-primary); }
-.user-item-info { display:flex; flex-direction:column; gap:2px; }
-.user-item-email { font-weight:600; color:var(--c-text); }
-.user-item-name  { font-size:11px; color:var(--c-muted); }
-.user-item-actions { display:flex; gap:8px; align-items:center; }
-.select-role { padding:5px 10px; border:1.5px solid var(--c-border); border-radius:8px; font-size:12px; font-family:var(--font-body); outline:none; }
-.select-role:focus { border-color:var(--c-primary); }
-.del-btn { background:var(--c-danger-lt); color:#991b1b; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:700; font-family:var(--font-body); }
-
-.add-user-form { background:var(--c-surface-2); border-radius:var(--r-md); padding:18px; margin-bottom:18px; border:1px solid var(--c-border); }
-.add-user-form h4 { font-size:13px; font-weight:700; color:var(--c-primary); margin-bottom:14px; }
-.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-.form-input, .form-row input, .form-row select {
-  padding:10px 13px; border:1.5px solid var(--c-border); border-radius:var(--r-xs);
-  font-size:13px; width:100%; font-family:var(--font-body);
-  outline:none; background:white; color:var(--c-text); transition:border-color .2s;
+.day-cell:hover {
+  background: rgba(13, 148, 136, 0.08) !important;
+  background: rgba(79, 70, 229, 0.08) !important;
 }
-.form-input:focus, .form-row input:focus, .form-row select:focus { border-color:var(--c-primary); }
-
-/* Canvas */
-canvas { touch-action:none; cursor:crosshair; display:block; }
-
-/* ═══════════════════════════════
-   RESPONSIVE — iPad first
-═══════════════════════════════ */
-@media (max-width:1200px) {
-  .summary-cards { grid-template-columns:repeat(3,1fr) repeat(3,1fr); }
-  .summary-card.c3 { grid-column:4; grid-row:1; }
-  .summary-card.c4 { grid-column:5; grid-row:1; }
-  .summary-card-pay { grid-column:6; grid-row:1; }
+.day-cell.done {
+  cursor: pointer; /* สามารถกดเข้าดู view modal ได้ */
+  cursor: pointer;
 }
-@media (max-width:1024px) {
-  .summary-cards { grid-template-columns:repeat(3,1fr); }
-  .summary-card.c0{grid-column:1;grid-row:1;} .summary-card.c1{grid-column:2;grid-row:1;} .summary-card.c2{grid-column:3;grid-row:1;}
-  .summary-card.c3{grid-column:1;grid-row:2;} .summary-card.c4{grid-column:2;grid-row:2;}
-  .summary-card-pay{grid-column:3;grid-row:2;}
-  .summary-toolbar-row { grid-column:1 / -1; grid-row:3; }
-  .topbar-title { display:none; }
-  table { min-width:900px; }
+.realtime-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  animation: pulse 2s infinite;
 }
-@media (max-width:768px) {
-  .summary-cards { grid-template-columns:1fr 1fr; }
-  .summary-card.c0{grid-column:1;grid-row:1;} .summary-card.c1{grid-column:2;grid-row:1;}
-  .summary-card.c2{grid-column:1;grid-row:2;} .summary-card.c3{grid-column:2;grid-row:2;}
-  .summary-card.c4{grid-column:1;grid-row:3;} .summary-card-pay{grid-column:2;grid-row:3;}
-  .summary-toolbar-row { grid-column:1/-1; grid-row:4; flex-direction:column; align-items:stretch; }
-  .summary-toolbar-row > div { display:flex; flex-wrap:wrap; gap:6px; }
-  .search { max-width:100%; }
-  .topbar { padding:0 14px; height:54px; }
-  .user-badge span:not(.role-badge) { display:none; }
-  .container { padding:12px 14px; }
-  .course-header-row { flex-direction:column; }
-  .chi { min-width:100%; }
-  .form-row { grid-template-columns:1fr; }
-  .nc-grid { grid-template-columns:1fr; }
-  .btn { padding:9px 12px; font-size:12px; }
-  table { min-width:800px; }
-  .login-card { padding:32px 24px 28px; }
-  .new-course-card { padding:16px; }
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
-@media (max-width:480px) {
-  .summary-card p { font-size:24px; }
-  .course-page-inner { padding:20px 14px 32px; }
-  table { min-width:700px; }
-  .login-card { padding:28px 18px; }
-  .login-logo-wrap { width:60px; height:60px; font-size:26px; }
-  .login-title { font-size:18px; }
+/* EXECUTIVE SUMMARY DASHBOARD */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
 }
-</style>
-</head>
-<body>
-
-<!-- LOGIN -->
-<div id="loginPage">
-  <div class="login-bg"></div>
-  <div class="login-grid"></div>
-  <div class="login-orb login-orb-1"></div>
-  <div class="login-orb login-orb-2"></div>
-  <div class="login-wrap">
-    <div class="login-card">
-      <div class="login-brand">
-        <div class="login-logo-wrap">📋</div>
-        <div class="login-title">ระบบลงทะเบียนอบรม</div>
-        <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์</div>
-      </div>
-      <div class="login-field">
-        <label>อีเมล</label>
-        <input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email">
-      </div>
-      <div class="login-field">
-        <label>รหัสผ่าน</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()" autocomplete="current-password">
-      </div>
-      <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
-      <div class="login-err" id="loginErr"></div>
-      <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
+.dashboard-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: transform 0.25s, box-shadow 0.25s;
+  position: relative;
+}
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.dashboard-card-span-2 {
+  grid-column: span 2;
+}
+.dashboard-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-dark);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1.5px solid var(--bg);
+  padding-bottom: 10px;
+}
+.dashboard-card-title svg {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+}
+/* STATS ELEMENTS */
+.big-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--bg);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.stat-box.highlight {
+  background: linear-gradient(135deg, var(--primary-light) 0%, rgba(13,148,136,0.05) 100%);
+  background: linear-gradient(135deg, var(--primary-light) 0%, rgba(79, 70, 229, 0.05) 100%);
+  border-color: var(--primary-border);
+}
+.stat-box-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.2;
+}
+.stat-box.highlight .stat-box-value {
+  color: var(--primary-hover);
+}
+.stat-box-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray);
+  margin-top: 6px;
+}
+.stat-bar-container {
+  margin-top: 14px;
+}
+.stat-bar-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.stat-bar-outer {
+  background: var(--border);
+  height: 10px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.stat-bar-inner {
+  background: var(--primary);
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease-out;
+}
+/* CSS CHARTS LIST */
+.chart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chart-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.chart-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.chart-label-name {
+  color: var(--gray-dark);
+}
+.chart-label-val {
+  color: var(--dark);
+}
+.chart-bar-outer {
+  background: var(--bg);
+  height: 8px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.chart-bar-inner {
+  background: var(--secondary);
+  background: var(--primary);
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease-out;
+}
+.chart-bar-inner.claim-cf { background: var(--primary); }
+.chart-bar-inner.claim-ag { background: var(--secondary); }
+/* GRID ANALYTICS CARDS */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+.anal-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.anal-icon {
+  background: var(--primary-light);
+  color: var(--primary);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.anal-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.anal-info h4 {
+  font-size: 11.5px;
+  color: var(--gray);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.anal-info p {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+}
+/* MODAL CONTAINER & CONTENT */
+.modal, .user-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+.modal.open, .user-modal.open {
+  display: flex;
+}
+.modal-content, .user-modal-content {
+  background: white;
+  width: 100%;
+  max-width: 840px;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.modal-content-sm {
+  max-width: 540px;
+}
+/* MODAL FORMS */
+.modal-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-hover);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-box {
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+.display-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.display-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+.display-value-lg {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+}
+/* CUSTOM BUTTON RADIOS & CHECKBOXES */
+.custom-radio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.custom-radio-label, .custom-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: all 0.2s;
+  user-select: none;
+}
+.custom-radio-label:hover, .custom-checkbox-label:hover {
+  border-color: var(--gray-light);
+}
+.custom-radio-label input[type="radio"], .custom-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.custom-radio-label.checked {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+.custom-checkbox-label.checked {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+/* SIGNATURE CANVAS BOX */
+.signature-canvas-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  overflow: hidden;
+  background: white;
+}
+   .course-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.course-header-field {
+  flex: 1;
+  min-width: 140px;
+}
+.course-header-field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gray);
+  margin-bottom: 5px;
+}
+.course-details-display {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--gray-dark);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+/* TOOLBAR & SEARCH */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+  max-width: 400px;
+}
+.search-wrapper svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--gray);
+}
+.search {
+  padding-left: 42px !important;
+}
+/* DATA TABLE */
+.table-wrap {
+  overflow: auto;
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  padding: 10px;
+}
+table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+th {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+  padding: 12px 8px;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-bottom: 2px solid var(--primary-border);
+}
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--gray-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+tr:hover td {
+  background: var(--bg);
+}
+table th:nth-child(1), table td:nth-child(1) { width: 50px; text-align: center; } /* ลำดับ */
+table th:nth-child(2), table td:nth-child(2) { width: 170px; font-weight: 600; color: var(--dark); } /* ชื่อ */
+table th:nth-child(3), table td:nth-child(3) { width: 130px; } /* อปท. */
+table th:nth-child(4), table td:nth-child(4) { width: 130px; } /* ตำแหน่ง */
+table th:nth-child(5), table td:nth-child(5) { width: 100px; } /* โทร */
+table th:nth-child(6), table td:nth-child(6) { width: 80px; }  /* ตำบล */
+table th:nth-child(7), table td:nth-child(7) { width: 80px; }  /* จังหวัด */
+table th:nth-child(8), table td:nth-child(8) { width: 55px; text-align: center; }  /* เสื้อ */
+table th:nth-child(9), table td:nth-child(9) { width: 95px; }  /* ประเภทเบิก */
+table th:nth-child(10), table td:nth-child(10) { width: 85px; } /* วิธีชำระ */
+table th:nth-child(11), table td:nth-child(11) { width: 95px; } /* เจ้าหน้าที่ */
+table th:nth-child(12), table td:nth-child(12) { width: 75px; text-align: center; } /* รับอุปกรณ์ */
+table th:nth-child(13), table td:nth-child(13) { width: 95px; text-align: center; } /* วันที่ 1 */
+table th:nth-child(14), table td:nth-child(14) { width: 95px; text-align: center; } /* วันที่ 2 */
+table th:nth-child(15), table td:nth-child(15) { width: 95px; text-align: center; } /* วันที่ 3 */
+/* STATUS BADGES */
+.status {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+.pending {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+.day-cell {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.day-cell:hover {
+  background: rgba(13, 148, 136, 0.08) !important;
+  background: rgba(79, 70, 229, 0.08) !important;
+}
+.day-cell.done {
+  cursor: pointer; /* สามารถกดเข้าดู view modal ได้ */
+  cursor: pointer;
+}
+.realtime-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+/* EXECUTIVE SUMMARY DASHBOARD */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.dashboard-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: transform 0.25s, box-shadow 0.25s;
+  position: relative;
+}
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.dashboard-card-span-2 {
+  grid-column: span 2;
+}
+.dashboard-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-dark);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1.5px solid var(--bg);
+  padding-bottom: 10px;
+}
+.dashboard-card-title svg {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+}
+/* STATS ELEMENTS */
+.big-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--bg);
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.stat-box.highlight {
+  background: linear-gradient(135deg, var(--primary-light) 0%, rgba(13,148,136,0.05) 100%);
+  background: linear-gradient(135deg, var(--primary-light) 0%, rgba(79, 70, 229, 0.05) 100%);
+  border-color: var(--primary-border);
+}
+.stat-box-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--dark);
+  line-height: 1.2;
+}
+.stat-box.highlight .stat-box-value {
+  color: var(--primary-hover);
+}
+.stat-box-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray);
+  margin-top: 6px;
+}
+.stat-bar-container {
+  margin-top: 14px;
+}
+.stat-bar-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.stat-bar-outer {
+  background: var(--border);
+  height: 10px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.stat-bar-inner {
+  background: var(--primary);
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease-out;
+}
+/* CSS CHARTS LIST */
+.chart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chart-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.chart-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.chart-label-name {
+  color: var(--gray-dark);
+}
+.chart-label-val {
+  color: var(--dark);
+}
+.chart-bar-outer {
+  background: var(--bg);
+  height: 8px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.chart-bar-inner {
+  background: var(--secondary);
+  background: var(--primary);
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.5s ease-out;
+}
+.chart-bar-inner.claim-cf { background: var(--primary); }
+.chart-bar-inner.claim-ag { background: var(--secondary); }
+/* GRID ANALYTICS CARDS */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+.anal-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.anal-icon {
+  background: var(--primary-light);
+  color: var(--primary);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.anal-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.anal-info h4 {
+  font-size: 11.5px;
+  color: var(--gray);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.anal-info p {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+}
+/* MODAL CONTAINER & CONTENT */
+.modal, .user-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+.modal.open, .user-modal.open {
+  display: flex;
+}
+.modal-content, .user-modal-content {
+  background: white;
+  width: 100%;
+  max-width: 840px;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.modal-content-sm {
+  max-width: 540px;
+}
+/* MODAL FORMS */
+.modal-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-hover);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-box {
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+.display-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.display-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+.display-value-lg {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+}
+/* CUSTOM BUTTON RADIOS & CHECKBOXES */
+.custom-radio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.custom-radio-label, .custom-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: all 0.2s;
+  user-select: none;
+}
+.custom-radio-label:hover, .custom-checkbox-label:hover {
+  border-color: var(--gray-light);
+}
+.custom-radio-label input[type="radio"], .custom-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.custom-radio-label.checked {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+.custom-checkbox-label.checked {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+/* SIGNATURE CANVAS BOX */
+.signature-canvas-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  overflow: hidden;
+  background: white;
+}
+   <!-- MODAL ADD TRAINEE -->
+<div class="user-modal" id="addTraineeModal">
+  <div class="user-modal-content modal-content-sm">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+      <h2 style="font-size:18px; color:var(--primary-hover); font-weight:700;">➕ เพิ่มรายชื่อผู้เข้าอบรม</h2>
+      <button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeAddTraineeModal()">✕ ปิด</button>
     </div>
-  </div>
-</div>
-
-<!-- COURSE SELECTOR -->
-<div id="coursePage">
-  <div class="cp-bg"></div>
-  <div class="cp-grid"></div>
-  <div class="course-page-inner">
-    <div class="course-page-header">
-      <div class="cp-logo">
-        <div class="cp-logo-icon">📋</div>
-        <div class="cp-logo-text">
-          <h1>ระบบลงทะเบียนอบรม</h1>
-          <p>เลือกรุ่นที่ต้องการจัดการ</p>
-        </div>
+    <div class="login-field">
+      <label>ชื่อ-นามสกุล *</label>
+      <input type="text" id="nt_name" placeholder="ระบุ ชื่อ-นามสกุล">
+    </div>
+    <div class="login-field">
+      <label>อปท. / ต้นสังกัดหน่วยงาน *</label>
+      <input type="text" id="nt_agency" placeholder="ระบุสังกัดหน่วยงาน">
+    </div>
+    <div class="nc-grid" style="margin-bottom:12px;">
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--gray-dark); margin-bottom:8px;">ตำแหน่ง</label>
+        <input type="text" id="nt_position" placeholder="ตำแหน่ง">
       </div>
-      <button class="cp-logout" onclick="doLogout()">ออกจากระบบ</button>
-    </div>
-
-    <div class="cp-section-label">รุ่นอบรมทั้งหมด</div>
-    <div class="course-list" id="courseList">
-      <div style="color:rgba(255,255,255,.5);text-align:center;padding:28px;font-size:14px;">⏳ กำลังโหลด...</div>
-    </div>
-
-    <div class="new-course-card">
-      <h3>➕ สร้างรุ่นอบรมใหม่</h3>
-      <div class="nc-grid">
-        <input class="nc-input" id="nc_title" placeholder="ชื่อหลักสูตร / รุ่นที่">
-        <input class="nc-input" id="nc_location" placeholder="สถานที่อบรม">
-        <input class="nc-input" type="date" id="nc_start">
-        <input class="nc-input" type="date" id="nc_end">
-      </div>
-      <button class="nc-btn" onclick="createCourse()">✅ สร้างรุ่นใหม่</button>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="mainApp" style="display:none;">
-  <div class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-logo">📋</span>
-      <span class="topbar-title">ระบบลงทะเบียนอบรม</span>
-      <div class="topbar-divider"></div>
-      <span class="course-badge" id="topbarCourse">-</span>
-      <span class="realtime-dot" title="Realtime เชื่อมต่อแล้ว"></span>
-    </div>
-    <div class="topbar-right">
-      <div class="user-badge">👤 <span id="topbarName">-</span> <span class="role-badge" id="topbarRole"></span></div>
-      <button class="topbar-btn" onclick="goBackToCourseSelect()">🔄 เปลี่ยนรุ่น</button>
-      <button class="topbar-btn danger" onclick="doLogout()">ออกจากระบบ</button>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="manage-bar" id="manageBar">
-      <span style="font-size:13px;font-weight:700;color:#92400e;">🔧 Super Admin</span>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="openUserModal()">👥 จัดการ Staff</button>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--gray-dark); margin-bottom:8px;">เบอร์ติดต่อ</label>
+        <input type="text" id="nt_phone" placeholder="เบอร์โทรศัพท์">
       </div>
     </div>
-
-    <!-- Course Header -->
-    <div class="course-header-box">
-      <h2>📁 ข้อมูลหลักสูตร</h2>
-      <div class="course-header-row">
-        <input class="chi" id="courseTitleInput" placeholder="ชื่อหลักสูตร">
-        <input class="chi" type="date" id="startDateInput">
-        <input class="chi" type="date" id="endDateInput">
-        <input class="chi" id="locationInput" placeholder="สถานที่อบรม">
-        <button class="btn btn-primary" onclick="saveCourseHeader()">💾 บันทึก</button>
+    <div class="nc-grid" style="margin-bottom:20px;">
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--gray-dark); margin-bottom:8px;">จังหวัด</label>
+        <input type="text" id="nt_province" placeholder="จังหวัด">
       </div>
-      <div class="course-info-display">
-        <strong id="courseTitleDisplay">-</strong> &nbsp;|&nbsp;
-        <span id="courseDateDisplay">-</span> &nbsp;|&nbsp;
-        <span id="courseLocationDisplay">-</span>
-      </div>
-    </div>
-
-    <!-- Summary Cards -->
-    <div class="summary-cards">
-      <div class="summary-card c0" data-icon="👥"><h3>ผู้เข้าอบรมทั้งหมด</h3><p id="s0">0</p><div class="s-label">คน</div></div>
-      <div class="summary-card c1" data-icon="📅"><h3>ลงทะเบียน วันที่ 1</h3><p id="s1">0</p><div class="s-label">คน</div></div>
-      <div class="summary-card c2" data-icon="📅"><h3>ลงทะเบียน วันที่ 2</h3><p id="s2">0</p><div class="s-label">คน</div></div>
-      <div class="summary-card c3" data-icon="📅"><h3>ลงทะเบียน วันที่ 3</h3><p id="s4">0</p><div class="s-label">คน</div></div>
-      <div class="summary-card c4" data-icon="💳"><h3>สรุปการชำระ</h3><p id="s3">0</p><div class="s-label">คน</div></div>
-      <div class="summary-card-pay">
-        <h3>💳 วิธีชำระ</h3>
-        <div id="s3t" class="summary-list"></div>
-      </div>
-
-      <div class="summary-toolbar-row">
-        <input type="text" id="search" class="search" placeholder="🔍  ค้นหา ลำดับ / ชื่อ / อปท.">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <label for="excelFile" class="btn btn-primary" style="cursor:pointer;">📁 Import Excel</label>
-          <button class="btn btn-green" onclick="exportExcel()">📤 Export Excel</button>
-          <button class="btn btn-purple" onclick="openAddTraineeModal()">➕ เพิ่มรายชื่อ</button>
-          <button class="btn btn-danger" onclick="deleteTrainee()">🗑️ ลบรายชื่อ</button>
-          <input type="file" id="excelFile" hidden accept=".xlsx,.xls,.csv">
-        </div>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>อปท.</th><th>ตำแหน่ง</th>
-            <th>โทรศัพท์</th><th>ตำบล</th><th>จังหวัด</th><th>เสื้อ</th>
-            <th>ประเภทเบิก</th><th>วิธีชำระ</th><th>เจ้าหน้าที่</th><th>รับอุปกรณ์</th>
-            <th>วันที่ 1</th><th>วันที่ 2</th><th>วันที่ 3</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL REGISTRATION -->
-<div class="modal" id="modal"><div class="modal-content" id="modalContent"></div></div>
-
-<!-- MODAL USER MANAGEMENT -->
-<div class="user-modal" id="userModal">
-  <div class="user-modal-content">
-    <div class="modal-header">
-      <h2>👥 จัดการผู้ใช้งาน</h2>
-      <button class="modal-close" onclick="closeUserModal()">✕</button>
-    </div>
-    <div class="add-user-form">
-      <h4>➕ เพิ่มผู้ใช้งานใหม่</h4>
-      <div class="form-row">
-        <input type="text" id="newUserName" placeholder="ชื่อ-นามสกุล">
-        <input type="email" id="newUserEmail" placeholder="อีเมล">
-      </div>
-      <div class="form-row">
-        <input type="password" id="newUserPassword" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
-        <select id="newUserRole">
-          <option value="staff">Staff</option>
-          <option value="superadmin">Super Admin</option>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:var(--gray-dark); margin-bottom:8px;">ขนาดเสื้อ</label>
+        <select id="nt_shirt">
+          <option value="">-- เลือกขนาดเสื้อ --</option>
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+          <option value="XL">XL</option>
+          <option value="2XL">2XL</option>
+          <option value="3XL">3XL</option>
         </select>
       </div>
-      <button class="btn btn-primary" style="width:100%;" onclick="addUser()">เพิ่มผู้ใช้งาน</button>
-      <div id="addUserMsg" style="margin-top:8px;font-size:12px;"></div>
     </div>
-    <div id="userListContainer"><div style="text-align:center;color:var(--muted);padding:20px;">⏳ กำลังโหลด...</div></div>
-  </div>
-</div>
-
-<!-- MODAL เพิ่มรายชื่อ -->
-<div class="user-modal" id="addTraineeModal">
-  <div class="user-modal-content">
-    <div class="modal-header">
-      <h2>➕ เพิ่มรายชื่อผู้เข้าอบรม</h2>
-      <button class="modal-close" onclick="closeAddTraineeModal()">✕</button>
-    </div>
-    <div class="add-user-form">
-      <div class="form-row">
-        <div>
-          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">ชื่อ-นามสกุล *</label>
-          <input class="form-input" type="text" id="nt_name" placeholder="ชื่อ-นามสกุล">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">หน่วยงาน (อปท.) *</label>
-          <input class="form-input" type="text" id="nt_agency" placeholder="หน่วยงาน">
-        </div>
-      </div>
-      <div class="form-row">
-        <div>
-          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">ตำแหน่ง</label>
-          <input class="form-input" type="text" id="nt_position" placeholder="ตำแหน่ง">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">โทรศัพท์</label>
-          <input class="form-input" type="text" id="nt_phone" placeholder="โทรศัพท์">
-        </div>
-      </div>
-      <div class="form-row">
-        <div>
-          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">จังหวัด</label>
-          <input class="form-input" type="text" id="nt_province" placeholder="จังหวัด">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:700;display:block;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;">ขนาดเสื้อ</label>
-          <select class="form-input" id="nt_shirt">
-            <option value="">-- เลือก --</option>
-            <option>S</option><option>M</option><option>L</option>
-            <option>XL</option><option>2XL</option><option>3XL</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;" onclick="saveNewTrainee()">✅ เพิ่มรายชื่อ</button>
-    <div id="addTraineeMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
+    <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="saveNewTrainee()">✅ บันทึกรายชื่อ</button>
+    <div id="addTraineeMsg" style="margin-top:10px; font-size:12.5px; text-align:center;"></div>
   </div>
 </div>
 <script>
@@ -891,10 +1464,8 @@ canvas { touch-action:none; cursor:crosshair; display:block; }
 const SUPABASE_URL = "https://opgkrhvcuhfkrykhrpid.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2tyaHZjdWhma3J5a2hycGlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTE0NzcsImV4cCI6MjA5NTUyNzQ3N30.awGPjHODxi8KANZCt8KH5Bo2amKPA8KNbjqDAtTVA4c";
 // ==============================
-
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 let currentUser = null;
 let currentProfile = null;
 let currentCourse = null;
@@ -902,76 +1473,45 @@ let trainees = [];
 let currentIndex = null;
 let currentDay = 1;
 let realtimeChannel = null;
-
+// TAB SWITCH FUNCTION
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+  
+  if (tab === 'trainees') {
+    document.getElementById('tabTrainees').classList.add('active');
+    document.getElementById('traineesView').classList.add('active');
+    renderTable();
+  } else if (tab === 'dashboard') {
+    document.getElementById('tabDashboard').classList.add('active');
+    document.getElementById('dashboardView').classList.add('active');
+    updateDashboardView();
+  }
+}
 // ===== AUTH =====
-let _loginInProgress = false;
-
 async function doLogin(){
-  if(_loginInProgress) return;
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
   const errEl = document.getElementById("loginErr");
   const spinner = document.getElementById("loginSpinner");
-  if(!email || !password){
-    errEl.textContent = "กรุณากรอกอีเมลและรหัสผ่าน";
-    errEl.style.display = "block"; return;
-  }
-  errEl.style.display="none";
-  spinner.style.display="block";
-  _loginInProgress = true;
-  try {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if(error){
-      const msg = error.message === "Invalid login credentials"
-        ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
-        : error.message === "Email not confirmed"
-        ? "กรุณายืนยันอีเมลก่อน Login"
-        : error.message;
-      errEl.textContent = "เข้าสู่ระบบไม่สำเร็จ: " + msg;
-      errEl.style.display = "block";
-      return;
-    }
-    // สำเร็จ — ให้ onAuthStateChange จัดการต่อ (ไม่ต้องเรียก loadProfile ซ้ำ)
-    currentUser = data.user;
-    sessionLoaded = true;
-    await loadProfile();
-  } catch(e){
-    errEl.textContent = "เกิดข้อผิดพลาด: " + e.message;
-    errEl.style.display = "block";
-  } finally {
-    spinner.style.display = "none";
-    _loginInProgress = false;
-  }
+  errEl.style.display="none"; spinner.style.display="block";
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  spinner.style.display="none";
+  if(error){ errEl.textContent="เข้าสู่ระบบไม่สำเร็จ: "+(error.message==="Invalid login credentials"?"อีเมลหรือรหัสผ่านไม่ถูกต้อง":error.message); errEl.style.display="block"; return; }
+  currentUser = data.user;
+  await loadProfile();
 }
-
 async function loadProfile(){
-  try {
-    const { data, error } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
-    if(error) throw error;
-    currentProfile = data;
-    showCoursePage();
-  } catch(e){
-    // retry 1 ครั้งหลัง 1.5 วินาที (iPad network ช้า)
-    await new Promise(r=>setTimeout(r, 1500));
-    try {
-      const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
-      currentProfile = data;
-      showCoursePage();
-    } catch(e2){
-      // ถ้า profile ไม่มีในตาราง ให้ใช้ค่า default แล้วเข้าได้เลย
-      currentProfile = { role: "user" };
-      showCoursePage();
-    }
-  }
+  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
+  currentProfile = data;
+  showCoursePage();
 }
-
 function showCoursePage(){
   document.getElementById("loginPage").style.display="none";
   document.getElementById("coursePage").style.display="block";
   document.getElementById("mainApp").style.display="none";
   loadCourseList();
 }
-
 async function doLogout(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
   stopPolling();
@@ -981,10 +1521,13 @@ async function doLogout(){
   document.getElementById("coursePage").style.display="none";
   document.getElementById("mainApp").style.display="none";
   document.getElementById("manageBar").classList.remove("visible");
+  
+  // ซ่อนปุ่มจัดการสตาฟ
+  document.getElementById("topbarManageStaffBtn").style.display = "none";
+  
   document.getElementById("loginEmail").value="";
   document.getElementById("loginPassword").value="";
 }
-
 function goBackToCourseSelect(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
   stopPolling();
@@ -992,30 +1535,28 @@ function goBackToCourseSelect(){
   showCoursePage();
   document.getElementById("mainApp").style.display="none";
 }
-
 // ===== COURSE LIST =====
 async function loadCourseList(){
   const container = document.getElementById("courseList");
-  container.innerHTML="<div style='color:rgba(255,255,255,0.7);text-align:center;padding:20px;'>⏳ กำลังโหลด...</div>";
+  container.innerHTML="<div style='color:rgba(255,255,255,0.7);text-align:center;padding:40px;'>⏳ กำลังโหลดข้อมูล...</div>";
   const { data } = await sb.from("courses").select("*, trainees(count)").order("created_at", { ascending: false });
   if(!data || data.length===0){
-    container.innerHTML="<div style='color:rgba(255,255,255,0.6);text-align:center;padding:20px;'>ยังไม่มีรุ่นอบรม — สร้างรุ่นใหม่ด้านล่างได้เลย</div>";
+    container.innerHTML="<div style='color:rgba(255,255,255,0.6);text-align:center;padding:40px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px dashed rgba(255,255,255,0.1);'>ยังไม่มีรุ่นอบรมในระบบ — สามารถสร้างรุ่นใหม่ได้จากหัวข้อด้านล่าง</div>";
     return;
   }
   container.innerHTML = data.map(c=>`
     <div class="course-item" onclick="selectCourse('${c.id}')">
       <div class="course-item-info">
-        <h3>${c.title||'ไม่มีชื่อ'}</h3>
-        <p>📍 ${c.location||'-'} &nbsp;|&nbsp; 📅 ${c.start_date||'-'}${c.end_date?' – '+c.end_date:''}</p>
+        <h3>${c.title||'ไม่มีชื่อหลักสูตร'}</h3>
+        <p>📍 ${c.location||'ไม่ระบุสถานที่'} &nbsp;|&nbsp; 📅 ${c.start_date||'-'}${c.end_date?' – '+c.end_date:''}</p>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:12px;">
         <span class="course-item-count">👥 ${c.trainees?.[0]?.count??0} คน</span>
-        ${currentProfile?.role==='superadmin'?`<button style="background:#fee2e2;color:#991b1b;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;" onclick="event.stopPropagation();deleteCourse('${c.id}')">ลบ</button>`:''}
+        ${currentProfile?.role==='superadmin'?`<button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="event.stopPropagation();deleteCourse('${c.id}')">ลบ</button>`:''}
       </div>
     </div>
   `).join('');
 }
-
 async function createCourse(){
   const title = document.getElementById("nc_title").value.trim();
   const location = document.getElementById("nc_location").value.trim();
@@ -1024,20 +1565,21 @@ async function createCourse(){
   if(!title){ alert("กรุณากรอกชื่อหลักสูตร"); return; }
   const { data, error } = await sb.from("courses").insert({ title, location, start_date:start||null, end_date:end||null }).select().single();
   if(error){ alert("เกิดข้อผิดพลาด: "+error.message); return; }
-  document.getElementById("nc_title").value="";
+  
+  // ตั้งราคาอบรมเริ่มต้นที่ 4900 บาท
+  localStorage.setItem('course_price_' + data.id, 4900);
+     document.getElementById("nc_title").value="";
   document.getElementById("nc_location").value="";
   document.getElementById("nc_start").value="";
   document.getElementById("nc_end").value="";
   await loadCourseList();
   selectCourse(data.id);
 }
-
 async function deleteCourse(id){
   if(!confirm("ลบรุ่นนี้จะลบรายชื่อทั้งหมดด้วย ยืนยัน?")) return;
   await sb.from("courses").delete().eq("id", id);
   await loadCourseList();
 }
-
 async function selectCourse(id){
   const { data } = await sb.from("courses").select("*").eq("id", id).single();
   currentCourse = data;
@@ -1052,47 +1594,74 @@ async function selectCourse(id){
   roleEl.textContent = role==="superadmin"?"Super Admin":"Staff";
   roleEl.className = "role-badge "+(role==="superadmin"?"role-superadmin":"role-staff");
   if(role==="superadmin") document.getElementById("manageBar").classList.add("visible");
+  
+  // แสดงปุ่มจัดการ Staff บน topbar เฉพาะเมื่อเป็น superadmin เท่านั้น
+  if(role==="superadmin") {
+    document.getElementById("topbarManageStaffBtn").style.display = "inline-flex";
+  } else {
+    document.getElementById("topbarManageStaffBtn").style.display = "none";
+  }
+  
   // fill course header
   document.getElementById("courseTitleInput").value = data.title||"";
   document.getElementById("startDateInput").value = data.start_date||"";
   document.getElementById("endDateInput").value = data.end_date||"";
   document.getElementById("locationInput").value = data.location||"";
+  
+  // โหลดค่าราคาค่าอบรม
+  const storedPrice = localStorage.getItem('course_price_' + id);
+  const currentPrice = storedPrice ? parseInt(storedPrice) : 4900;
+  document.getElementById("coursePriceInput").value = currentPrice;
+  document.getElementById("coursePriceDisplay").textContent = currentPrice.toLocaleString();
+  
   updateCourseHeaderDisplay();
   await loadTrainees();
   subscribeRealtime();
   startPolling();
+  
+  // เริ่มที่หน้าแรกเสมอ
+  switchTab('trainees');
 }
-
 // ===== COURSE HEADER =====
 function getThaiDayName(date){ return ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][date.getDay()]; }
 function formatDate(s){ if(!s) return '-'; const d=new Date(s+'T00:00:00'); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} (วัน${getThaiDayName(d)})`; }
-
 function updateCourseHeaderDisplay(){
   const t=document.getElementById("courseTitleInput").value;
   const s=document.getElementById("startDateInput").value;
   const e=document.getElementById("endDateInput").value;
   const l=document.getElementById("locationInput").value;
-  document.getElementById("courseTitleDisplay").textContent=t||'-';
-  document.getElementById("courseDateDisplay").textContent=s?formatDate(s)+(e?' – '+formatDate(e):''):'-';
+  const priceVal = parseInt(document.getElementById("coursePriceInput").value) || 0;
+  
   document.getElementById("courseLocationDisplay").textContent=l||'-';
+  document.getElementById("courseDateDisplay").textContent=s?formatDate(s)+(e?' – '+formatDate(e):''):'-';
+  document.getElementById("coursePriceDisplay").textContent=priceVal.toLocaleString();
 }
-
 async function saveCourseHeader(){
   if(!currentCourse) return;
   const title=document.getElementById("courseTitleInput").value.trim();
   const start=document.getElementById("startDateInput").value;
   const end=document.getElementById("endDateInput").value;
   const location=document.getElementById("locationInput").value.trim();
+  const priceVal = parseInt(document.getElementById("coursePriceInput").value) || 0;
+  
   await sb.from("courses").update({ title, start_date:start||null, end_date:end||null, location }).eq("id", currentCourse.id);
+  
+  // บันทึกราคาลงทะเบียน
+  localStorage.setItem('course_price_' + currentCourse.id, priceVal);
+  
   currentCourse={...currentCourse, title, start_date:start, end_date:end, location};
   document.getElementById("topbarCourse").textContent=title||'-';
   updateCourseHeaderDisplay();
-  alert("✅ บันทึกข้อมูลหลักสูตรแล้ว");
+  
+  // ถ้าอยู่ในหน้า Dashboard ให้คำนวณใหม่
+  if (document.getElementById('tabDashboard').classList.contains('active')) {
+    updateDashboardView();
+  }
+  
+  alert("✅ บันทึกข้อมูลหลักสูตรและราคาค่าอบรมเรียบร้อยแล้ว");
 }
-
 // ===== LOAD TRAINEES =====
 let _pollInterval = null;
-
 async function loadTrainees(){
   if(!currentCourse) return;
   try {
@@ -1101,17 +1670,20 @@ async function loadTrainees(){
     trainees = (data||[]).map(mapRow);
   } catch(e) {
     console.error("loadTrainees error:", e);
-    // retry ครั้งเดียวหลัง 1.5 วินาที
     await new Promise(r=>setTimeout(r,1500));
     try {
       const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
       trainees = (data||[]).map(mapRow);
     } catch(e2){ trainees = []; }
   }
-  renderTable();
+  
+  if (document.getElementById('tabDashboard').classList.contains('active')) {
+    updateDashboardView();
+  } else {
+    renderTable();
+  }
 }
-
-// Polling backup สำหรับ Safari/iPad ที่ Realtime WebSocket อาจไม่ทำงาน
+// Polling backup
 function startPolling(){
   stopPolling();
   _pollInterval = setInterval(async()=>{
@@ -1119,22 +1691,23 @@ function startPolling(){
     try {
       const { data } = await sb.from("trainees").select("*").eq("course_id", currentCourse.id).order("order_no");
       if(data){
-        // อัปเดตเฉพาะถ้าข้อมูลเปลี่ยน (เปรียบเทียบจำนวนและ id)
         const newIds = data.map(r=>r.id).join(',');
         const oldIds = trainees.map(r=>r._id).join(',');
         if(newIds !== oldIds){
           trainees = data.map(mapRow);
-          renderTable();
+          if (document.getElementById('tabDashboard').classList.contains('active')) {
+            updateDashboardView();
+          } else {
+            renderTable();
+          }
         }
       }
     } catch(e){}
-  }, 8000); // poll ทุก 8 วินาที
+  }, 8000);
 }
-
 function stopPolling(){
   if(_pollInterval){ clearInterval(_pollInterval); _pollInterval = null; }
 }
-
 function mapRow(r){
   return {
     _id: r.id,
@@ -1166,7 +1739,6 @@ function mapRow(r){
     signature_day3: r.signature_day3||null,
   };
 }
-
 // ===== REALTIME =====
 function subscribeRealtime(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
@@ -1186,32 +1758,32 @@ function subscribeRealtime(){
           }
         }
         else if(payload.eventType==='DELETE'){ trainees=trainees.filter(t=>t._id!==payload.old.id); }
-        renderTable();
+        
+        if (document.getElementById('tabDashboard').classList.contains('active')) {
+          updateDashboardView();
+        } else {
+          renderTable();
+        }
       }
     )
     .subscribe((status)=>{
       if(status === 'SUBSCRIBED'){
-        stopPolling(); // Realtime ใช้งานได้ ไม่ต้อง poll
+        stopPolling();
       } else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
-        startPolling(); // Realtime ใช้ไม่ได้ เปิด polling แทน
+        startPolling();
       }
     });
-  // กรณี subscribe ไม่ตอบกลับภายใน 5 วินาที ให้เริ่ม polling ทันที
   setTimeout(()=>{ if(!_pollInterval) startPolling(); }, 5000);
 }
-
 // ===== EXCEL IMPORT =====
-// ใช้ DOMContentLoaded เพื่อให้แน่ใจว่า element พร้อมแล้วบน Safari/iPad
 document.addEventListener("DOMContentLoaded", function(){
   const excelFile = document.getElementById("excelFile");
   const searchEl = document.getElementById("search");
   if(excelFile) excelFile.addEventListener("change", handleExcel);
   if(searchEl) searchEl.addEventListener("input", renderTable);
 });
-
 function normalizeKey(k){ return String(k||'').trim().replace(/\s+/g,' ').toLowerCase(); }
 function getVal(row,key){ const f=Object.keys(row).find(c=>normalizeKey(c)===normalizeKey(key)); return f!==undefined?row[f]:''; }
-
 async function handleExcel(e){
   const file=e.target.files[0]; if(!file||!currentCourse) return;
   if(!confirm("Import จะเพิ่มรายชื่อใหม่เข้าในรุ่นนี้ ยืนยัน?")) return;
@@ -1248,131 +1820,153 @@ async function handleExcel(e){
   reader.readAsArrayBuffer(file);
 }
 
-// ===== EXPORT EXCEL (with signature images via ExcelJS) =====
-async function exportExcel(){
+   // ===== EXPORT EXCEL =====
+// ===== EXPORT EXCEL (เพิ่มประวัติสถานะลายเซ็นเป็นข้อความ) =====
+function exportExcel(){
   if(!trainees.length){ alert("ไม่มีข้อมูล"); return; }
-
-  const btn = document.querySelector('button[onclick="exportExcel()"]');
-  if(btn){ btn.disabled=true; btn.textContent="⏳ กำลัง Export..."; }
-
+  const rows=trainees.map(t=>({
+    "ลำดับ":t.order_no,"ชื่อ-นามสกุล":t.full_name,"อปท.":t.agency,
+    "ตำแหน่ง":t.position,"โทรศัพท์":t.phone,"ตำบล":t.district,"จังหวัด":t.province,
+    "เสื้อ":t.shirt_size,"ประเภทเบิก":t.claimType,"วิธีชำระ":t.paymentMethod,
+    "เจ้าหน้าที่วันที่1":t.staffName_day1,"เจ้าหน้าที่วันที่2":t.staffName_day2,"เจ้าหน้าที่วันที่3":t.staffName_day3,
+    "รับอุปกรณ์":t.equipmentReceived?"✓":"","วันที่1":t.day1?"✓":"","วันที่2":t.day2?"✓":"","วันที่3":t.day3?"✓":""
+    "ลำดับ":t.order_no,
+    "ชื่อ-นามสกุล":t.full_name,
+    "อปท. / หน่วยงาน":t.agency,
+    "ตำแหน่ง":t.position,
+    "โทรศัพท์":t.phone,
+    "ตำบล":t.district,
+    "จังหวัด":t.province,
+    "เสื้อ":t.shirt_size,
+    "ประเภทเบิก":t.claimType,
+    "วิธีชำระ":t.paymentMethod,
+    "เจ้าหน้าที่วันที่1":t.staffName_day1,
+    "เจ้าหน้าที่วันที่2":t.staffName_day2,
+    "เจ้าหน้าที่วันที่3":t.staffName_day3,
+    "รับอุปกรณ์":t.equipmentReceived?"✓":"",
+    "เช็คอิน วันที่1":t.day1?"✓":"",
+    "เช็คอิน วันที่2":t.day2?"✓":"",
+    "เช็คอิน วันที่3":t.day3?"✓":"",
+    "ลายเซ็น วันที่ 1": t.signature_day1 ? "มีลายเซ็น" : "ไม่มี",
+    "ลายเซ็น วันที่ 2": t.signature_day2 ? "มีลายเซ็น" : "ไม่มี",
+    "ลายเซ็น วันที่ 3": t.signature_day3 ? "มีลายเซ็น" : "ไม่มี"
+  }));
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,ws,"รายชื่อ");
   try {
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("รายชื่อ");
-
-    const ROW_HEIGHT   = 80;  // ความสูงแถว (pt)
-    const SIG_PADDING  = 0.05; // เว้นขอบเล็กน้อย
-
-    const headers = [
-      "ลำดับ","ชื่อ-นามสกุล","อปท.","ตำแหน่ง","โทรศัพท์",
-      "ตำบล","จังหวัด","เสื้อ","ประเภทเบิก","วิธีชำระ",
-      "เจ้าหน้าที่วันที่1","เจ้าหน้าที่วันที่2","เจ้าหน้าที่วันที่3",
-      "รับอุปกรณ์",
-      "ลายเซ็น วันที่1","ลายเซ็น วันที่2","ลายเซ็น วันที่3"
-    ];
-
-    // ขนาดคอลัมน์ (character width)
-    const colWidths = [5,22,18,16,12,10,10,6,12,10,14,14,14,10,22,22,22];
-    colWidths.forEach((w,i)=>{ ws.getColumn(i+1).width = w; });
-
-    // border style ใช้ซ้ำทุกเซลล์
-    const border = {
-      top:   { style:"thin", color:{ argb:"FFB0BEC5" } },
-      left:  { style:"thin", color:{ argb:"FFB0BEC5" } },
-      bottom:{ style:"thin", color:{ argb:"FFB0BEC5" } },
-      right: { style:"thin", color:{ argb:"FFB0BEC5" } }
-    };
-    const sigBorder = {
-      top:   { style:"medium", color:{ argb:"FF0F766E" } },
-      left:  { style:"medium", color:{ argb:"FF0F766E" } },
-      bottom:{ style:"medium", color:{ argb:"FF0F766E" } },
-      right: { style:"medium", color:{ argb:"FF0F766E" } }
-    };
-
-    // Header row
-    const headerRow = ws.addRow(headers);
-    headerRow.height = 28;
-    headerRow.eachCell(cell=>{
-      cell.font      = { bold:true, color:{ argb:"FFFFFFFF" }, size:11 };
-      cell.fill      = { type:"pattern", pattern:"solid", fgColor:{ argb:"FF0F766E" } };
-      cell.alignment = { horizontal:"center", vertical:"middle", wrapText:true };
-      cell.border    = border;
-    });
-
-    function dataUrlToBase64(d){ return d ? d.split(",")[1] : null; }
-
-    // สร้างแถวข้อมูลก่อน เพื่อให้ทุกแถว height เท่ากัน
-    for(let i=0; i<trainees.length; i++){
-      const t = trainees[i];
-      const rowIdx = i + 2;
-
-      const values = [
-        t.order_no, t.full_name, t.agency, t.position, t.phone,
-        t.district, t.province, t.shirt_size, t.claimType||"", t.paymentMethod||"",
-        t.staffName_day1||"", t.staffName_day2||"", t.staffName_day3||"",
-        t.equipmentReceived?"✓":"",
-        "","",""   // placeholder ลายเซ็น
-      ];
-      const dataRow = ws.addRow(values);
-      dataRow.height = ROW_HEIGHT;  // ทุกแถวสูงเท่ากัน
-
-      // ตั้ง style ทุกเซลล์ในแถว
-      dataRow.eachCell({ includeEmpty:true }, (cell, colNum)=>{
-        cell.alignment = {
-          vertical:"middle",
-          horizontal: colNum===1 ? "center" : "left",
-          wrapText: colNum <= 4
-        };
-        // แถวสลับสี (zebra striping)
-        cell.fill = { type:"pattern", pattern:"solid",
-          fgColor:{ argb: i%2===0 ? "FFFAFAFA" : "FFE8F5F3" } };
-        // คอลัมน์ลายเซ็นใช้ border เขียวเข้ม
-        cell.border = (colNum >= 15) ? sigBorder : border;
-      });
-
-      // ฝังรูปลายเซ็น — กำหนดขนาดเป็น pixel และจัดกึ่งกลางเซลล์
-      // colWidth 32 chars ≈ 230px, rowHeight 100pt ≈ 133px
-      const SIG_W = 148; // ความกว้างรูป (px) — col 22 char * 7px ≈ 154px
-      const SIG_H = 68;  // ความสูงรูป (px) — แถว 80pt ≈ 107px มี margin พอดี
-      // offX = (154-148)/2 = 3, offY = (107-68)/2 = 19
-      const offX = 3;
-      const offY = 19;
-
-      for(const [day, col] of [["signature_day1",15],["signature_day2",16],["signature_day3",17]]){
-        const sig = t[day];
-        if(!sig) continue;
-        const b64 = dataUrlToBase64(sig);
-        if(!b64) continue;
-        const imgId = wb.addImage({ base64:b64, extension:"png" });
-        ws.addImage(imgId, {
-          tl:{ nativeCol: col-1, nativeColOff: offX * 9525,
-               nativeRow: rowIdx-1, nativeRowOff: offY * 9525 },
-          ext:{ width: SIG_W, height: SIG_H }
-        });
-      }
-    }
-
-    // Freeze header + auto filter
-    ws.views = [{ state:"frozen", ySplit:1 }];
-    ws.autoFilter = { from:{ row:1, column:1 }, to:{ row:1, column:headers.length } };
-
-    // Download
-    const fileName = (currentCourse?.title||"รายชื่อ")+"_export.xlsx";
-    const buffer = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const wbout = XLSX.write(wb, { bookType:'xlsx', type:'array' });
+    const blob = new Blob([wbout], { type:'application/octet-stream' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href=url; a.download=fileName; a.style.display="none";
+    const fileName = (currentCourse?.title||"รายชื่อ")+"_export.xlsx";
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName; a.style.display='none';
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-
-  } catch(err){
-    console.error("Export error:", err);
-    alert("❌ Export ไม่สำเร็จ: "+err.message);
-  } finally {
-    if(btn){ btn.disabled=false; btn.textContent="📤 Export Excel"; }
+  } catch(e) {
+    XLSX.writeFile(wb,(currentCourse?.title||"รายชื่อ")+"_export.xlsx");
   }
 }
-
+// ===== PRINT SIGNATURES & ATTENDANCE REPORT (ใบลงชื่อจริงแสดงภาพลายเซ็น) =====
+function printSignaturesReport(){
+  if(!trainees.length){ alert("ไม่มีข้อมูลในการพิมพ์"); return; }
+  const printWindow = window.open('', '_blank');
+  const courseTitle = currentCourse ? currentCourse.title : 'รายงานรายชื่อผู้เข้าร่วมการอบรม';
+  const courseLoc = currentCourse ? currentCourse.location : '-';
+  const courseStart = currentCourse ? currentCourse.start_date : '';
+  const courseEnd = currentCourse ? currentCourse.end_date : '';
+  
+  let dateStr = formatDate(courseStart);
+  if (courseEnd) {
+    dateStr += ' – ' + formatDate(courseEnd);
+  }
+  
+  let rowsHtml = trainees.map(t => `
+    <tr>
+      <td style="text-align:center;">${t.order_no}</td>
+      <td><strong>${t.full_name}</strong></td>
+      <td>${t.agency}</td>
+      <td>${t.position || '-'}</td>
+      <td>${t.phone || '-'}</td>
+      <td style="text-align:center;">${t.shirt_size || '-'}</td>
+      <td style="text-align:center; vertical-align:middle; height:50px;">
+        ${t.signature_day1 ? `<img src="${t.signature_day1}" style="max-height:45px; max-width:115px; display:block; margin:0 auto;" alt="sig1">` : '<span style="color:#cbd5e1; font-size:10px;">-</span>'}
+      </td>
+      <td style="text-align:center; vertical-align:middle; height:50px;">
+        ${t.signature_day2 ? `<img src="${t.signature_day2}" style="max-height:45px; max-width:115px; display:block; margin:0 auto;" alt="sig2">` : '<span style="color:#cbd5e1; font-size:10px;">-</span>'}
+      </td>
+      <td style="text-align:center; vertical-align:middle; height:50px;">
+        ${t.signature_day3 ? `<img src="${t.signature_day3}" style="max-height:45px; max-width:115px; display:block; margin:0 auto;" alt="sig3">` : '<span style="color:#cbd5e1; font-size:10px;">-</span>'}
+      </td>
+    </tr>
+  `).join('');
+  
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>รายงานลายเซ็น - ${courseTitle}</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <style>
+        body { font-family: 'Prompt', sans-serif; padding: 20px; color: #1e293b; font-size: 11px; line-height: 1.4; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px double #cbd5e1; padding-bottom: 12px; }
+        .header h1 { font-size: 19px; color: #1e1b4b; margin: 0 0 6px; }
+        .header p { font-size: 11.5px; color: #475569; margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { border: 1px solid #94a3b8; padding: 6px 6px; font-size: 10.5px; word-wrap: break-word; vertical-align: middle; }
+        th { background-color: #f8fafc; color: #1e293b; font-weight: 700; text-align: left; }
+        th.center, td.center { text-align: center; }
+        @media print {
+          @page { size: landscape; margin: 10mm; }
+          body { padding: 0; }
+          .no-print { display: none; }
+          tr { page-break-inside: avoid; }
+        }
+        .btn-print {
+          background-color: #4f46e5; color: white; padding: 8px 16px; border: none; border-radius: 6px;
+          font-family: 'Prompt', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;
+          box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); transition: background 0.2s;
+        }
+        .btn-print:hover { background-color: #4338ca; }
+      </style>
+    </head>
+    <body>
+      <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <div><strong>📄 รายงานใบลงชื่อผู้เข้าร่วมสัมมนาและลายเซ็นต์อิเล็กทรอนิกส์</strong> (แสดงภาพลายเซ็นจริงบนแบบฟอร์ม)</div>
+        <button class="btn-print" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน / บันทึก PDF</button>
+      </div>
+      
+      <div class="header">
+        <h1>ใบลงทะเบียนและลายเซ็นผู้เข้าอบรม</h1>
+        <p><strong>หลักสูตร:</strong> ${courseTitle} &nbsp;|&nbsp; <strong>สถานที่:</strong> ${courseLoc}</p>
+        <p>📅 <strong>วันจัดอบรม:</strong> ${dateStr} &nbsp;|&nbsp; 👥 <strong>ผู้เข้าอบรมทั้งหมด:</strong> ${trainees.length} คน</p>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40px; text-align:center;">ลำดับ</th>
+            <th style="width: 150px;">ชื่อ-นามสกุล</th>
+            <th style="width: 130px;">อปท. / หน่วยงาน</th>
+            <th style="width: 120px;">ตำแหน่ง</th>
+            <th style="width: 90px;">เบอร์โทร</th>
+            <th style="width: 40px; text-align:center;">เสื้อ</th>
+            <th style="width: 110px; text-align:center;">ลายเซ็นวันที่ 1</th>
+            <th style="width: 110px; text-align:center;">ลายเซ็นวันที่ 2</th>
+            <th style="width: 110px; text-align:center;">ลายเซ็นวันที่ 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
 // ===== RENDER TABLE =====
 function renderTable(){
   const keyword=document.getElementById("search").value.toLowerCase().trim();
@@ -1387,359 +1981,520 @@ function renderTable(){
   filtered.forEach((t,i)=>{
     const realIdx=trainees.indexOf(t);
     tbody.innerHTML+=`<tr>
-      <td>${t.order_no}</td>
+      <td style="text-align: center;">${t.order_no}</td>
       <td style="${t.editedFields?.includes('name')?'color:#dc2626;font-weight:700;':''}">${t.full_name}</td>
       <td style="${t.editedFields?.includes('agency')?'color:#dc2626;font-weight:700;':''}">${t.agency}</td>
       <td style="${t.editedFields?.includes('position')?'color:#dc2626;font-weight:700;':''}">${t.position}</td>
       <td style="${t.editedFields?.includes('phone')?'color:#dc2626;font-weight:700;':''}">${t.phone}</td>
-      <td>${t.district}</td><td>${t.province}</td><td>${t.shirt_size}</td>
+      <td style="${t.editedFields?.includes('name')?'color:var(--danger);font-weight:700;':''}">${t.full_name}</td>
+      <td style="${t.editedFields?.includes('agency')?'color:var(--danger);font-weight:700;':''}">${t.agency}</td>
+      <td style="${t.editedFields?.includes('position')?'color:var(--danger);font-weight:700;':''}">${t.position}</td>
+      <td style="${t.editedFields?.includes('phone')?'color:var(--danger);font-weight:700;':''}">${t.phone}</td>
+      <td>${t.district}</td><td>${t.province}</td><td style="text-align: center;">${t.shirt_size||'-'}</td>
       <td>${t.claimType||'-'}</td><td>${t.paymentMethod||'-'}</td><td>${t.staffName_day1||t.staffName_day2||'-'}</td>
-      <td><span class="status ${t.equipmentReceived?'success':'pending'}">${t.equipmentReceived?'✓':'✗'}</span></td>
-      <td class="day-cell ${t.day1?'done':''}" onclick="openModal(${realIdx},1)"><span class="status ${t.day1?'success':'pending'}">${t.day1?'✓ สำเร็จ':'รอ'}</span></td>
-      <td class="day-cell ${t.day2?'done':''}" onclick="openModal(${realIdx},2)"><span class="status ${t.day2?'success':'pending'}">${t.day2?'✓ สำเร็จ':'รอ'}</span></td>
-      <td class="day-cell ${t.day3?'done':''}" onclick="openModal(${realIdx},3)"><span class="status ${t.day3?'success':'pending'}">${t.day3?'✓ สำเร็จ':'รอ'}</span></td>
+      <td style="text-align: center;"><span class="status ${t.equipmentReceived?'success':'pending'}">${t.equipmentReceived?'✓ รับแล้ว':'รอ'}</span></td>
+      <td class="day-cell ${t.day1?'done':''}" onclick="openModal(${realIdx},1)"><span class="status ${t.day1?'success':'pending'}">${t.day1?'✓ วันที่ 1':'วันแรก'}</span></td>
+      <td class="day-cell ${t.day2?'done':''}" onclick="openModal(${realIdx},2)"><span class="status ${t.day2?'success':'pending'}">${t.day2?'✓ วันที่ 2':'วันที่ 2'}</span></td>
+      <td class="day-cell ${t.day3?'done':''}" onclick="openModal(${realIdx},3)"><span class="status ${t.day3?'success':'pending'}">${t.day3?'✓ วันที่ 3':'วันที่ 3'}</span></td>
     </tr>`;
   });
-  updateSummary();
 }
-
-function updateSummary(){
-  const d1=trainees.filter(t=>t.day1);
-  const d2=trainees.filter(t=>t.day2);
-  const d3=trainees.filter(t=>t.day3);
-  const names=new Set(trainees.map(t=>t.full_name.trim()).filter(n=>n));
-  document.getElementById("s0").textContent=names.size+" คน";
-  document.getElementById("s1").textContent=d1.length+" คน";
-  document.getElementById("s2").textContent=d2.length+" คน";
-  document.getElementById("s4").textContent=d3.length+" คน";
-  const payCounts={};
-  trainees.forEach(t=>{ const m=t.paymentMethod||t.paymentType||''; if(m){ payCounts[m]=(payCounts[m]||0)+1; }});
-  document.getElementById("s3").textContent=Object.values(payCounts).reduce((a,b)=>a+b,0)+" คน";
-  document.getElementById("s3t").innerHTML=Object.entries(payCounts).map(([k,v])=>`<div>${k}: <strong>${v}</strong> คน</div>`).join('')||'<div style="color:#94a3b8;">ไม่มีข้อมูล</div>';
+// ===== UPDATE SUMMARY DASHBOARD VIEW =====
+function updateDashboardView() {
+  if (!currentCourse) return;
+  
+  const storedPrice = localStorage.getItem('course_price_' + currentCourse.id);
+  const price = storedPrice ? parseInt(storedPrice) : 4900;
+  
+  const total = trainees.length;
+  
+  // กรองผู้ที่ชำระเงินแล้ว (ผู้ที่มีการชำระเงิน หรือระบุ claim type)
+  // ตาม logic เดิมของการนับ summary-card: count paymentMethod || paymentType
+  const paidList = trainees.filter(t => t.paymentMethod || t.claimType);
+  const paidCount = paidList.length;
+  const unpaidCount = total - paidCount;
+  
+  // คำนวณรายรับการเงิน
+  const revenueTotal = total * price;
+  const revenuePaid = paidCount * price;
+  const revenueUnpaid = unpaidCount * price;
+  const revenuePercent = total > 0 ? Math.round((paidCount / total) * 100) : 0;
+  
+  // นำไปแสดงผลในส่วนการเงิน
+  document.getElementById("db_revenue_total").textContent = "฿" + revenueTotal.toLocaleString();
+  document.getElementById("db_revenue_paid").textContent = "฿" + revenuePaid.toLocaleString();
+  document.getElementById("db_revenue_unpaid").textContent = "฿" + revenueUnpaid.toLocaleString();
+  document.getElementById("db_revenue_percent").textContent = revenuePercent + "%";
+  document.getElementById("db_revenue_bar").style.width = revenuePercent + "%";
+  
+  // ยอดจำนวนผู้เรียน
+  document.getElementById("db_paid_count").textContent = paidCount.toLocaleString();
+  document.getElementById("db_total_count").textContent = total.toLocaleString();
+  document.getElementById("db_unpaid_count").textContent = unpaidCount.toLocaleString();
+  
+  // เบิกจ่าย
+  const claimCount = trainees.filter(t => t.claimType).length;
+  document.getElementById("db_claim_count").textContent = claimCount.toLocaleString();
+  
+  // วิธีชำระเงิน breakdown
+  const payCounts = {};
+  trainees.forEach(t => {
+    const m = t.paymentMethod || t.paymentType || '';
+    if (m) {
+      payCounts[m] = (payCounts[m] || 0) + 1;
+    }
+  });
+  
+  const dbPaymentList = document.getElementById("db_payment_list");
+  dbPaymentList.innerHTML = "";
+  
+  const paymentEntries = Object.entries(payCounts);
+  if (paymentEntries.length === 0) {
+    dbPaymentList.innerHTML = '<div style="color:var(--gray); font-size: 13px; text-align: center; padding: 20px;">ไม่มีข้อมูลการจ่ายเงิน</div>';
+  } else {
+    paymentEntries.forEach(([k, v]) => {
+      const pct = paidCount > 0 ? Math.round((v / paidCount) * 100) : 0;
+      const sum = v * price;
+      dbPaymentList.innerHTML += `
+        <div class="chart-item">
+          <div class="chart-label-row">
+            <span class="chart-label-name">${k}</span>
+            <span class="chart-label-val"><strong>${v}</strong> คน (${pct}% / ฿${sum.toLocaleString()})</span>
+          </div>
+          <div class="chart-bar-outer">
+            <div class="chart-bar-inner" style="width: ${pct}%; background: var(--secondary);"></div>
+            <div class="chart-bar-inner" style="width: ${pct}%; background: var(--primary);"></div>
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  // เบิกจ่าย breakdown
+  const claimCF = trainees.filter(t => t.claimType === "กองทุนฯ");
+  const claimAG = trainees.filter(t => t.claimType === "หน่วยงาน");
+  
+  const cfCount = claimCF.length;
+  const agCount = claimAG.length;
+  const cfPct = total > 0 ? Math.round((cfCount / total) * 100) : 0;
+  const agPct = total > 0 ? Math.round((agCount / total) * 100) : 0;
+  
+  document.getElementById("db_claim_cf_count").textContent = cfCount.toLocaleString();
+  document.getElementById("db_claim_cf_sum").textContent = "฿" + (cfCount * price).toLocaleString();
+  document.getElementById("db_claim_cf_bar").style.width = cfPct + "%";
+  
+  document.getElementById("db_claim_ag_count").textContent = agCount.toLocaleString();
+  document.getElementById("db_claim_ag_sum").textContent = "฿" + (agCount * price).toLocaleString();
+  document.getElementById("db_claim_ag_bar").style.width = agPct + "%";
+  
+  // การเช็คอินลงชื่อเช้าเรียน (Day 1, 2, 3)
+  const d1 = trainees.filter(t => t.day1).length;
+  const d2 = trainees.filter(t => t.day2).length;
+  const d3 = trainees.filter(t => t.day3).length;
+  
+  const d1Pct = total > 0 ? Math.round((d1 / total) * 100) : 0;
+  const d2Pct = total > 0 ? Math.round((d2 / total) * 100) : 0;
+  const d3Pct = total > 0 ? Math.round((d3 / total) * 100) : 0;
+  
+  document.getElementById("db_attendance_d1_text").textContent = `${d1} คน (${d1Pct}%)`;
+  document.getElementById("db_attendance_d1_bar").style.width = d1Pct + "%";
+  
+  document.getElementById("db_attendance_d2_text").textContent = `${d2} คน (${d2Pct}%)`;
+  document.getElementById("db_attendance_d2_bar").style.width = d2Pct + "%";
+  
+  document.getElementById("db_attendance_d3_text").textContent = `${d3} คน (${d3Pct}%)`;
+  document.getElementById("db_attendance_d3_bar").style.width = d3Pct + "%";
+  
+  // สรุปเปอร์เซ็นต์อุปกรณ์และใบประกาศต่างๆ
+  const eqCount = trainees.filter(t => t.equipmentReceived).length;
+  const recCount = trainees.filter(t => t.receiptReceived).length;
+  const certCount = trainees.filter(t => t.certificateReceived).length;
+  const okCount = trainees.filter(t => t.dataCorrect !== false).length;
+  
+  const eqPct = total > 0 ? Math.round((eqCount / total) * 100) : 0;
+  const recPct = total > 0 ? Math.round((recCount / total) * 100) : 0;
+  const certPct = total > 0 ? Math.round((certCount / total) * 100) : 0;
+  const okPct = total > 0 ? Math.round((okCount / total) * 100) : 0;
+  
+  document.getElementById("db_anal_equipment").textContent = `${eqPct}% (${eqCount}/${total})`;
+  document.getElementById("db_anal_receipt").textContent = `${recPct}% (${recCount}/${total})`;
+  document.getElementById("db_anal_certificate").textContent = `${certPct}% (${certCount}/${total})`;
+  document.getElementById("db_anal_correct").textContent = `${okPct}% (${okCount}/${total})`;
 }
-
-// ===== MODAL =====
+// ===== MODAL MANAGER =====
 function openModal(index,day){
   currentIndex=index; currentDay=day;
   const t=trainees[index];
-  document.getElementById("modal").style.display="flex";
-
+  
+  // เปิด Modal Container
+  document.getElementById("modal").classList.add("open");
   // ถ้าลงทะเบียนวันนั้นสำเร็จแล้ว → แสดง VIEW-ONLY mode (ดูข้อมูล + ลายเซ็น 3 วัน + ปุ่มยกเลิก)
   if(t['day'+day]){
     openViewModal(index, day);
     return;
   }
-
-  // ยังไม่ลงทะเบียน → แสดง form ปกติ
+  // ยังไม่ลงทะเบียน → แสดง Form ลงทะเบียนเช็คอิน
   let html=`
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-    <h2 style="color:#0f766e;font-size:17px;">📋 ลงทะเบียน วันที่ ${day}</h2>
-    <button class="btn" style="background:#f1f5f9;padding:7px 12px;" onclick="closeModal()">✕ ปิด</button>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+    <h2 style="color:var(--primary-hover); font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"></path></svg>
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2"></path></svg>
+      ลงทะเบียนเช็คอิน วันที่ ${day}
+    </h2>
+    <button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeModal()">✕ ปิด</button>
   </div>
-
-  <div style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:16px;padding:14px;margin-bottom:12px;border:2px solid #0284c7;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <span style="background:#0284c7;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">1</span>
-      <span style="font-size:14px;font-weight:800;color:#0c4a6e;">ส่วนของผู้เข้าอบรม</span>
+  <div style="background:linear-gradient(135deg, var(--primary-light) 0%, rgba(13,148,136,0.05) 100%); border-radius:var(--radius-md); padding:20px; margin-bottom:18px; border:1.5px solid var(--primary-border);">
+  <div style="background:linear-gradient(135deg, var(--primary-light) 0%, rgba(79,70,229,0.05) 100%); border-radius:var(--radius-md); padding:20px; margin-bottom:18px; border:1.5px solid var(--primary-border);">
+    <div class="modal-section-title">
+      <span style="background:var(--primary); color:white; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:11px;">1</span>
+      <span>ส่วนของผู้เข้าอบรม</span>
     </div>
-    <div style="background:white;border-radius:12px;padding:12px;margin-bottom:8px;">
-      <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">ชื่อ-นามสกุล</div>
-      <div id="displayFullName" style="font-size:20px;font-weight:800;color:#0f172a;">${t.full_name}</div>
+    
+    <div style="background:white; border-radius:var(--radius); padding:14px; margin-bottom:12px; border:1px solid var(--border);">
+      <div class="display-label">ชื่อ-นามสกุลผู้สัมมนา</div>
+      <div id="displayFullName" class="display-value-lg">${t.full_name}</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
-      <div style="background:white;border-radius:10px;padding:10px;grid-column:span 2;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">หน่วยงาน (อปท.)</div>
-        <div id="displayAgency" style="font-size:13px;font-weight:700;">${t.agency}</div>
+    
+    <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px; margin-bottom:12px;">
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">หน่วยงาน (อปท.)</div>
+        <div id="displayAgency" class="display-value">${t.agency}</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">จังหวัด</div>
-        <div style="font-size:13px;font-weight:700;">${t.province}</div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">จังหวัด</div>
+        <div class="display-value">${t.province || '-'}</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">เสื้อ</div>
-        <div style="font-size:13px;font-weight:700;">${t.shirt_size||'-'}</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">ตำแหน่ง</div>
-        <div id="displayPosition" style="font-size:13px;font-weight:700;">${t.position||'-'}</div>
-      </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">เบอร์ติดต่อ</div>
-        <div id="displayPhone" style="font-size:13px;font-weight:700;">${t.phone||'-'}</div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">ขนาดเสื้อ</div>
+        <div class="display-label">เสื้อ</div>
+        <div class="display-value" style="font-weight:800; color:var(--primary);">${t.shirt_size||'-'}</div>
       </div>
     </div>
-    <div style="background:white;border-radius:12px;padding:12px;margin-bottom:10px;">
-      <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:6px;">🖊️ ลายเซ็นผู้เข้าอบรม (วันที่ ${day})</div>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">ตำแหน่ง</div>
+        <div id="displayPosition" class="display-value">${t.position||'-'}</div>
+      </div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">เบอร์โทรศัพท์</div>
+        <div id="displayPhone" class="display-value">${t.phone||'-'}</div>
+      </div>
+    </div>
+    
+    <div style="background:white; border-radius:var(--radius-md); padding:16px; margin-bottom:14px; border:1px solid var(--border);">
+      <div class="display-label" style="margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+        <span>🖊️ วาดลงลายมือชื่อผู้เข้าอบรม (ลงทะเบียนวันที่ ${day})</span>
+      </div>
       ${(()=>{
         const sigKey = 'signature_day'+day;
         const existingSig = t[sigKey];
         if(existingSig){
-          return `<div style="margin-bottom:6px;"><img src="${existingSig}" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;max-height:100px;object-fit:contain;background:#f8fafc;"></div>
-          <div style="font-size:11px;color:#16a34a;font-weight:700;margin-bottom:6px;">✅ มีลายเซ็นแล้ว — วาดใหม่เพื่อเปลี่ยน</div>`;
+          return `
+          <div style="margin-bottom:8px; background:var(--bg); padding:10px; border-radius:var(--radius); border:1px solid var(--border); text-align:center;">
+            <img src="${existingSig}" style="height:60px; max-width:100%; object-fit:contain;" alt="เดิม">
+            <div style="font-size:11.5px; color:var(--success-text); font-weight:700;">✅ ตรวจพบไฟล์ลายเซ็นแล้ว (วาดใหม่ด้านล่างเพื่ออัปเดตแทนที่)</div>
+          </div>`;
         }
         return '';
       })()}
-      <div style="position:relative;border-radius:10px;border:2px solid #cbd5e1;overflow:hidden;">
-        <canvas id="signatureCanvas" width="800" height="130" style="width:100%;height:130px;touch-action:none;cursor:crosshair;display:block;background:white;"></canvas>
-        <button onclick="clearSignature()" style="position:absolute;top:5px;right:5px;background:#fee2e2;color:#991b1b;border:none;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;">ล้าง</button>
-        <div style="position:absolute;bottom:5px;left:10px;font-size:10px;color:#94a3b8;">วาดลายเซ็นในกรอบนี้</div>
+      <div class="signature-canvas-wrap">
+        <canvas id="signatureCanvas" class="signature-canvas" width="800" height="140"></canvas>
+        <button class="btn btn-danger sig-canvas-clear" style="padding:4px 10px; font-size:11.5px;" onclick="clearSignature()">ล้างช่องวาด</button>
+        <div class="sig-canvas-guide">ใช้นิ้วมือหรือปากกาสไตลัส ลงชื่อตรงนี้</div>
       </div>
     </div>
-    <div style="font-size:12px;font-weight:700;color:#0c4a6e;margin-bottom:8px;">ข้อมูลถูกต้องหรือไม่?</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <button id="btnCorrect" onclick="setDataCorrect(true)" style="padding:11px;border-radius:12px;border:3px solid #16a34a;background:#dcfce7;color:#166534;font-size:14px;font-weight:800;cursor:pointer;">✅ ข้อมูลถูกต้อง</button>
-      <button id="btnIncorrect" onclick="setDataCorrect(false)" style="padding:11px;border-radius:12px;border:3px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:14px;font-weight:800;cursor:pointer;">✏️ ข้อมูลไม่ถูกต้อง</button>
+    
+    <div class="display-label" style="margin-bottom:8px; color:var(--dark);">ความถูกต้องของข้อมูลส่วนบุคคล?</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <button id="btnCorrect" onclick="setDataCorrect(true)" class="btn" style="border:2.5px solid var(--success); background:var(--success-bg); color:var(--success-text); font-size:14px;">
+        ✅ ข้อมูลประวัติถูกต้องเรียบร้อย
+      </button>
+      <button id="btnIncorrect" onclick="setDataCorrect(false)" class="btn" style="border:2.5px solid var(--border); background:white; color:var(--gray-dark); font-size:14px;">
+        ✏️ พบบางจุดต้องแก้ไข
+      </button>
     </div>
-    <div id="editSection" style="display:none;margin-top:10px;background:white;border-radius:12px;padding:12px;border:2px solid #f59e0b;">
-      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px;">✏️ แก้ไขข้อมูล (เฉพาะส่วนที่ไม่ถูกต้อง)</div>
+    
+    <div id="editSection" style="display:none; margin-top:14px; background:white; border-radius:var(--radius); padding:16px; border:2px solid var(--warning); animation:fadeIn 0.2s;">
+      <div class="modal-section-title" style="color:var(--warning-text); margin-bottom:10px;">
+        ✏️ แก้ไขข้อมูลส่วนตัวผู้เรียน
+      </div>
       <div style="margin-bottom:8px;">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ชื่อ-นามสกุล</label>
-        <input type="text" id="editNameInput" placeholder="ชื่อ-นามสกุล" style="width:100%;padding:10px 12px;border-radius:10px;border:2px solid #f59e0b;font-size:18px;font-weight:700;">
+        <label style="font-size:12px; font-weight:700; color:var(--gray-dark); display:block; margin-bottom:4px;">ชื่อ-นามสกุล</label>
+        <input type="text" id="editNameInput" style="font-weight:700; font-size:16px;">
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
         <div>
-          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">หน่วยงาน (อปท.)</label>
-          <input type="text" id="editAgencyInput" placeholder="หน่วยงาน" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+          <label style="font-size:12px; font-weight:700; color:var(--gray-dark); display:block; margin-bottom:4px;">สังกัดหน่วยงาน (อปท.)</label>
+          <input type="text" id="editAgencyInput">
         </div>
         <div>
-          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ตำแหน่ง</label>
-          <input type="text" id="editPositionInput" placeholder="ตำแหน่ง" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+          <label style="font-size:12px; font-weight:700; color:var(--gray-dark); display:block; margin-bottom:4px;">ตำแหน่ง</label>
+          <input type="text" id="editPositionInput">
         </div>
       </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เบอร์ติดต่อ</label>
-        <input type="text" id="editPhoneInput" placeholder="เบอร์ติดต่อ" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:700; color:var(--gray-dark); display:block; margin-bottom:4px;">เบอร์โทรศัพท์</label>
+        <input type="text" id="editPhoneInput">
       </div>
-      <button class="btn btn-primary" style="width:100%;" onclick="saveEdits()">💾 บันทึกการแก้ไข</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="saveEdits()">💾 อัปเดตการแก้ไขส่วนบุคคล</button>
     </div>
   </div>
-
-  <div style="background:linear-gradient(135deg,#fef9ee,#fef3c7);border-radius:16px;padding:14px;margin-bottom:12px;border:2px solid #f59e0b;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <span style="background:#d97706;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">2</span>
-      <span style="font-size:14px;font-weight:800;color:#92400e;">ส่วนของเจ้าหน้าที่</span>
+  <div style="background:linear-gradient(135deg, var(--warning-bg) 0%, rgba(245,158,11,0.02) 100%); border-radius:var(--radius-md); padding:20px; margin-bottom:20px; border:1.5px solid rgba(245,158,11,0.25);">
+    <div class="modal-section-title" style="color:var(--warning-text);">
+      <span style="background:var(--warning); color:white; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:11px;">2</span>
+      <span>ส่วนการเงินและเจ้าหน้าที่ลงชื่อ</span>
     </div>`;
-
   if(day===1){
     html+=`
-    <div style="margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">📁 เบิกจ่ายจากที่ไหน?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <label id="lbl_cf" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;">
-          <input type="radio" name="claimType" value="กองทุนฯ" onchange="styleRadio('lbl_cf','lbl_ca')" style="width:16px;height:16px;"> เบิกนามกองทุนฯ
+    <div style="margin-bottom:12px;">
+      <div class="display-label" style="margin-bottom:6px; color:var(--warning-text);">📁 ประเภทเบิกจ่ายสัมมนา</div>
+      <div class="custom-radio-grid">
+        <label id="lbl_cf" class="custom-radio-label">
+          <input type="radio" name="claimType" value="กองทุนฯ" onchange="styleRadio('lbl_cf','lbl_ca')"> 
+          <span>เบิกจากกองทุนหลักประกันสุขภาพฯ</span>
         </label>
-        <label id="lbl_ca" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;">
-          <input type="radio" name="claimType" value="หน่วยงาน" onchange="styleRadio('lbl_ca','lbl_cf')" style="width:16px;height:16px;"> เบิกนามหน่วยงาน
+        <label id="lbl_ca" class="custom-radio-label">
+          <input type="radio" name="claimType" value="หน่วยงาน" onchange="styleRadio('lbl_ca','lbl_cf')"> 
+          <span>เบิกจากต้นสังกัดหน่วยงาน (อปท.)</span>
         </label>
       </div>
     </div>
-    <div style="margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">💳 วิธีชำระเงิน</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+    <div style="margin-bottom:12px;">
+      <div class="display-label" style="margin-bottom:6px; color:var(--warning-text);">💳 วิธีการจ่ายเงินลงทะเบียน</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
         ${['โอน N','โอน P','โอน B','เงินสด'].map((v,i)=>`
-        <label id="lbl_p${i}" style="display:flex;flex-direction:column;align-items:center;background:white;border-radius:10px;padding:10px 6px;border:3px solid #e2e8f0;cursor:pointer;font-size:12px;font-weight:700;text-align:center;">
-          <input type="radio" name="paymentMethod" value="${v}" onchange="stylePayRadio('lbl_p${i}')" style="margin-bottom:3px;"> ${v}
+        <label id="lbl_p${i}" class="custom-radio-label" style="flex-direction:column; padding:10px 4px; text-align:center;">
+          <input type="radio" name="paymentMethod" value="${v}" onchange="stylePayRadio('lbl_p${i}')" style="margin-bottom:4px;">
+          <span>${v}</span>
         </label>`).join('')}
       </div>
     </div>
-    <div style="margin-bottom:10px;">
-      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">🎒 รับอุปกรณ์</div>
-      <label id="lbl_eq" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;" onclick="toggleCheck('equipmentReceived','lbl_eq')">
-        <input type="checkbox" id="equipmentReceived" style="width:18px;height:18px;"> ยืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์เรียบร้อยแล้ว
+    <div style="margin-bottom:12px;">
+      <div class="display-label" style="margin-bottom:6px; color:var(--warning-text);">🎒 ส่งมอบอุปกรณ์สัมมนา</div>
+      <label id="lbl_eq" class="custom-checkbox-label" onclick="toggleCheck('equipmentReceived','lbl_eq')">
+        <input type="checkbox" id="equipmentReceived"> 
+        <span>ยืนยันผู้เรียนได้รับอุปกรณ์เรียบร้อยแล้ว</span>
       </label>
     </div>`;
   } else if(day===2){
     if(t.day1){
-      html+=`<div style="background:#dcfce7;border-radius:10px;padding:10px;margin-bottom:10px;color:#166534;font-weight:700;font-size:13px;">✅ ลงทะเบียนวันที่ 1 แล้ว</div>`;
+      html+=`<div style="background:var(--success-bg); border-radius:var(--radius); padding:12px; margin-bottom:12px; color:var(--success-text); font-weight:700; font-size:13.5px; border:1px solid rgba(16,185,129,0.2);">
+        ✅ ผ่านการลงทะเบียนการเงินและเช็คอินในวันแรกสำเร็จแล้ว
+      </div>`;
     } else {
-      html+=`<div style="background:#fee2e2;border-radius:10px;padding:10px;margin-bottom:10px;color:#991b1b;font-weight:700;font-size:13px;">⚠️ ยังไม่ได้ลงทะเบียนวันที่ 1</div>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">📁 เบิกจ่ายจากที่ไหน?</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <label id="lbl_cf" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;">
-            <input type="radio" name="claimType" value="กองทุนฯ" onchange="styleRadio('lbl_cf','lbl_ca')" style="width:16px;height:16px;"> เบิกนามกองทุนฯ
+      html+=`<div style="background:var(--danger-bg); border-radius:var(--radius); padding:12px; margin-bottom:12px; color:var(--danger-text); font-weight:700; font-size:13.5px; border:1px solid rgba(239,68,68,0.2);">
+        ⚠️ ผู้เข้าอบรมรายนี้ยังไม่ได้เช็คอินวันแรก ต้องทำการตั้งค่าการเงิน
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="display-label" style="margin-bottom:6px; color:var(--warning-text);">📁 ประเภทเบิกจ่ายสัมมนา</div>
+        <div class="custom-radio-grid">
+          <label id="lbl_cf" class="custom-radio-label">
+            <input type="radio" name="claimType" value="กองทุนฯ" onchange="styleRadio('lbl_cf','lbl_ca')"> 
+            <span>เบิกจากกองทุนหลักประกันสุขภาพฯ</span>
           </label>
-          <label id="lbl_ca" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;">
-            <input type="radio" name="claimType" value="หน่วยงาน" onchange="styleRadio('lbl_ca','lbl_cf')" style="width:16px;height:16px;"> เบิกนามหน่วยงาน
+          <label id="lbl_ca" class="custom-radio-label">
+            <input type="radio" name="claimType" value="หน่วยงาน" onchange="styleRadio('lbl_ca','lbl_cf')"> 
+            <span>เบิกจากต้นสังกัดหน่วยงาน (อปท.)</span>
           </label>
         </div>
       </div>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">💳 วิธีชำระเงิน</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+      <div style="margin-bottom:12px;">
+        <div class="display-label" style="margin-bottom:6px; color:var(--warning-text);">💳 วิธีการจ่ายเงินลงทะเบียน</div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
           ${['โอน N','โอน P','โอน B','เงินสด'].map((v,i)=>`
-          <label id="lbl_p${i}" style="display:flex;flex-direction:column;align-items:center;background:white;border-radius:10px;padding:10px 6px;border:3px solid #e2e8f0;cursor:pointer;font-size:12px;font-weight:700;text-align:center;">
-            <input type="radio" name="paymentMethod" value="${v}" onchange="stylePayRadio('lbl_p${i}')" style="margin-bottom:3px;"> ${v}
+          <label id="lbl_p${i}" class="custom-radio-label" style="flex-direction:column; padding:10px 4px; text-align:center;">
+            <input type="radio" name="paymentMethod" value="${v}" onchange="stylePayRadio('lbl_p${i}')" style="margin-bottom:4px;">
+            <span>${v}</span>
           </label>`).join('')}
         </div>
       </div>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">🎒 รับอุปกรณ์</div>
-        <label id="lbl_eq" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;" onclick="toggleCheck('equipmentReceived','lbl_eq')">
-          <input type="checkbox" id="equipmentReceived" style="width:18px;height:18px;"> ยืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์เรียบร้อยแล้ว
+      <div style="margin-bottom:12px;">
+        <div class="display-label" style="margin-bottom:6px; color:var(--warning-text);">🎒 ส่งมอบอุปกรณ์สัมมนา</div>
+        <label id="lbl_eq" class="custom-checkbox-label" onclick="toggleCheck('equipmentReceived','lbl_eq')">
+          <input type="checkbox" id="equipmentReceived"> 
+          <span>ยืนยันผู้เรียนได้รับอุปกรณ์เรียบร้อยแล้ว</span>
         </label>
       </div>`;
     }
   } else if(day===3){
     html+=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <label id="lbl_rec" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;" onclick="toggleCheck('receiptReceived','lbl_rec')">
-        <input type="checkbox" id="receiptReceived" style="width:18px;height:18px;"> 🧾 ได้รับใบเสร็จแล้ว
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+      <label id="lbl_rec" class="custom-checkbox-label" onclick="toggleCheck('receiptReceived','lbl_rec')">
+        <input type="checkbox" id="receiptReceived"> 
+        <span>🧾 ส่งมอบใบเสร็จเรียบร้อยแล้ว</span>
       </label>
-      <label id="lbl_cert" style="display:flex;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px;border:3px solid #e2e8f0;cursor:pointer;font-size:13px;font-weight:700;" onclick="toggleCheck('certificateReceived','lbl_cert')">
-        <input type="checkbox" id="certificateReceived" style="width:18px;height:18px;"> 🏅 ได้รับวุฒิบัตรแล้ว
+      <label id="lbl_cert" class="custom-checkbox-label" onclick="toggleCheck('certificateReceived','lbl_cert')">
+        <input type="checkbox" id="certificateReceived"> 
+        <span>🏅 ส่งมอบวุฒิบัตรเรียบร้อยแล้ว</span>
       </label>
     </div>`;
   }
-
   html+=`
     <div>
-      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px;">✍️ ชื่อเจ้าหน้าที่ผู้ลงทะเบียน</div>
-      <input type="text" id="staffName" placeholder="กรอกชื่อเจ้าหน้าที่" style="width:100%;padding:11px 13px;border-radius:10px;border:2px solid #f59e0b;font-size:15px;font-weight:700;">
+      <div class="display-label" style="margin-bottom:6px; color:var(--dark);">✍️ ชื่อเจ้าหน้าที่ผู้ตรวจสอบ (ผู้เช็คอิน)</div>
+      <input type="text" id="staffName" placeholder="ระบุชื่อเจ้าหน้าที่รับสิทธิ์">
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:4px;">
-    <button class="btn btn-primary" style="padding:14px;font-size:15px;border-radius:12px;" onclick="saveRegistration()">✅ ยืนยันลงทะเบียน</button>
+  
+  <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:14px; border-top:1px solid var(--border);">
+    <button class="btn btn-ghost" style="padding:12px 24px;" onclick="closeModal()">✕ ยกเลิก</button>
+    <button class="btn btn-primary" style="padding:12px 32px; font-size:14.5px;" onclick="saveRegistration()">
+      ✅ ยืนยันข้อมูลลงทะเบียนและเช็คอิน
+    </button>
   </div>`;
-
   document.getElementById("modalContent").innerHTML=html;
-  if(currentProfile?.full_name){ const sf=document.getElementById("staffName"); if(sf) sf.value=currentProfile.full_name; }
-  setTimeout(()=>initSignatureCanvas(), 50);
+  
+  // โหลดชื่อเจ้าหน้าที่ล็อกอินปัจจุบันลงไปในฟิลด์
+  if(currentProfile?.full_name){
+    const sf=document.getElementById("staffName");
+    if(sf) sf.value=currentProfile.full_name;
+  }
+  
+  setTimeout(()=>initSignatureCanvas(), 60);
 }
-
-// ===== VIEW-ONLY MODAL (ลงทะเบียนสำเร็จแล้ว) =====
+// ===== VIEW-ONLY MODAL (ลงทะเบียนแล้ว เข้าดูรายละเอียด / แก้ไขเพิ่ม) =====
+// ===== VIEW-ONLY MODAL =====
 function openViewModal(index, day){
   const t=trainees[index];
-  const nameColor = t.editedFields?.includes('name') ? '#dc2626' : '#0f172a';
-
-  // helper: render signature card for each day
+  const nameColor = t.editedFields?.includes('name') ? 'var(--danger)' : 'var(--dark)';
+  // Helper render card ใน view modal
   function sigCard(d){
     const sig=t['signature_day'+d];
     const done=t['day'+d];
     const staff = d===1?t.staffName_day1 : d===2?t.staffName_day2 : t.staffName_day3;
     const canvasId = `sigCanvas_${d}`;
-
     if(!done){
-      return `<div style="border-radius:12px;border:2px solid #e2e8f0;background:#f8fafc;padding:12px;">
-        <div style="font-size:12px;font-weight:800;color:#94a3b8;margin-bottom:6px;">○ วันที่ ${d}</div>
-        <div style="font-size:11px;color:#94a3b8;text-align:center;padding:20px 0;">ยังไม่ได้ลงทะเบียน</div>
+      return `
+      <div class="sig-card-day">
+        <div class="sig-card-title-row" style="color:var(--gray);">
+          <span>วันที่ ${d}</span>
+          <span style="font-size:11px; font-weight:500;">ยังไม่ได้ลงชื่อ</span>
+        </div>
+        <div style="font-size:12px; color:var(--gray); text-align:center; padding:28px 0; font-style:italic;">
+          (ไม่มีประวัติลงชื่อ)
+        </div>
       </div>`;
     }
-
-    return `<div style="border-radius:12px;border:2px solid #16a34a;background:#f0fdf4;padding:12px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div style="font-size:12px;font-weight:800;color:#166534;">✅ วันที่ ${d}</div>
-        <button class="btn" style="background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;padding:3px 8px;font-size:11px;border-radius:8px;font-weight:700;" onclick="cancelRegistration(${d})">ยกเลิก</button>
+    return `
+    <div class="sig-card-day registered">
+      <div class="sig-card-title-row" style="color:var(--success-text);">
+        <span>✅ วันที่ ${d}</span>
+        <button class="btn btn-ghost" style="color:var(--danger-text); background:transparent; padding:2px 6px; font-size:11px;" onclick="cancelRegistration(${d})">
+          ยกเลิก
+        </button>
       </div>
       ${sig
-        ? `<img src="${sig}" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;max-height:80px;object-fit:contain;background:white;display:block;margin-bottom:6px;" id="sigImg_${d}">`
-        : `<div id="sigImgWrap_${d}" style="display:none;"><img id="sigImg_${d}" style="width:100%;border-radius:8px;border:1px solid #e2e8f0;max-height:80px;object-fit:contain;background:white;display:block;margin-bottom:6px;"></div>`
+        ? `<img src="${sig}" class="sig-thumbnail" id="sigImg_${d}" alt="signature">`
+        : `<div id="sigImgWrap_${d}" style="display:none;"><img id="sigImg_${d}" class="sig-thumbnail" alt="signature"></div>`
       }
+      
       ${sig
-        ? `<div style="font-size:10px;color:#16a34a;font-weight:700;margin-bottom:4px;">✅ มีลายเซ็นแล้ว</div>
-           <button onclick="toggleSigCanvas(${d})" id="btnToggleSig_${d}" style="width:100%;padding:5px;background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:4px;">✏️ วาดลายเซ็นใหม่</button>`
-        : `<button onclick="toggleSigCanvas(${d})" id="btnToggleSig_${d}" style="width:100%;padding:5px;background:#fef9c3;color:#92400e;border:1px solid #fde68a;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:4px;">✏️ เพิ่มลายเซ็น</button>`
+        ? `<div style="font-size:10.5px; color:var(--success-text); font-weight:700; text-align:center; margin-bottom:6px;">มีลายเซ็นเรียบร้อย</div>
+           <button onclick="toggleSigCanvas(${d})" id="btnToggleSig_${d}" style="width:100%; padding:6px; background:white; color:var(--primary); border:1.5px solid var(--primary-border); border-radius:var(--radius-sm); font-size:11px; font-weight:700; cursor:pointer;">✏️ วาดใหม่เพื่อเปลี่ยน</button>`
+        : `<div style="font-size:10.5px; color:var(--warning-text); font-weight:700; text-align:center; margin-bottom:6px;">ยังไม่มีไฟล์ภาพลายมือชื่อ</div>
+           <button onclick="toggleSigCanvas(${d})" id="btnToggleSig_${d}" style="width:100%; padding:6px; background:white; color:var(--warning-text); border:1.5px solid rgba(245,158,11,0.25); border-radius:var(--radius-sm); font-size:11px; font-weight:700; cursor:pointer;">🖊️ วาดลงลายเซ็น</button>`
       }
-      <div id="sigCanvasWrap_${d}" style="display:none;">
-        <div style="position:relative;border-radius:8px;border:2px solid #cbd5e1;overflow:hidden;margin-bottom:4px;">
-          <canvas id="${canvasId}" width="600" height="110" style="width:100%;height:100px;touch-action:none;cursor:crosshair;display:block;background:white;"></canvas>
-          <button onclick="clearViewSig(${d})" style="position:absolute;top:4px;right:4px;background:#fee2e2;color:#991b1b;border:none;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;">ล้าง</button>
-          <div style="position:absolute;bottom:4px;left:8px;font-size:9px;color:#94a3b8;">วาดลายเซ็นในกรอบนี้</div>
+      
+      <div id="sigCanvasWrap_${d}" style="display:none; margin-top:8px;">
+        <div class="signature-canvas-wrap" style="height:110px; margin-bottom:6px;">
+          <canvas id="${canvasId}" class="signature-canvas" style="height:100px;" width="600" height="110"></canvas>
+          <button onclick="clearViewSig(${d})" class="btn btn-danger" style="position:absolute; top:4px; right:4px; padding:2px 7px; font-size:10px;">ล้าง</button>
         </div>
-        <button onclick="saveViewSig(${d})" style="width:100%;padding:6px;background:#0f766e;color:white;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">💾 บันทึกลายเซ็น</button>
+        <button onclick="saveViewSig(${d})" class="btn btn-primary" style="width:100%; padding:6px; font-size:11.5px;">💾 บันทึกลายเซ็น</button>
       </div>
-      ${staff ? `<div style="font-size:10px;color:#64748b;margin-top:4px;">เจ้าหน้าที่: <strong>${staff}</strong></div>` : ''}
+      ${staff ? `<div style="font-size:10.5px; color:var(--gray-dark); margin-top:8px; border-top:1px solid rgba(16,185,129,0.15); padding-top:6px;">จนท: <strong>${staff}</strong></div>` : ''}
     </div>`;
   }
-
   let html=`
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-    <h2 style="color:#0f766e;font-size:17px;">📋 ข้อมูลการลงทะเบียน</h2>
-    <button class="btn" style="background:#f1f5f9;padding:7px 12px;" onclick="closeModal()">✕ ปิด</button>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+    <h2 style="color:var(--primary-hover); font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      ประวัติและข้อมูลการเช็คอินลงชื่อ
+    </h2>
+    <button class="btn btn-ghost" style="padding:6px 12px;" onclick="closeModal()">✕ ปิดหน้าต่าง</button>
   </div>
-
-  <div style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:16px;padding:14px;margin-bottom:12px;border:2px solid #0284c7;">
-    <div style="font-size:10px;font-weight:700;color:#0c4a6e;margin-bottom:4px;">ชื่อ-นามสกุล</div>
-    <div style="font-size:20px;font-weight:800;color:${nameColor};margin-bottom:10px;">${t.full_name}${t.editedFields?.includes('name')?'  <span style="font-size:11px;background:#fee2e2;color:#991b1b;padding:2px 7px;border-radius:999px;">แก้ไขแล้ว</span>':''}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
-      <div style="background:white;border-radius:10px;padding:10px;grid-column:span 2;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">หน่วยงาน (อปท.)</div>
-        <div style="font-size:13px;font-weight:700;color:${t.editedFields?.includes('agency')?'#dc2626':'#0f172a'};">${t.agency}</div>
+  <div style="background:linear-gradient(135deg, var(--primary-light) 0%, rgba(13,148,136,0.05) 100%); border-radius:var(--radius-md); padding:20px; margin-bottom:18px; border:1.5px solid var(--primary-border);">
+  <div style="background:linear-gradient(135deg, var(--primary-light) 0%, rgba(79,70,229,0.05) 100%); border-radius:var(--radius-md); padding:20px; margin-bottom:18px; border:1.5px solid var(--primary-border);">
+    <div class="display-label">ชื่อ-นามสกุลผู้เข้าอบรม</div>
+    <div style="font-size:20px; font-weight:800; color:${nameColor}; margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+      <span>${t.full_name}</span>
+      ${t.editedFields?.length ? '<span style="font-size:10px; background:var(--danger-bg); color:var(--danger-text); padding:2px 8px; border-radius:20px; border:1px solid rgba(239,68,68,0.1);">มีการแก้ไขประวัติ</span>' : ''}
+    </div>
+    
+    <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">หน่วยงาน (อปท.)</div>
+        <div style="font-weight:700; color:${t.editedFields?.includes('agency')?'var(--danger)':'var(--dark)'}">${t.agency}</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">จังหวัด</div>
-        <div style="font-size:13px;font-weight:700;">${t.province}</div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">จังหวัด</div>
+        <div class="display-value">${t.province || '-'}</div>
+      </div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">เสื้อ</div>
+        <div class="display-value" style="font-weight:800; color:var(--primary);">${t.shirt_size || '-'}</div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">ตำแหน่ง</div>
-        <div style="font-size:13px;font-weight:700;color:${t.editedFields?.includes('position')?'#dc2626':'#0f172a'};">${t.position||'-'}</div>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">ตำแหน่ง</div>
+        <div style="font-weight:700; color:${t.editedFields?.includes('position')?'var(--danger)':'var(--dark)'}">${t.position||'-'}</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">เบอร์ติดต่อ</div>
-        <div style="font-size:13px;font-weight:700;color:${t.editedFields?.includes('phone')?'#dc2626':'#0f172a'};">${t.phone||'-'}</div>
-      </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">ขนาดเสื้อ</div>
-        <div style="font-size:13px;font-weight:700;">${t.shirt_size||'-'}</div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">เบอร์ติดต่อ</div>
+        <div style="font-weight:700; color:${t.editedFields?.includes('phone')?'var(--danger)':'var(--dark)'}">${t.phone||'-'}</div>
       </div>
     </div>
   </div>
-
   ${(t.claimType||t.paymentMethod||t.equipmentReceived)?`
-  <div style="background:#fef9ee;border-radius:14px;padding:12px;margin-bottom:12px;border:2px solid #f59e0b;">
-    <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:8px;">💼 ข้อมูลการเบิกจ่าย</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">ประเภทเบิก</div>
-        <div style="font-size:13px;font-weight:700;">${t.claimType||'-'}</div>
+  <div style="background:linear-gradient(135deg, var(--warning-bg) 0%, rgba(245,158,11,0.02) 100%); border-radius:var(--radius-md); padding:20px; margin-bottom:18px; border:1.5px solid rgba(245,158,11,0.25);">
+    <div class="modal-section-title" style="color:var(--warning-text); margin-bottom:12px;">
+      💼 ข้อมูลการเงินและสิ่งของลงทะเบียน
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:10px;">
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">แหล่งเงิน / ประเภทเบิก</div>
+        <div class="display-value" style="color:var(--primary-hover); font-weight:700;">${t.claimType||'-'}</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">วิธีชำระ</div>
-        <div style="font-size:13px;font-weight:700;">${t.paymentMethod||'-'}</div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">วิธีการจ่ายเงิน</div>
+        <div class="display-value" style="color:var(--secondary); font-weight:700;">${t.paymentMethod||'-'}</div>
       </div>
-      <div style="background:white;border-radius:10px;padding:10px;">
-        <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">รับอุปกรณ์</div>
-        <div style="font-size:13px;font-weight:800;color:${t.equipmentReceived?'#166534':'#991b1b'};">${t.equipmentReceived?'✓ รับแล้ว':'✗ ยังไม่รับ'}</div>
+      <div style="background:white; border-radius:var(--radius); padding:10px 14px; border:1px solid var(--border);">
+        <div class="display-label">รับอุปกรณ์สัมมนา</div>
+        <div style="font-size:14px; font-weight:800; color:${t.equipmentReceived?'var(--success-text)':'var(--danger)'};">
+          ${t.equipmentReceived?'✓ ได้รับอุปกรณ์แล้ว':'✗ ยังไม่ได้รับ'}
+        </div>
       </div>
     </div>
   </div>`:''}
-
-  <div style="background:#f8fafc;border-radius:14px;padding:12px;border:2px solid #e2e8f0;">
-    <div style="font-size:12px;font-weight:800;color:#334155;margin-bottom:10px;">🖊️ ลายเซ็น & สถานะการลงทะเบียน</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+  <div style="background:white; border-radius:var(--radius-md); padding:20px; border:1.5px solid var(--border);">
+    <div class="modal-section-title" style="color:var(--gray-dark); margin-bottom:14px;">
+      🖊️ ลายมือชื่อ & สถานะการเช็คอินทั้ง 3 วัน
+    </div>
+    <div class="sig-card-grid">
       ${sigCard(1)}
       ${sigCard(2)}
       ${sigCard(3)}
     </div>
   </div>`;
-
   document.getElementById("modalContent").innerHTML=html;
-
-  // init canvas drawing for each day that is registered
   [1,2,3].forEach(d=>{
     if(trainees[currentIndex]['day'+d]) initViewSigCanvas(d);
   });
 }
-
-// ===== VIEW SIG CANVAS HELPERS =====
-const _viewDrawing={};
-
+// ===== VIEW SIG CANVAS DRAWING HELPERS =====
 function initViewSigCanvas(d){
   const canvas=document.getElementById('sigCanvas_'+d); if(!canvas) return;
-
-  // คำนวณขนาด canvas จริงตาม devicePixelRatio เพื่อให้ลายเซ็นตรงตำแหน่งบน iPad
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
-
   const ctx=canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  ctx.strokeStyle='#1e293b'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle='var(--dark)'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round';
   let drawing=false, lx=0, ly=0;
   function getPos(e){
     const r=canvas.getBoundingClientRect();
@@ -1754,22 +2509,19 @@ function initViewSigCanvas(d){
   canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;},{passive:false});
   canvas.addEventListener('touchend',()=>drawing=false);
 }
-
 function toggleSigCanvas(d){
   const wrap=document.getElementById('sigCanvasWrap_'+d);
   if(!wrap) return;
   const isOpen = wrap.style.display!=='none';
   wrap.style.display = isOpen?'none':'block';
   const btn=document.getElementById('btnToggleSig_'+d);
-  if(btn) btn.textContent = isOpen?'✏️ วาดลายเซ็น':'✕ ซ่อน';
+  if(btn) btn.textContent = isOpen?'✏️ วาดใหม่เพื่อเปลี่ยน':'✕ ซ่อนหน้าวาด';
   if(!isOpen) setTimeout(()=>initViewSigCanvas(d), 30);
 }
-
 function clearViewSig(d){
   const c=document.getElementById('sigCanvas_'+d); if(!c) return;
   c.getContext('2d').clearRect(0,0,c.width,c.height);
 }
-
 async function saveViewSig(d){
   const canvas=document.getElementById('sigCanvas_'+d); if(!canvas) return;
   const ctx=canvas.getContext('2d');
@@ -1781,50 +2533,58 @@ async function saveViewSig(d){
   const { error }=await sb.from('trainees').update({[field]:sigData}).eq('id',t._id);
   if(error){ alert('บันทึกไม่สำเร็จ: '+error.message); return; }
   t[field]=sigData;
-  // update UI: show image, hide canvas
+  
   const wrap=document.getElementById('sigCanvasWrap_'+d); if(wrap) wrap.style.display='none';
   const imgWrap=document.getElementById('sigImgWrap_'+d);
   const img=document.getElementById('sigImg_'+d);
   if(img){ img.src=sigData; img.style.display='block'; }
   if(imgWrap) imgWrap.style.display='block';
   const btn=document.getElementById('btnToggleSig_'+d);
-  if(btn){ btn.textContent='✏️ วาดลายเซ็นใหม่'; btn.style.background='#e0f2fe'; btn.style.color='#0284c7'; btn.style.borderColor='#bae6fd'; }
-  alert('✅ บันทึกลายเซ็นวันที่ '+d+' สำเร็จ');
+  if(btn){ btn.textContent='✏️ วาดใหม่เพื่อเปลี่ยน'; }
+  alert('✅ บันทึกลายเซ็นวันที่ '+d+' เรียบร้อยแล้ว');
 }
-
-function closeModal(){ document.getElementById("modal").style.display="none"; }
-
+function closeModal(){ document.getElementById("modal").classList.remove("open"); }
+// UI Radio/Checkbox styling utility
 function styleRadio(aId,bId){
   const a=document.getElementById(aId),b=document.getElementById(bId);
-  if(a){a.style.borderColor="#0f766e";a.style.background="#f0fdfa";}
-  if(b){b.style.borderColor="#e2e8f0";b.style.background="white";}
+  if(a){ a.classList.add("checked"); }
+  if(b){ b.classList.remove("checked"); }
 }
 function stylePayRadio(aId){
   ['lbl_p0','lbl_p1','lbl_p2','lbl_p3'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
-    el.style.borderColor=id===aId?"#0f766e":"#e2e8f0";
-    el.style.background=id===aId?"#f0fdfa":"white";
+    if(id===aId) {
+      el.classList.add("checked");
+    } else {
+      el.classList.remove("checked");
+    }
   });
 }
 function toggleCheck(cbId,lblId){
   setTimeout(()=>{
     const cb=document.getElementById(cbId),lbl=document.getElementById(lblId);
-    if(cb&&lbl){lbl.style.borderColor=cb.checked?"#16a34a":"#e2e8f0";lbl.style.background=cb.checked?"#dcfce7":"white";}
-  },0);
+    if(cb&&lbl){
+      if(cb.checked) {
+        lbl.classList.add("checked");
+      } else {
+        lbl.classList.remove("checked");
+      }
+    }
+  },10);
 }
+// Data validation inline editing toggles
 function setDataCorrect(ok){
   const bOk=document.getElementById("btnCorrect"),bBad=document.getElementById("btnIncorrect"),es=document.getElementById("editSection");
   if(ok){
-    bOk.style.cssText="padding:14px;border-radius:14px;border:3px solid #16a34a;background:#dcfce7;color:#166534;font-size:16px;font-weight:800;cursor:pointer;";
-    bBad.style.cssText="padding:14px;border-radius:14px;border:3px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:16px;font-weight:800;cursor:pointer;";
+    bOk.style.cssText="border:2.5px solid var(--success); background:var(--success-bg); color:var(--success-text); font-size:14px;";
+    bBad.style.cssText="border:2.5px solid var(--border); background:white; color:var(--gray-dark); font-size:14px;";
     es.style.display="none";
-    const n=document.getElementById("displayFullName"); if(n) n.style.color="#0f172a";
+    const n=document.getElementById("displayFullName"); if(n) n.style.color="var(--dark)";
   } else {
-    bBad.style.cssText="padding:14px;border-radius:14px;border:3px solid #dc2626;background:#fee2e2;color:#991b1b;font-size:16px;font-weight:800;cursor:pointer;";
-    bOk.style.cssText="padding:14px;border-radius:14px;border:3px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:16px;font-weight:800;cursor:pointer;";
+    bBad.style.cssText="border:2.5px solid var(--danger); background:var(--danger-bg); color:var(--danger-text); font-size:14px;";
+    bOk.style.cssText="border:2.5px solid var(--border); background:white; color:var(--gray-dark); font-size:14px;";
     es.style.display="block";
     const t=trainees[currentIndex];
-    // บันทึกค่าต้นฉบับก่อน pre-fill
     window._editOriginals={full_name:t.full_name, agency:t.agency, position:t.position||"", phone:t.phone||""};
     document.getElementById("editNameInput").value=t.full_name;
     document.getElementById("editAgencyInput").value=t.agency;
@@ -1838,104 +2598,91 @@ function saveEdits(){
   const a=document.getElementById("editAgencyInput").value.trim();
   const p=document.getElementById("editPositionInput").value.trim();
   const ph=document.getElementById("editPhoneInput").value.trim();
-
   const nameEl=document.getElementById("displayFullName");
   const agEl=document.getElementById("displayAgency");
   const posEl=document.getElementById("displayPosition");
   const phoneEl=document.getElementById("displayPhone");
-
-  // เทียบกับ originalValues ที่บันทึกตอนเปิด editSection
   const orig=window._editOriginals||{};
-
-  const setRed=(el,val)=>{ if(el){el.textContent=val;el.style.color="#dc2626";el.style.fontWeight="800";} };
-  const setNormal=(el,val)=>{ if(el){el.textContent=val;el.style.color="#0f172a";el.style.fontWeight="700";} };
-
+  const setRed=(el,val)=>{ if(el){el.textContent=val; el.style.color="var(--danger)"; el.style.fontWeight="700";} };
+  const setNormal=(el,val)=>{ if(el){el.textContent=val; el.style.color="var(--dark)"; el.style.fontWeight="600";} };
   const edited=[];
   if(n!==orig.full_name){ t.full_name=n; edited.push('name'); setRed(nameEl,n); } else { setNormal(nameEl,n); }
   if(a!==orig.agency){ t.agency=a; edited.push('agency'); setRed(agEl,a); } else { setNormal(agEl,a); }
   if(p!==orig.position){ t.position=p; edited.push('position'); setRed(posEl,p); } else { setNormal(posEl,p||'-'); }
   if(ph!==orig.phone){ t.phone=ph; edited.push('phone'); setRed(phoneEl,ph); } else { setNormal(phoneEl,ph||'-'); }
   t.editedFields=edited;
-
   document.getElementById("editSection").style.display="none";
-  const bb=document.getElementById("btnIncorrect"); if(bb) bb.textContent="✏️ แก้ไขแล้ว ✓";
+  const bb=document.getElementById("btnIncorrect"); if(bb) bb.textContent="✏️ แก้ไขเรียบร้อย ✓";
 }
-
 async function saveRegistration(){
   const t=trainees[currentIndex];
   const staffName=document.getElementById("staffName").value.trim();
   if(!staffName){alert("กรุณากรอกชื่อเจ้าหน้าที่");return;}
   const bOk=document.getElementById("btnCorrect");
   const bBad=document.getElementById("btnIncorrect");
-  const isOk=bOk&&bOk.style.background==='rgb(220, 252, 231)';
-  const isBad=bBad&&(bBad.style.background==='rgb(254, 226, 226)'||bBad.textContent.includes('✓'));
-  if(!isOk&&!isBad){alert("กรุณาตรวจสอบข้อมูลผู้เข้าอบรมก่อน");return;}
-
-  // เก็บ signature
+  const isOk=bOk&&bOk.classList.contains("checked");
+  const isBad=bBad&&(bBad.style.borderColor==='rgb(239, 68, 68)'||bBad.textContent.includes('✓'));
+  if(!isOk&&!isBad){alert("กรุณาตรวจสอบและกดเลือกสถานะความถูกต้องของข้อมูลก่อน");return;}
   const canvas=document.getElementById("signatureCanvas");
   const signatureData = canvas ? canvas.toDataURL() : null;
   const hasSignature = signatureData && !isCanvasBlank(canvas);
-
-const updates={};
-const sigPreserve={
-  signature_day1: t.signature_day1||null,
-  signature_day2: t.signature_day2||null,
-  signature_day3: t.signature_day3||null,
-};
-if(currentDay===1){
-  const claim=document.querySelector('input[name="claimType"]:checked');
-  const pay=document.querySelector('input[name="paymentMethod"]:checked');
-  const eq=document.getElementById("equipmentReceived");
-  if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
-  if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
-  if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
-  Object.assign(updates,sigPreserve,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
-  if(hasSignature) updates.signature_day1=signatureData;
-  t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.staffName_day1=staffName; t.day1=true;
-} else if(currentDay===2){
-  if(!t.day1){
+  const updates={};
+  const sigPreserve={
+    signature_day1: t.signature_day1||null,
+    signature_day2: t.signature_day2||null,
+    signature_day3: t.signature_day3||null,
+  };
+  
+  if(currentDay===1){
     const claim=document.querySelector('input[name="claimType"]:checked');
     const pay=document.querySelector('input[name="paymentMethod"]:checked');
     const eq=document.getElementById("equipmentReceived");
     if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
     if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
     if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
-    Object.assign(updates,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,day1:true});
-    t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.day1=true;
+    Object.assign(updates,sigPreserve,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+    if(hasSignature) updates.signature_day1=signatureData;
+    t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.staffName_day1=staffName; t.day1=true;
+  } else if(currentDay===2){
+    if(!t.day1){
+      const claim=document.querySelector('input[name="claimType"]:checked');
+      const pay=document.querySelector('input[name="paymentMethod"]:checked');
+      const eq=document.getElementById("equipmentReceived");
+      if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
+      if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
+      if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
+      Object.assign(updates,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,day1:true});
+      t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.day1=true;
+    }
+    Object.assign(updates,sigPreserve,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+    if(hasSignature) updates.signature_day2=signatureData;
+    t.staffName_day2=staffName; t.day2=true;
+  } else if(currentDay===3){
+    const rec=document.getElementById("receiptReceived");
+    const cert=document.getElementById("certificateReceived");
+    if(!rec||!rec.checked){alert("กรุณายืนยันว่าได้รับใบเสร็จ");return;}
+    if(!cert||!cert.checked){alert("กรุณายืนยันว่าได้รับวุฒิบัตร");return;}
+    Object.assign(updates,sigPreserve,{receipt_received:true,certificate_received:true,staff_name_day3:staffName,day3:true});
+    if(hasSignature) updates.signature_day3=signatureData;
+    t.receiptReceived=true; t.certificateReceived=true; t.staffName_day3=staffName; t.day3=true;
   }
-  Object.assign(updates,sigPreserve,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
-  if(hasSignature) updates.signature_day2=signatureData;
-  t.staffName_day2=staffName; t.day2=true;
-} else if(currentDay===3){
-  const rec=document.getElementById("receiptReceived");
-  const cert=document.getElementById("certificateReceived");
-  if(!rec||!rec.checked){alert("กรุณายืนยันว่าได้รับใบเสร็จ");return;}
-  if(!cert||!cert.checked){alert("กรุณายืนยันว่าได้รับวุฒิบัตร");return;}
-  Object.assign(updates,sigPreserve,{receipt_received:true,certificate_received:true,staff_name_day3:staffName,day3:true});
-  if(hasSignature) updates.signature_day3=signatureData;
-  t.receiptReceived=true; t.certificateReceived=true; t.staffName_day3=staffName; t.day3=true;
-}
-
   const { error } = await sb.from("trainees").update(updates).eq("id",t._id);
   if(error){alert("บันทึกไม่สำเร็จ: "+error.message);return;}
-  renderTable(); closeModal(); alert("✅ บันทึกสำเร็จ");
+  closeModal();
+  alert("✅ บันทึกสำเร็จ");
+  await loadTrainees();
 }
-
-// ===== SIGNATURE CANVAS =====
+// ===== SIGNATURE CANVAS CORE =====
 let isDrawing=false, lastX=0, lastY=0;
 function initSignatureCanvas(){
   const canvas=document.getElementById("signatureCanvas"); if(!canvas) return;
-
-  // คำนวณขนาด canvas จริงตาม devicePixelRatio เพื่อให้ลายเซ็นตรงตำแหน่งบน iPad
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
-
   const ctx=canvas.getContext("2d");
   ctx.scale(dpr, dpr);
-  ctx.strokeStyle="#1e293b"; ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round";
-
+  ctx.strokeStyle="var(--dark)"; ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round";
   function getPos(e){
     const r=canvas.getBoundingClientRect();
     if(e.touches){ return {x:(e.touches[0].clientX-r.left), y:(e.touches[0].clientY-r.top)}; }
@@ -1955,7 +2702,6 @@ function clearSignature(){
   ctx.clearRect(0,0,c.width,c.height);
 }
 function isCanvasBlank(canvas){ const ctx=canvas.getContext("2d"); const d=ctx.getImageData(0,0,canvas.width,canvas.height).data; return !d.some(v=>v!==0); }
-
 async function cancelRegistration(day){
   if(!confirm(`ยืนยันยกเลิกการลงทะเบียนวันที่ ${day}?`)) return;
   const t=trainees[currentIndex];
@@ -1972,26 +2718,30 @@ async function cancelRegistration(day){
   }
   const { error }=await sb.from("trainees").update(updates).eq("id",t._id);
   if(error){alert("ยกเลิกไม่สำเร็จ: "+error.message);return;}
-  renderTable(); closeModal(); alert(`✅ ยกเลิกวันที่ ${day} เรียบร้อย`);
+  closeModal();
+  alert(`✅ ยกเลิกวันที่ ${day} เรียบร้อยแล้ว`);
+  await loadTrainees();
 }
-
 // ===== USER MANAGEMENT =====
 async function openUserModal(){ document.getElementById("userModal").classList.add("open"); await loadUserList(); }
 function closeUserModal(){ document.getElementById("userModal").classList.remove("open"); }
 async function loadUserList(){
   const c=document.getElementById("userListContainer");
-  c.innerHTML="<div style='text-align:center;color:#64748b;padding:20px;'>⏳ กำลังโหลด...</div>";
+  c.innerHTML="<div style='text-align:center; color:var(--gray); padding:20px;'>⏳ กำลังโหลดรายชื่อ...</div>";
   const { data } = await sb.from("profiles").select("*").order("email");
-  if(!data||!data.length){c.innerHTML="<div style='color:#64748b;padding:10px;'>ไม่มีผู้ใช้งาน</div>";return;}
-  c.innerHTML="<h4 style='font-size:13px;font-weight:700;margin-bottom:10px;'>รายชื่อผู้ใช้งาน</h4>"+
+  if(!data||!data.length){c.innerHTML="<div style='color:var(--gray); padding:10px;'>ไม่มีผู้ใช้งานเจ้าหน้าที่</div>";return;}
+  c.innerHTML="<h4 style='font-size:14px; font-weight:700; margin-bottom:12px; color:var(--dark);'>รายชื่อผู้ใช้งานในระบบ</h4>"+
     data.map(u=>`<div class="user-item">
-      <div class="user-item-info"><span class="user-item-email">${u.email||'-'}</span><span class="user-item-name">${u.full_name||'-'}</span></div>
-      <div class="user-item-actions">
-        <select class="select-role" onchange="updateRole('${u.id}',this.value)">
+      <div class="user-item-info">
+        <span class="user-item-email">${u.email||'-'}</span>
+        <span class="user-item-name">${u.full_name||'-'}</span>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <select style="padding:6px 12px; border-radius:8px;" onchange="updateRole('${u.id}',this.value)">
           <option value="staff" ${u.role==='staff'?'selected':''}>Staff</option>
           <option value="superadmin" ${u.role==='superadmin'?'selected':''}>Super Admin</option>
         </select>
-        ${u.id!==currentUser.id?`<button class="del-btn" onclick="deleteUser('${u.id}')">ลบ</button>`:'<span style="font-size:11px;color:#64748b;">(ตัวเอง)</span>'}
+        ${u.id!==currentUser.id?`<button class="btn btn-danger" style="padding:6px 10px; font-size:11px;" onclick="deleteUser('${u.id}')">ลบ</button>`:'<span style="font-size:11.5px; color:var(--gray); font-style:italic;">(บัญชีคุณ)</span>'}
       </div>
     </div>`).join('');
 }
@@ -2001,12 +2751,12 @@ async function addUser(){
   const password=document.getElementById("newUserPassword").value;
   const role=document.getElementById("newUserRole").value;
   const msg=document.getElementById("addUserMsg");
-  if(!name||!email||!password){msg.style.color="#991b1b";msg.textContent="กรุณากรอกข้อมูลให้ครบ";return;}
-  msg.style.color="#0f766e";msg.textContent="⏳ กำลังสร้าง...";
+  if(!name||!email||!password){msg.style.color="var(--danger-text)";msg.textContent="กรุณากรอกข้อมูลให้ครบ";return;}
+  msg.style.color="var(--primary)";msg.textContent="⏳ กำลังสร้าง...";
   const { data,error }=await sb.auth.signUp({email,password});
-  if(error){msg.style.color="#991b1b";msg.textContent="ไม่สำเร็จ: "+error.message;return;}
+  if(error){msg.style.color="var(--danger-text)";msg.textContent="ไม่สำเร็จ: "+error.message;return;}
   if(data.user) await sb.from("profiles").upsert({id:data.user.id,email,full_name:name,role});
-  msg.style.color="#166534";msg.textContent="✓ สร้างสำเร็จ";
+  msg.style.color="var(--success-text)";msg.textContent="✓ สร้างผู้ใช้งานและผูกสิทธิ์สำเร็จ";
   document.getElementById("newUserName").value="";
   document.getElementById("newUserEmail").value="";
   document.getElementById("newUserPassword").value="";
@@ -2014,12 +2764,6 @@ async function addUser(){
 }
 async function updateRole(uid,role){ await sb.from("profiles").update({role}).eq("id",uid); }
 async function deleteUser(uid){ if(!confirm("ยืนยันลบ?"))return; await sb.from("profiles").delete().eq("id",uid); await loadUserList(); }
-
-// ===== SESSION CHECK =====
-window.addEventListener("load", async()=>{
-  const { data }=await sb.auth.getSession();
-  if(data.session){ currentUser=data.session.user; await loadProfile(); }
-});
 // ===== ADD TRAINEE =====
 function openAddTraineeModal(){
   if(!currentCourse){ alert("กรุณาเลือกรุ่นอบรมก่อน"); return; }
@@ -2030,11 +2774,9 @@ function openAddTraineeModal(){
   });
   document.getElementById("nt_shirt").value="";
 }
-
 function closeAddTraineeModal(){
   document.getElementById("addTraineeModal").classList.remove("open");
 }
-
 async function saveNewTrainee(){
   const name=document.getElementById("nt_name").value.trim();
   const agency=document.getElementById("nt_agency").value.trim();
@@ -2043,14 +2785,10 @@ async function saveNewTrainee(){
   const province=document.getElementById("nt_province").value.trim();
   const shirt=document.getElementById("nt_shirt").value;
   const msg=document.getElementById("addTraineeMsg");
-
-  if(!name){ msg.style.color="#991b1b"; msg.textContent="กรุณากรอกชื่อ-นามสกุล"; return; }
-  if(!agency){ msg.style.color="#991b1b"; msg.textContent="กรุณากรอกหน่วยงาน"; return; }
-
-  msg.style.color="#0f766e"; msg.textContent="⏳ กำลังบันทึก...";
-
+  if(!name){ msg.style.color="var(--danger-text)"; msg.textContent="กรุณากรอกชื่อ-นามสกุล"; return; }
+  if(!agency){ msg.style.color="var(--danger-text)"; msg.textContent="กรุณากรอกหน่วยงาน"; return; }
+  msg.style.color="var(--primary)"; msg.textContent="⏳ กำลังบันทึกข้อมูลเข้าฐานข้อมูล...";
   const maxOrder = trainees.length>0 ? Math.max(...trainees.map(t=>t.order_no||0)) : 0;
-
   const newRow={
     course_id: currentCourse.id,
     order_no: maxOrder+1,
@@ -2061,26 +2799,22 @@ async function saveNewTrainee(){
     province: province,
     shirt_size: shirt,
   };
-
   const { error }=await sb.from("trainees").insert(newRow);
-  if(error){ msg.style.color="#991b1b"; msg.textContent="บันทึกไม่สำเร็จ: "+error.message; return; }
-
-  msg.style.color="#166534"; msg.textContent="✅ เพิ่มรายชื่อสำเร็จ";
-
+  if(error){ msg.style.color="var(--danger-text)"; msg.textContent="บันทึกไม่สำเร็จ: "+error.message; return; }
+  msg.style.color="var(--success-text)"; msg.textContent="✅ เพิ่มรายชื่อใหม่เข้าชั้นเรียนแล้ว";
+  
+  await loadTrainees();
   setTimeout(()=>closeAddTraineeModal(), 800);
 }
 async function deleteTrainee(){
   if(!currentCourse){ alert("กรุณาเลือกรุ่นอบรมก่อน"); return; }
   const keyword=prompt("กรุณากรอกลำดับที่หรือชื่อที่ต้องการลบ:");
   if(!keyword||!keyword.trim()) return;
-
   const found=trainees.filter(t=>
     t.full_name.toLowerCase().includes(keyword.trim().toLowerCase())||
     String(t.order_no)===keyword.trim()
   );
-
   if(!found.length){ alert("ไม่พบรายชื่อที่ค้นหา"); return; }
-
   if(found.length===1){
     if(!confirm(`ยืนยันลบ "${found[0].full_name}" ออกจากระบบ?`)) return;
     const { error }=await sb.from("trainees").delete().eq("id",found[0]._id);
@@ -2102,38 +2836,30 @@ async function deleteTrainee(){
 // ===== SESSION CHECK =====
 let sessionLoaded = false;
 let _authInitDone = false;
-
-// แสดง loading overlay ขณะรอ session
 (function showInitLoader(){
   const el = document.getElementById("loginPage");
-  if(el) el.innerHTML += '<div id="initLoader" style="position:absolute;inset:0;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;border-radius:0;"><div style="color:white;font-size:14px;font-weight:700;">⏳ กำลังตรวจสอบ session...</div></div>';
+  if(el) el.innerHTML += '<div id="initLoader" style="position:absolute;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;border-radius:0;z-index:1000;"><div style="color:white;font-size:16px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:12px;"><span>⏳ กำลังตรวจสอบสิทธิ์เซสชันล่าสุด...</span></div></div>';
 })();
-
 function hideInitLoader(){
   const el = document.getElementById("initLoader");
   if(el) el.remove();
 }
-
 sb.auth.onAuthStateChange(async(event, session)=>{
   if(!_authInitDone){
     _authInitDone = true;
     hideInitLoader();
   }
-  // INITIAL_SESSION: ตรวจสอบ session ที่บันทึกไว้ (auto-login)
-  if(event === "INITIAL_SESSION" && session && !sessionLoaded){
+  if((event==="SIGNED_IN" || event==="INITIAL_SESSION") && session && !sessionLoaded){
     sessionLoaded = true;
     currentUser = session.user;
-    await loadProfile();
+    if(!currentProfile) await loadProfile();
   }
-  // SIGNED_IN: มาจาก doLogin() ซึ่ง sessionLoaded=true ไปแล้ว ข้ามได้เลย
-  if(event === "SIGNED_OUT"){
+  if(event==="SIGNED_OUT"){
     sessionLoaded = false;
     currentUser = null;
     currentProfile = null;
   }
 });
-
-// Fallback: ถ้า onAuthStateChange ไม่ fire ภายใน 3 วินาที (Safari บางรุ่น)
 setTimeout(async()=>{
   if(!_authInitDone){
     _authInitDone = true;
@@ -2150,4 +2876,5 @@ setTimeout(async()=>{
 }, 3000);
 </script>
 </body>
+</html>
 </html>
