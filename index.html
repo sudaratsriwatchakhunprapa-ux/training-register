@@ -94,7 +94,7 @@ body{background:var(--bg);color:var(--text);font-size:14px;}
 /* MAIN */
 .container{max-width:1280px;margin:0 auto;padding:14px;}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
-.search{flex:1;min-width:200px;max-width:340px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:14px;background:white;outline:none;transition:border-color 0.15s;}
+.search{flex:1;min-width:260px;max-width:480px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:14px;background:white;outline:none;transition:border-color 0.15s;}
 .search:focus{border-color:var(--brand);}
 .btn{border:none;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:700;font-size:13px;transition:opacity 0.15s;}
 .btn:hover{opacity:0.88;}
@@ -213,39 +213,39 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
   border-radius:0 0 20px 20px;
   position:sticky;top:0;z-index:10;
 }
-.dash-container{max-width:1100px;margin:0 auto;padding:18px 14px 40px;}
+.dash-container{max-width:1050px;margin:0 auto;padding:14px 12px 32px;}
 .dash-section-title{
-  font-size:12px;font-weight:800;color:var(--muted);
+  font-size:11px;font-weight:800;color:var(--muted);
   text-transform:uppercase;letter-spacing:0.06em;
-  margin:22px 0 10px;
+  margin:16px 0 8px;
   display:flex;align-items:center;gap:8px;
 }
 .dash-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
 /* ค่าลงทะเบียน editor */
 .fee-editor{
-  background:white;border-radius:16px;border:2px solid var(--border);
-  box-shadow:0 4px 12px var(--shadow);padding:14px 18px;
+  background:white;border-radius:13px;border:2px solid var(--border);
+  box-shadow:0 3px 10px var(--shadow);padding:11px 14px;
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  margin-bottom:18px;
+  margin-bottom:14px;
 }
-.fee-editor label{font-size:12px;font-weight:800;color:var(--muted);}
+.fee-editor label{font-size:11px;font-weight:800;color:var(--muted);}
 .fee-input{
-  width:140px;padding:8px 12px;
+  width:120px;padding:6px 10px;
   border:2px solid var(--border);border-radius:10px;
-  font-size:20px;font-weight:800;color:var(--brand);
+  font-size:17px;font-weight:800;color:var(--brand);
   outline:none;text-align:right;transition:border-color .15s;
 }
 .fee-input:focus{border-color:var(--brand);}
-.fee-unit{font-size:13px;font-weight:700;color:var(--muted);}
+.fee-unit{font-size:12px;font-weight:700;color:var(--muted);}
 
 /* KPI cards */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
 .kpi-card{
-  background:white;border-radius:18px;
+  background:white;border-radius:14px;
   border:2px solid var(--border);
-  box-shadow:0 4px 14px var(--shadow);
-  padding:16px;
+  box-shadow:0 3px 10px var(--shadow);
+  padding:12px;
   position:relative;overflow:hidden;
 }
 .kpi-card::before{
@@ -255,16 +255,16 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
 .kpi-card.kpi-paid::before{background:linear-gradient(90deg,#16a34a,#15803d);}
 .kpi-card.kpi-unpaid::before{background:linear-gradient(90deg,#dc2626,#b91c1c);}
 .kpi-card.kpi-revenue::before{background:linear-gradient(90deg,#d97706,#b45309);}
-.kpi-icon{font-size:26px;margin-bottom:8px;display:block;}
-.kpi-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
-.kpi-value{font-size:28px;font-weight:900;color:var(--text);line-height:1;}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.kpi-icon{font-size:22px;margin-bottom:5px;display:block;}
+.kpi-label{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.kpi-value{font-size:24px;font-weight:900;color:var(--text);line-height:1;}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:3px;}
 
 /* attendance bar */
-.attend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.attend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
 .attend-card{
-  background:white;border-radius:16px;border:2px solid var(--border);
-  box-shadow:0 4px 12px var(--shadow);padding:14px;
+  background:white;border-radius:13px;border:2px solid var(--border);
+  box-shadow:0 3px 10px var(--shadow);padding:12px;
 }
 .attend-card-head{
   display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
@@ -273,8 +273,8 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
   background:var(--brand-light);color:var(--brand);
   border-radius:8px;padding:4px 10px;font-size:11px;font-weight:800;
 }
-.attend-count{font-size:24px;font-weight:900;color:var(--brand);}
-.attend-total{font-size:12px;color:var(--muted);font-weight:600;}
+.attend-count{font-size:20px;font-weight:900;color:var(--brand);}
+.attend-total{font-size:11px;color:var(--muted);font-weight:600;}
 .progress-bar{height:8px;border-radius:999px;background:#f1f5f9;overflow:hidden;}
 .progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--brand),var(--indigo));transition:width .5s;}
 
@@ -299,27 +299,27 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
 }
 
 /* shirt sizes */
-.shirt-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;}
+.shirt-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;}
 .shirt-card{
-  background:white;border-radius:14px;border:2px solid var(--border);
-  box-shadow:0 4px 10px var(--shadow);
-  padding:12px 8px;text-align:center;
+  background:white;border-radius:12px;border:2px solid var(--border);
+  box-shadow:0 3px 8px var(--shadow);
+  padding:10px 6px;text-align:center;
 }
-.shirt-size-label{font-size:18px;font-weight:900;color:var(--brand);}
-.shirt-count{font-size:13px;font-weight:700;color:var(--text);margin-top:2px;}
-.shirt-pct{font-size:10px;color:var(--muted);margin-top:1px;}
+.shirt-size-label{font-size:15px;font-weight:900;color:var(--brand);}
+.shirt-count{font-size:12px;font-weight:700;color:var(--text);margin-top:2px;}
+.shirt-pct{font-size:9px;color:var(--muted);margin-top:1px;}
 
 /* claim type */
-.claim-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.claim-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .claim-card{
-  background:white;border-radius:16px;border:2px solid var(--border);
-  box-shadow:0 4px 12px var(--shadow);
-  padding:16px;display:flex;align-items:center;gap:12px;
+  background:white;border-radius:13px;border:2px solid var(--border);
+  box-shadow:0 3px 10px var(--shadow);
+  padding:12px;display:flex;align-items:center;gap:10px;
 }
-.claim-icon{font-size:30px;}
-.claim-label{font-size:11px;font-weight:700;color:var(--muted);}
-.claim-value{font-size:24px;font-weight:900;color:var(--text);}
-.claim-amount{font-size:12px;color:var(--indigo);font-weight:700;margin-top:2px;}
+.claim-icon{font-size:24px;}
+.claim-label{font-size:10px;font-weight:700;color:var(--muted);}
+.claim-value{font-size:20px;font-weight:900;color:var(--text);}
+.claim-amount{font-size:11px;color:var(--indigo);font-weight:700;margin-top:2px;}
 
 /* responsive dash */
 @media(max-width:900px){
@@ -385,6 +385,10 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
     </div>
     <div class="topbar-right">
       <div class="user-badge">👤 <span id="topbarName">-</span> <span class="role-badge" id="topbarRole"></span></div>
+      <div id="manageBarTopbar" style="display:none;align-items:center;gap:6px;">
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:4px 10px;">🔧 Super Admin</span>
+        <button class="topbar-btn" onclick="openUserModal()">👥 จัดการ Staff</button>
+      </div>
       <button class="topbar-btn" onclick="openDashboard()">📊 Dashboard</button>
       <button class="topbar-btn" onclick="goBackToCourseSelect()">🔄 เปลี่ยนรุ่น</button>
       <button class="topbar-btn" onclick="doLogout()">ออกจากระบบ</button>
@@ -392,7 +396,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
   </div>
 
   <div class="container">
-    <div class="manage-bar" id="manageBar">
+    <div class="manage-bar" id="manageBar" style="display:none !important;">
       <span style="font-size:13px;font-weight:700;color:#6d28d9;">🔧 Super Admin</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-outline" onclick="openUserModal()">👥 จัดการ Staff</button>
@@ -611,24 +615,9 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
       </div>
     </div>
 
-    <!-- วิธีชำระเงิน -->
-    <div class="dash-section-title">💳 สรุปการชำระเงินตามวิธี</div>
-    <div class="pay-table-wrap">
-      <table class="pay-table">
-        <thead>
-          <tr>
-            <th>วิธีชำระ</th>
-            <th style="text-align:right;">จำนวน (คน)</th>
-            <th style="text-align:right;">สัดส่วน</th>
-            <th style="text-align:right;">ยอดรวม (บาท)</th>
-          </tr>
-        </thead>
-        <tbody id="d_pay_tbody">
-          <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px;">ไม่มีข้อมูล</td></tr>
-        </tbody>
-        <tfoot id="d_pay_tfoot"></tfoot>
-      </table>
-    </div>
+    <!-- hidden tbody/tfoot for JS compat -->
+    <tbody id="d_pay_tbody" style="display:none"></tbody>
+    <tfoot id="d_pay_tfoot" style="display:none"></tfoot>
 
     <!-- ประเภทเบิก -->
     <div class="dash-section-title">📁 ประเภทการเบิกจ่าย</div>
@@ -665,7 +654,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
 
     <!-- รับอุปกรณ์ -->
     <div class="dash-section-title">🎒 การรับอุปกรณ์ & เอกสาร</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;" id="d_misc_grid">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;" id="d_misc_grid">
       <div class="kpi-card" style="border-color:#16a34a;">
         <div class="kpi-label">รับอุปกรณ์แล้ว</div>
         <div class="kpi-value" id="d_equip" style="color:#16a34a;">0</div>
@@ -689,7 +678,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
 <script>
 // ==============================
 const SUPABASE_URL = "https://opgkrhvcuhfkrykhrpid.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2tyaHZjdWhma3J5a2hycGlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTE0NzcsImV4cCI6MjA5NTUyNzQ3N30.awGPjHODxi8KANZCt8KH5Bo2amKPA8KNbjqDAtTVA4c";
+const SUPABASE_ANON_KEY = "sb_publishable_QTw18tTTQL_CvK8l6-oWWg_rxZcSSEx";
 // ==============================
 
 const { createClient } = supabase;
@@ -739,6 +728,8 @@ async function doLogout(){
   document.getElementById("coursePage").style.display="none";
   document.getElementById("mainApp").style.display="none";
   document.getElementById("manageBar").classList.remove("visible");
+  const tb=document.getElementById("manageBarTopbar");
+  if(tb) tb.style.display="none";
   document.getElementById("loginEmail").value="";
   document.getElementById("loginPassword").value="";
 }
@@ -809,7 +800,11 @@ async function selectCourse(id){
   const roleEl = document.getElementById("topbarRole");
   roleEl.textContent = role==="superadmin"?"Super Admin":"Staff";
   roleEl.className = "role-badge "+(role==="superadmin"?"role-superadmin":"role-staff");
-  if(role==="superadmin") document.getElementById("manageBar").classList.add("visible");
+  if(role==="superadmin"){
+    document.getElementById("manageBar").classList.add("visible");
+    const tb=document.getElementById("manageBarTopbar");
+    if(tb) tb.style.display="flex";
+  }
   // fill course header
   document.getElementById("courseTitleInput").value = data.title||"";
   document.getElementById("startDateInput").value = data.start_date||"";
@@ -1118,7 +1113,7 @@ function openModal(index,day){
       </div>
       <div style="background:white;border-radius:10px;padding:10px;">
         <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">เสื้อ</div>
-        <div style="font-size:13px;font-weight:700;">${t.shirt_size||'-'}</div>
+        <div id="displayShirtSize" style="font-size:13px;font-weight:700;">${t.shirt_size||'-'}</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
@@ -1172,6 +1167,14 @@ function openModal(index,day){
       <div style="margin-bottom:10px;">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เบอร์ติดต่อ</label>
         <input type="text" id="editPhoneInput" placeholder="เบอร์ติดต่อ" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">👕 ขนาดเสื้อ</label>
+        <select id="editShirtInput" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;font-weight:700;background:white;">
+          <option value="">-- เลือกไซส์ --</option>
+          <option>S</option><option>M</option><option>L</option>
+          <option>XL</option><option>2XL</option><option>3XL</option>
+        </select>
       </div>
       <button class="btn btn-primary" style="width:100%;" onclick="saveEdits()">💾 บันทึกการแก้ไข</button>
     </div>
@@ -1486,11 +1489,12 @@ function setDataCorrect(ok){
     es.style.display="block";
     const t=trainees[currentIndex];
     // บันทึกค่าต้นฉบับก่อน pre-fill
-    window._editOriginals={full_name:t.full_name, agency:t.agency, position:t.position||"", phone:t.phone||""};
+    window._editOriginals={full_name:t.full_name, agency:t.agency, position:t.position||"", phone:t.phone||"", shirt_size:t.shirt_size||""};
     document.getElementById("editNameInput").value=t.full_name;
     document.getElementById("editAgencyInput").value=t.agency;
     document.getElementById("editPositionInput").value=t.position||"";
     document.getElementById("editPhoneInput").value=t.phone||"";
+    document.getElementById("editShirtInput").value=t.shirt_size||"";
   }
 }
 function saveEdits(){
@@ -1499,13 +1503,14 @@ function saveEdits(){
   const a=document.getElementById("editAgencyInput").value.trim();
   const p=document.getElementById("editPositionInput").value.trim();
   const ph=document.getElementById("editPhoneInput").value.trim();
+  const sh=document.getElementById("editShirtInput").value;
 
   const nameEl=document.getElementById("displayFullName");
   const agEl=document.getElementById("displayAgency");
   const posEl=document.getElementById("displayPosition");
   const phoneEl=document.getElementById("displayPhone");
+  const shirtEl=document.getElementById("displayShirtSize");
 
-  // เทียบกับ originalValues ที่บันทึกตอนเปิด editSection
   const orig=window._editOriginals||{};
 
   const setRed=(el,val)=>{ if(el){el.textContent=val;el.style.color="#dc2626";el.style.fontWeight="800";} };
@@ -1516,6 +1521,7 @@ function saveEdits(){
   if(a!==orig.agency){ t.agency=a; edited.push('agency'); setRed(agEl,a); } else { setNormal(agEl,a); }
   if(p!==orig.position){ t.position=p; edited.push('position'); setRed(posEl,p); } else { setNormal(posEl,p||'-'); }
   if(ph!==orig.phone){ t.phone=ph; edited.push('phone'); setRed(phoneEl,ph); } else { setNormal(phoneEl,ph||'-'); }
+  if(sh!==orig.shirt_size){ t.shirt_size=sh; edited.push('shirt_size'); setRed(shirtEl,sh||'-'); } else { setNormal(shirtEl,sh||'-'); }
   t.editedFields=edited;
 
   document.getElementById("editSection").style.display="none";
@@ -1550,7 +1556,7 @@ if(currentDay===1){
   if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
   if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
   if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
-  Object.assign(updates,sigPreserve,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+  Object.assign(updates,sigPreserve,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,shirt_size:t.shirt_size,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
   if(hasSignature) updates.signature_day1=signatureData;
   t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.staffName_day1=staffName; t.day1=true;
 } else if(currentDay===2){
@@ -1564,7 +1570,7 @@ if(currentDay===1){
     Object.assign(updates,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,day1:true});
     t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.day1=true;
   }
-  Object.assign(updates,sigPreserve,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+  Object.assign(updates,sigPreserve,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,shirt_size:t.shirt_size,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
   if(hasSignature) updates.signature_day2=signatureData;
   t.staffName_day2=staffName; t.day2=true;
 } else if(currentDay===3){
@@ -1953,22 +1959,27 @@ function refreshDashboard(){
     const colCount = Math.min(allMethods.length, 4);
     transferGrid.style.gridTemplateColumns = `repeat(${colCount},1fr)`;
 
-    transferGrid.innerHTML = allMethods.map(m=>{
+    const hasAnyPayment = allMethods.some(m => payCounts[m] > 0);
+    if(!hasAnyPayment){
+      transferGrid.innerHTML='<div style="grid-column:1/-1;color:#94a3b8;text-align:center;padding:20px;background:white;border-radius:14px;border:2px solid var(--border);">ยังไม่มีข้อมูลการชำระเงิน</div>';
+    } else {
+    transferGrid.innerHTML = allMethods.filter(m=>payCounts[m]>0).map(m=>{
       const cnt = payCounts[m]||0;
       const amt = cnt * _dashFee;
       const colors = methodColors[m]||["#f8fafc","#334155","#e2e8f0"];
       const icon = methodIcons[m]||"💳";
-      return `<div style="background:${colors[0]};border-radius:18px;border:2px solid ${colors[2]};box-shadow:0 4px 14px rgba(0,0,0,.06);padding:18px 16px;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-12px;right:-8px;font-size:54px;opacity:.10;line-height:1;">${icon}</div>
-        <div style="font-size:22px;margin-bottom:6px;">${icon}</div>
-        <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${m}</div>
-        <div style="font-size:26px;font-weight:900;color:${colors[1]};line-height:1;margin-bottom:4px;">${cnt} <span style="font-size:13px;font-weight:600;">คน</span></div>
-        <div style="height:1px;background:${colors[2]};margin:8px 0;"></div>
-        <div style="font-size:11px;color:#64748b;font-weight:600;margin-bottom:2px;">ยอดรวม</div>
-        <div style="font-size:18px;font-weight:900;color:${colors[1]};">฿${amt.toLocaleString('th-TH')}</div>
-        <div style="font-size:10px;color:#94a3b8;margin-top:2px;">@฿${_dashFee.toLocaleString('th-TH')} / คน</div>
+      return `<div style="background:${colors[0]};border-radius:14px;border:2px solid ${colors[2]};box-shadow:0 3px 10px rgba(0,0,0,.05);padding:13px 12px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-10px;right:-6px;font-size:44px;opacity:.10;line-height:1;">${icon}</div>
+        <div style="font-size:18px;margin-bottom:4px;">${icon}</div>
+        <div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">${m}</div>
+        <div style="font-size:22px;font-weight:900;color:${colors[1]};line-height:1;margin-bottom:3px;">${cnt} <span style="font-size:11px;font-weight:600;">คน</span></div>
+        <div style="height:1px;background:${colors[2]};margin:6px 0;"></div>
+        <div style="font-size:10px;color:#64748b;font-weight:600;margin-bottom:2px;">ยอดรวม</div>
+        <div style="font-size:15px;font-weight:900;color:${colors[1]};">฿${amt.toLocaleString('th-TH')}</div>
+        <div style="font-size:9px;color:#94a3b8;margin-top:2px;">@฿${_dashFee.toLocaleString('th-TH')} / คน</div>
       </div>`;
     }).join('');
+    }
   }
 }
 function setText(id, val){
