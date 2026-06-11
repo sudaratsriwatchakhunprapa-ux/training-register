@@ -678,7 +678,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
 <script>
 // ==============================
 const SUPABASE_URL = "https://opgkrhvcuhfkrykhrpid.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wZ2tyaHZjdWhma3J5a2hycGlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTE0NzcsImV4cCI6MjA5NTUyNzQ3N30.awGPjHODxi8KANZCt8KH5Bo2amKPA8KNbjqDAtTVA4c";
+const SUPABASE_ANON_KEY = "sb_publishable_QTw18tTTQL_CvK8l6-oWWg_rxZcSSEx";
 // ==============================
 
 const { createClient } = supabase;
@@ -1113,7 +1113,7 @@ function openModal(index,day){
       </div>
       <div style="background:white;border-radius:10px;padding:10px;">
         <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:2px;">เสื้อ</div>
-        <div style="font-size:13px;font-weight:700;">${t.shirt_size||'-'}</div>
+        <div id="displayShirtSize" style="font-size:13px;font-weight:700;">${t.shirt_size||'-'}</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
@@ -1167,6 +1167,14 @@ function openModal(index,day){
       <div style="margin-bottom:10px;">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เบอร์ติดต่อ</label>
         <input type="text" id="editPhoneInput" placeholder="เบอร์ติดต่อ" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">👕 ขนาดเสื้อ</label>
+        <select id="editShirtInput" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;font-weight:700;background:white;">
+          <option value="">-- เลือกไซส์ --</option>
+          <option>S</option><option>M</option><option>L</option>
+          <option>XL</option><option>2XL</option><option>3XL</option>
+        </select>
       </div>
       <button class="btn btn-primary" style="width:100%;" onclick="saveEdits()">💾 บันทึกการแก้ไข</button>
     </div>
@@ -1481,11 +1489,12 @@ function setDataCorrect(ok){
     es.style.display="block";
     const t=trainees[currentIndex];
     // บันทึกค่าต้นฉบับก่อน pre-fill
-    window._editOriginals={full_name:t.full_name, agency:t.agency, position:t.position||"", phone:t.phone||""};
+    window._editOriginals={full_name:t.full_name, agency:t.agency, position:t.position||"", phone:t.phone||"", shirt_size:t.shirt_size||""};
     document.getElementById("editNameInput").value=t.full_name;
     document.getElementById("editAgencyInput").value=t.agency;
     document.getElementById("editPositionInput").value=t.position||"";
     document.getElementById("editPhoneInput").value=t.phone||"";
+    document.getElementById("editShirtInput").value=t.shirt_size||"";
   }
 }
 function saveEdits(){
@@ -1494,13 +1503,14 @@ function saveEdits(){
   const a=document.getElementById("editAgencyInput").value.trim();
   const p=document.getElementById("editPositionInput").value.trim();
   const ph=document.getElementById("editPhoneInput").value.trim();
+  const sh=document.getElementById("editShirtInput").value;
 
   const nameEl=document.getElementById("displayFullName");
   const agEl=document.getElementById("displayAgency");
   const posEl=document.getElementById("displayPosition");
   const phoneEl=document.getElementById("displayPhone");
+  const shirtEl=document.getElementById("displayShirtSize");
 
-  // เทียบกับ originalValues ที่บันทึกตอนเปิด editSection
   const orig=window._editOriginals||{};
 
   const setRed=(el,val)=>{ if(el){el.textContent=val;el.style.color="#dc2626";el.style.fontWeight="800";} };
@@ -1511,6 +1521,7 @@ function saveEdits(){
   if(a!==orig.agency){ t.agency=a; edited.push('agency'); setRed(agEl,a); } else { setNormal(agEl,a); }
   if(p!==orig.position){ t.position=p; edited.push('position'); setRed(posEl,p); } else { setNormal(posEl,p||'-'); }
   if(ph!==orig.phone){ t.phone=ph; edited.push('phone'); setRed(phoneEl,ph); } else { setNormal(phoneEl,ph||'-'); }
+  if(sh!==orig.shirt_size){ t.shirt_size=sh; edited.push('shirt_size'); setRed(shirtEl,sh||'-'); } else { setNormal(shirtEl,sh||'-'); }
   t.editedFields=edited;
 
   document.getElementById("editSection").style.display="none";
@@ -1545,7 +1556,7 @@ if(currentDay===1){
   if(!claim){alert("กรุณาเลือกประเภทการเบิก");return;}
   if(!pay){alert("กรุณาเลือกวิธีชำระเงิน");return;}
   if(!eq||!eq.checked){alert("กรุณายืนยันว่าผู้เข้าอบรมได้รับอุปกรณ์");return;}
-  Object.assign(updates,sigPreserve,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+  Object.assign(updates,sigPreserve,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,staff_name_day1:staffName,day1:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,shirt_size:t.shirt_size,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
   if(hasSignature) updates.signature_day1=signatureData;
   t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.staffName_day1=staffName; t.day1=true;
 } else if(currentDay===2){
@@ -1559,7 +1570,7 @@ if(currentDay===1){
     Object.assign(updates,{claim_type:claim.value,payment_method:pay.value,equipment_received:true,day1:true});
     t.claimType=claim.value; t.paymentMethod=pay.value; t.equipmentReceived=true; t.day1=true;
   }
-  Object.assign(updates,sigPreserve,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
+  Object.assign(updates,sigPreserve,{staff_name_day2:staffName,day2:true,full_name:t.full_name,agency:t.agency,position:t.position,phone:t.phone,shirt_size:t.shirt_size,data_correct:isOk,edited_fields:JSON.stringify(t.editedFields||[])});
   if(hasSignature) updates.signature_day2=signatureData;
   t.staffName_day2=staffName; t.day2=true;
 } else if(currentDay===3){
@@ -1948,7 +1959,11 @@ function refreshDashboard(){
     const colCount = Math.min(allMethods.length, 4);
     transferGrid.style.gridTemplateColumns = `repeat(${colCount},1fr)`;
 
-    transferGrid.innerHTML = allMethods.map(m=>{
+    const hasAnyPayment = allMethods.some(m => payCounts[m] > 0);
+    if(!hasAnyPayment){
+      transferGrid.innerHTML='<div style="grid-column:1/-1;color:#94a3b8;text-align:center;padding:20px;background:white;border-radius:14px;border:2px solid var(--border);">ยังไม่มีข้อมูลการชำระเงิน</div>';
+    } else {
+    transferGrid.innerHTML = allMethods.filter(m=>payCounts[m]>0).map(m=>{
       const cnt = payCounts[m]||0;
       const amt = cnt * _dashFee;
       const colors = methodColors[m]||["#f8fafc","#334155","#e2e8f0"];
@@ -1964,6 +1979,7 @@ function refreshDashboard(){
         <div style="font-size:9px;color:#94a3b8;margin-top:2px;">@฿${_dashFee.toLocaleString('th-TH')} / คน</div>
       </div>`;
     }).join('');
+    }
   }
 }
 function setText(id, val){
