@@ -354,7 +354,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
       <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีของท่าน</div>
       <form onsubmit="doLogin(); return false;">
         <div class="login-field"><label>อีเมล</label><input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email"></div>
-        <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+        <div class="login-field"><label>รหัสผ่าน</label><div style="position:relative;"><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding:12px 44px 12px 14px;border:2px solid var(--border);border-radius:12px;font-size:14px;outline:none;"><button type="button" onclick="togglePwd('loginPassword',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;">👁️</button></div></div>
         <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
       </form>
       <div class="login-err" id="loginErr"></div>
@@ -369,7 +369,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
       <form onsubmit="doSignup(); return false;">
         <div class="login-field"><label>ชื่อ-นามสกุล</label><input type="text" id="signupName" placeholder="เช่น สมชาย ดีงาม" autocomplete="name"></div>
         <div class="login-field"><label>อีเมล</label><input type="email" id="signupEmail" placeholder="example@email.com" autocomplete="email"></div>
-        <div class="login-field"><label>รหัสผ่าน (อย่างน้อย 6 ตัว)</label><input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password"></div>
+        <div class="login-field"><label>รหัสผ่าน (อย่างน้อย 6 ตัว)</label><div style="position:relative;"><input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password" style="width:100%;padding:12px 44px 12px 14px;border:2px solid var(--border);border-radius:12px;font-size:14px;outline:none;"><button type="button" onclick="togglePwd('signupPassword',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#94a3b8;">👁️</button></div></div>
         <button type="submit" class="login-btn">สมัครสมาชิก</button>
       </form>
       <div class="login-err" id="signupErr"></div>
@@ -498,7 +498,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
         <input type="email" id="newUserEmail" placeholder="อีเมล">
       </div>
       <div class="form-row">
-        <input type="password" id="newUserPassword" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)">
+        <div style="position:relative;"><input type="password" id="newUserPassword" placeholder="รหัสผ่าน (อย่างน้อย 6 ตัว)" style="width:100%;padding:10px 40px 10px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px;outline:none;"><button type="button" onclick="togglePwd('newUserPassword',this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#94a3b8;">👁️</button></div>
         <select id="newUserRole">
           <option value="staff">Staff</option>
           <option value="superadmin">Super Admin</option>
@@ -711,7 +711,28 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   }
 });
 
-// ✅ ประกาศตัวแปรก่อน ก่อน callback ทุกตัว
+// จัดการ session อัตโนมัติ
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    if (!currentProfile) await loadProfile();
+  } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+    currentUser = null; currentProfile = null;
+    document.getElementById("loginPage").style.display = "flex";
+    document.getElementById("coursePage").style.display = "none";
+    document.getElementById("mainApp").style.display = "none";
+  }
+});
+
+// เช็ค session ที่มีอยู่แล้วตอนโหลดหน้า
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+  }
+})();
+
 let currentUser = null;
 let currentProfile = null;
 let currentCourse = null;
@@ -719,36 +740,18 @@ let trainees = [];
 let currentIndex = null;
 let currentDay = 1;
 let realtimeChannel = null;
-let _authHandled = false; // ป้องกัน loadProfile ถูกเรียกซ้ำ
 
-// ✅ onAuthStateChange — จัดการ session เปลี่ยนแปลง
-sb.auth.onAuthStateChange(async (event, session) => {
-  const spinner = document.getElementById("loginSpinner");
-  if (spinner) spinner.style.display = "none";
-
-  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-    if (_authHandled) return; // ป้องกัน call ซ้ำ
-    _authHandled = true;
-    currentUser = session.user;
-    currentProfile = null;
-    await loadProfile();
-  } else if (event === 'SIGNED_OUT') {
-    _authHandled = false;
-    currentUser = null;
-    currentProfile = null;
-    currentCourse = null;
-    trainees = [];
-    document.getElementById("loginPage").style.display = "flex";
-    document.getElementById("coursePage").style.display = "none";
-    document.getElementById("mainApp").style.display = "none";
-    if (document.getElementById("manageBar")) {
-      document.getElementById("manageBar").classList.remove("visible");
-    }
-  } else if (event === 'INITIAL_SESSION' && !session) {
-    // ไม่มี session — แสดงหน้า login ตามปกติ
-    _authHandled = false;
+// ===== TOGGLE PASSWORD VISIBILITY =====
+function togglePwd(inputId, btn){
+  const input = document.getElementById(inputId);
+  if(input.type === "password"){
+    input.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    input.type = "password";
+    btn.textContent = "👁️";
   }
-});
+}
 
 // ===== AUTH =====
 function toggleSignUp(){
@@ -808,46 +811,35 @@ async function doLogin(){
   const password = document.getElementById("loginPassword").value;
   const errEl = document.getElementById("loginErr");
   const spinner = document.getElementById("loginSpinner");
-
+  
   if(!email){ errEl.textContent="กรุณากรอกอีเมล"; errEl.style.display="block"; return; }
   if(!password){ errEl.textContent="กรุณากรอกรหัสผ่าน"; errEl.style.display="block"; return; }
-
+  
   errEl.style.display="none";
   spinner.style.display="block";
-  _authHandled = false; // reset ก่อน login ใหม่ทุกครั้ง
-
+  
   try {
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if(error){
-      spinner.style.display="none";
-      errEl.textContent = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    spinner.style.display="none";
+    if(error){ 
+      console.error("Login error full:", error);
+      errEl.textContent = "อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชียังไม่ได้สมัครสมาชิก";
       errEl.style.display="block";
+      return;
     }
-    // ✅ ถ้า success → onAuthStateChange จะ fire SIGNED_IN แล้วปิด spinner + loadProfile เอง
+    // ให้ onAuthStateChange จัดการต่อเอง ไม่ต้องเรียก loadProfile ซ้ำ
   } catch(err){
     spinner.style.display="none";
+    console.error("Login exception:", err);
     errEl.textContent = "เกิดข้อผิดพลาด: " + err.message;
     errEl.style.display="block";
   }
 }
 
 async function loadProfile(){
-  try {
-    const { data, error } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
-    if(error) throw error;
-    if(!data){
-      // ไม่มี profile → logout ออกแล้วให้ login ใหม่
-      await sb.auth.signOut();
-      return;
-    }
-    currentProfile = data;
-    showCoursePage();
-  } catch(err){
-    console.error("loadProfile error:", err);
-    // token เสีย → ล้างแล้ว redirect login
-    _authHandled = false;
-    await sb.auth.signOut();
-  }
+  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
+  currentProfile = data;
+  showCoursePage();
 }
 
 function showCoursePage(){
@@ -860,9 +852,12 @@ function showCoursePage(){
 async function doLogout(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
   stopPolling();
-  _authHandled = false;
   await sb.auth.signOut();
-  // onAuthStateChange SIGNED_OUT จะจัดการ UI เอง
+  currentUser=null; currentProfile=null; currentCourse=null; trainees=[];
+  document.getElementById("loginPage").style.display="flex";
+  document.getElementById("coursePage").style.display="none";
+  document.getElementById("mainApp").style.display="none";
+  document.getElementById("manageBar").classList.remove("visible");
   document.getElementById("loginEmail").value="";
   document.getElementById("loginPassword").value="";
 }
