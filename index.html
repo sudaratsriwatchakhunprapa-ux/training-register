@@ -6,6 +6,8 @@
 <title>ระบบลงทะเบียนอบรม</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
 /* ── THEME TOKENS ── */
 :root{
@@ -213,7 +215,10 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
   border-radius:0 0 20px 20px;
   position:sticky;top:0;z-index:10;
 }
-.dash-container{max-width:1100px;margin:0 auto;padding:18px 14px 40px;}
+.dash-container{max-width:920px;margin:0 auto;padding:18px 14px 40px;}
+@media(max-width:1024px){
+  .dash-container{max-width:100%;padding:16px 12px 32px;}
+}
 .dash-section-title{
   font-size:12px;font-weight:800;color:var(--muted);
   text-transform:uppercase;letter-spacing:0.06em;
@@ -344,12 +349,35 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
   <div class="login-card">
     <div class="login-logo">📋</div>
     <div class="login-title">ระบบลงทะเบียนอบรม</div>
-    <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์</div>
-    <div class="login-field"><label>อีเมล</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
-    <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()"></div>
-    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
-    <div class="login-err" id="loginErr"></div>
-    <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="login-sub">กรุณาเข้าสู่ระบบด้วยบัญชีของท่าน</div>
+      <form onsubmit="doLogin(); return false;">
+        <div class="login-field"><label>อีเมล</label><input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email"></div>
+        <div class="login-field"><label>รหัสผ่าน</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+        <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+      </form>
+      <div class="login-err" id="loginErr"></div>
+      <div class="login-spinner" id="loginSpinner">⏳ กำลังเข้าสู่ระบบ...</div>
+      <div style="text-align:center;margin-top:12px;font-size:13px;color:#64748b;">
+        ยังไม่มีบัญชี? <button style="background:none;border:none;color:#6d28d9;font-weight:700;cursor:pointer;text-decoration:underline;" onclick="toggleSignUp()">สมัครสมาชิก</button>
+      </div>
+    </div>
+    <!-- SIGNUP FORM -->
+    <div id="signupForm" style="display:none;">
+      <div class="login-sub">สร้างบัญชีผู้ใช้งาน</div>
+      <form onsubmit="doSignup(); return false;">
+        <div class="login-field"><label>ชื่อ-นามสกุล</label><input type="text" id="signupName" placeholder="เช่น สมชาย ดีงาม" autocomplete="name"></div>
+        <div class="login-field"><label>อีเมล</label><input type="email" id="signupEmail" placeholder="example@email.com" autocomplete="email"></div>
+        <div class="login-field"><label>รหัสผ่าน (อย่างน้อย 6 ตัว)</label><input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password"></div>
+        <button type="submit" class="login-btn">สมัครสมาชิก</button>
+      </form>
+      <div class="login-err" id="signupErr"></div>
+      <div class="login-spinner" id="signupSpinner">⏳ กำลังสมัครสมาชิก...</div>
+      <div style="text-align:center;margin-top:12px;font-size:13px;color:#64748b;">
+        มีบัญชีแล้ว? <button style="background:none;border:none;color:#6d28d9;font-weight:700;cursor:pointer;text-decoration:underline;" onclick="toggleSignUp()">เข้าสู่ระบบ</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -611,25 +639,6 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
       </div>
     </div>
 
-    <!-- วิธีชำระเงิน -->
-    <div class="dash-section-title">💳 สรุปการชำระเงินตามวิธี</div>
-    <div class="pay-table-wrap">
-      <table class="pay-table">
-        <thead>
-          <tr>
-            <th>วิธีชำระ</th>
-            <th style="text-align:right;">จำนวน (คน)</th>
-            <th style="text-align:right;">สัดส่วน</th>
-            <th style="text-align:right;">ยอดรวม (บาท)</th>
-          </tr>
-        </thead>
-        <tbody id="d_pay_tbody">
-          <tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px;">ไม่มีข้อมูล</td></tr>
-        </tbody>
-        <tfoot id="d_pay_tfoot"></tfoot>
-      </table>
-    </div>
-
     <!-- ประเภทเบิก -->
     <div class="dash-section-title">📁 ประเภทการเบิกจ่าย</div>
     <div class="claim-grid" id="d_claim_grid">
@@ -704,17 +713,87 @@ let currentDay = 1;
 let realtimeChannel = null;
 
 // ===== AUTH =====
+function toggleSignUp(){
+  const loginForm = document.getElementById("loginForm");
+  const signupForm = document.getElementById("signupForm");
+  const isLogin = loginForm.style.display !== "none";
+  loginForm.style.display = isLogin ? "none" : "block";
+  signupForm.style.display = isLogin ? "block" : "none";
+  document.getElementById("loginErr").style.display = "none";
+  document.getElementById("signupErr").style.display = "none";
+}
+
+async function doSignup(){
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const errEl = document.getElementById("signupErr");
+  const spinner = document.getElementById("signupSpinner");
+  
+  if(!name){ errEl.textContent="กรุณากรอกชื่อ-นามสกุล"; errEl.style.display="block"; return; }
+  if(!email){ errEl.textContent="กรุณากรอกอีเมล"; errEl.style.display="block"; return; }
+  if(password.length < 6){ errEl.textContent="รหัสผ่านต้องมีอย่างน้อย 6 ตัว"; errEl.style.display="block"; return; }
+  
+  errEl.style.display="none";
+  spinner.style.display="block";
+  
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if(error){ throw error; }
+    
+    currentUser = data.user;
+    if(currentUser){
+      const { error: profileError } = await sb.from("profiles").insert({
+        id: currentUser.id,
+        full_name: name,
+        role: "staff"
+      });
+      if(profileError && profileError.code !== "23505") console.warn("Profile create:", profileError);
+    }
+    
+    spinner.style.display="none";
+    alert("✅ สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ");
+    document.getElementById("signupName").value="";
+    document.getElementById("signupEmail").value="";
+    document.getElementById("signupPassword").value="";
+    toggleSignUp();
+  } catch(err){
+    spinner.style.display="none";
+    console.error("Signup error:", err);
+    errEl.textContent = "ไม่สามารถสมัครสมาชิกได้: " + (err.message || err);
+    errEl.style.display="block";
+  }
+}
+
 async function doLogin(){
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
   const errEl = document.getElementById("loginErr");
   const spinner = document.getElementById("loginSpinner");
-  errEl.style.display="none"; spinner.style.display="block";
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  spinner.style.display="none";
-  if(error){ errEl.textContent="เข้าสู่ระบบไม่สำเร็จ: "+(error.message==="Invalid login credentials"?"อีเมลหรือรหัสผ่านไม่ถูกต้อง":error.message); errEl.style.display="block"; return; }
-  currentUser = data.user;
-  await loadProfile();
+  
+  if(!email){ errEl.textContent="กรุณากรอกอีเมล"; errEl.style.display="block"; return; }
+  if(!password){ errEl.textContent="กรุณากรอกรหัสผ่าน"; errEl.style.display="block"; return; }
+  
+  errEl.style.display="none";
+  spinner.style.display="block";
+  
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    spinner.style.display="none";
+    if(error){ 
+      console.error("Login error full:", error);
+      errEl.textContent = "อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชียังไม่ได้สมัครสมาชิก";
+      errEl.style.display="block";
+      return;
+    }
+    currentUser = data.user;
+    await loadProfile();
+  } catch(err){
+    spinner.style.display="none";
+    console.error("Login exception:", err);
+    errEl.textContent = "เกิดข้อผิดพลาด: " + err.message;
+    errEl.style.display="block";
+  }
 }
 
 async function loadProfile(){
@@ -1006,31 +1085,100 @@ async function handleExcel(e){
   reader.readAsArrayBuffer(file);
 }
 
-// ===== EXPORT EXCEL =====
-function exportExcel(){
+// ===== EXPORT EXCEL (with signature images) =====
+async function exportExcel(){
   if(!trainees.length){ alert("ไม่มีข้อมูล"); return; }
-  const rows=trainees.map(t=>({
-    "ลำดับ":t.order_no,"ชื่อ-นามสกุล":t.full_name,"อปท.":t.agency,
-    "ตำแหน่ง":t.position,"โทรศัพท์":t.phone,"ตำบล":t.district,"จังหวัด":t.province,
-    "เสื้อ":t.shirt_size,"ประเภทเบิก":t.claimType,"วิธีชำระ":t.paymentMethod,
-    "เจ้าหน้าที่วันที่1":t.staffName_day1,"เจ้าหน้าที่วันที่2":t.staffName_day2,"เจ้าหน้าที่วันที่3":t.staffName_day3,
-    "รับอุปกรณ์":t.equipmentReceived?"✓":"","วันที่1":t.day1?"✓":"","วันที่2":t.day2?"✓":"","วันที่3":t.day3?"✓":""
-  }));
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.book_append_sheet(wb,ws,"รายชื่อ");
-  // ใช้ Blob แทน writeFile เพื่อรองรับ Safari/iPad
+  
+  const btn = document.querySelector('button[onclick="exportExcel()"]');
+  if(btn){ btn.disabled=true; btn.textContent="⏳ กำลัง Export..."; }
+  
   try {
-    const wbout = XLSX.write(wb, { bookType:'xlsx', type:'array' });
-    const blob = new Blob([wbout], { type:'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("รายชื่อ");
+    
+    const ROW_HEIGHT = 80;  // ความสูงแถว (pt)
+    const headers = [
+      "ลำดับ","ชื่อ-นามสกุล","อปท.","ตำแหน่ง","โทรศัพท์",
+      "ตำบล","จังหวัด","เสื้อ","ประเภทเบิก","วิธีชำระ",
+      "เจ้าหน้าที่วันที่1","เจ้าหน้าที่วันที่2","เจ้าหน้าที่วันที่3",
+      "ลายเซ็น วันที่1","ลายเซ็น วันที่2","ลายเซ็น วันที่3",
+      "รับอุปกรณ์","วันที่1","วันที่2","วันที่3"
+    ];
+    
+    const colWidths = [6,20,15,15,12,10,10,6,12,12,14,14,14,20,20,20,10,8,8,8];
+    colWidths.forEach((w,i)=>{ ws.getColumn(i+1).width = w; });
+    
+    const border = {
+      top:   { style:"thin", color:{ argb:"FFB0BEC5" } },
+      left:  { style:"thin", color:{ argb:"FFB0BEC5" } },
+      bottom:{ style:"thin", color:{ argb:"FFB0BEC5" } },
+      right: { style:"thin", color:{ argb:"FFB0BEC5" } }
+    };
+    
+    // Header
+    const headerRow = ws.addRow(headers);
+    headerRow.height = 28;
+    headerRow.eachCell(cell=>{
+      cell.font = { bold:true, color:{ argb:"FFFFFFFF" }, size:10 };
+      cell.fill = { type:"pattern", pattern:"solid", fgColor:{ argb:"FF6d28d9" } };
+      cell.alignment = { horizontal:"center", vertical:"middle", wrapText:true };
+      cell.border = border;
+    });
+    
+    function dataUrlToBase64(d){ return d ? d.split(",")[1] : null; }
+    
+    // Data rows with embedded signatures
+    for(let i=0; i<trainees.length; i++){
+      const t = trainees[i];
+      const rowIdx = i + 2;
+      
+      const values = [
+        t.order_no, t.full_name, t.agency, t.position, t.phone,
+        t.district, t.province, t.shirt_size, t.claimType||"", t.paymentMethod||"",
+        t.staffName_day1||"", t.staffName_day2||"", t.staffName_day3||"",
+        "", "", "",  // placeholders สำหรับลายเซ็น
+        t.equipmentReceived?"✓":"", t.day1?"✓":"", t.day2?"✓":"", t.day3?"✓":""
+      ];
+      const dataRow = ws.addRow(values);
+      dataRow.height = ROW_HEIGHT;
+      
+      dataRow.eachCell({ includeEmpty:true }, (cell, colNum)=>{
+        cell.alignment = { vertical:"middle", horizontal: colNum===1 ? "center" : "left", wrapText: true };
+        cell.fill = { type:"pattern", pattern:"solid", fgColor:{ argb: i%2===0 ? "FFFAFAFA" : "FFF0F0FF" } };
+        cell.border = border;
+      });
+      
+      // ฝังรูปลายเซ็น (คอลัมน์ 14-16)
+      const SIG_W = 130; const SIG_H = 60; const offX = 5; const offY = 10;
+      for(const [day, col] of [["signature_day1",14],["signature_day2",15],["signature_day3",16]]){
+        const sig = t[day];
+        if(!sig) continue;
+        const b64 = dataUrlToBase64(sig);
+        if(!b64) continue;
+        try {
+          const imgId = wb.addImage({ base64:b64, extension:"png" });
+          ws.addImage(imgId, {
+            tl:{ nativeCol: col-1, nativeColOff: offX * 9525, nativeRow: rowIdx-1, nativeRowOff: offY * 9525 },
+            ext:{ width: SIG_W, height: SIG_H }
+          });
+        } catch(err){ console.log("Skip sig:", day, err.message); }
+      }
+    }
+    
+    ws.views = [{ state:"frozen", ySplit:1 }];
+    ws.autoFilter = { from:{ row:1, column:1 }, to:{ row:1, column:headers.length } };
+    
     const fileName = (currentCourse?.title||"รายชื่อ")+"_export.xlsx";
-    const a = document.createElement('a');
-    a.href = url; a.download = fileName; a.style.display='none';
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-  } catch(e) {
-    XLSX.writeFile(wb,(currentCourse?.title||"รายชื่อ")+"_export.xlsx");
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    saveAs(blob, fileName);
+    alert("✅ Export สำเร็จแล้ว");
+    
+  } catch(err){
+    console.error("Export error:", err);
+    alert("❌ Export ไม่สำเร็จ: " + err.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent="📤 Export Excel"; }
   }
 }
 
@@ -1868,34 +2016,36 @@ function refreshDashboard(){
   const payEntries = Object.entries(payCounts).sort((a,b)=>b[1]-a[1]);
   const tbody=document.getElementById("d_pay_tbody");
   const tfoot=document.getElementById("d_pay_tfoot");
-  if(payEntries.length===0){
-    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px;">ไม่มีข้อมูลการชำระ</td></tr>';
-    tfoot.innerHTML='';
-  } else {
-    const payTotal=payEntries.reduce((s,[,v])=>s+v,0);
-    tbody.innerHTML=payEntries.map(([k,v])=>{
-      const sp=payTotal>0?Math.round(v/payTotal*100):0;
-      const amt=(v*_dashFee).toLocaleString('th-TH');
-      return `<tr>
-        <td><span class="pay-badge">${k}</span></td>
-        <td style="text-align:right;font-weight:800;">${v} คน</td>
-        <td style="text-align:right;">
-          <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
-            <div style="width:80px;height:6px;border-radius:999px;background:#f1f5f9;overflow:hidden;">
-              <div style="height:100%;border-radius:999px;background:linear-gradient(90deg,#6d28d9,#4f46e5);width:${sp}%;"></div>
+  if(tbody && tfoot){
+    if(payEntries.length===0){
+      tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px;">ไม่มีข้อมูลการชำระ</td></tr>';
+      tfoot.innerHTML='';
+    } else {
+      const payTotal=payEntries.reduce((s,[,v])=>s+v,0);
+      tbody.innerHTML=payEntries.map(([k,v])=>{
+        const sp=payTotal>0?Math.round(v/payTotal*100):0;
+        const amt=(v*_dashFee).toLocaleString('th-TH');
+        return `<tr>
+          <td><span class="pay-badge">${k}</span></td>
+          <td style="text-align:right;font-weight:800;">${v} คน</td>
+          <td style="text-align:right;">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+              <div style="width:80px;height:6px;border-radius:999px;background:#f1f5f9;overflow:hidden;">
+                <div style="height:100%;border-radius:999px;background:linear-gradient(90deg,#6d28d9,#4f46e5);width:${sp}%;"></div>
+              </div>
+              <span style="min-width:28px;">${sp}%</span>
             </div>
-            <span style="min-width:28px;">${sp}%</span>
-          </div>
-        </td>
-        <td class="pay-amount" style="text-align:right;">฿${amt}</td>
+          </td>
+          <td class="pay-amount" style="text-align:right;">฿${amt}</td>
+        </tr>`;
+      }).join('');
+      tfoot.innerHTML=`<tr style="background:#f5f3ff;">
+        <td style="font-weight:800;padding:10px 14px;">รวมทั้งหมด</td>
+        <td style="text-align:right;font-weight:800;padding:10px 14px;">${payTotal} คน</td>
+        <td style="padding:10px 14px;"></td>
+        <td style="text-align:right;font-weight:900;color:#6d28d9;padding:10px 14px;">฿${(payTotal*_dashFee).toLocaleString('th-TH')}</td>
       </tr>`;
-    }).join('');
-    tfoot.innerHTML=`<tr style="background:#f5f3ff;">
-      <td style="font-weight:800;padding:10px 14px;">รวมทั้งหมด</td>
-      <td style="text-align:right;font-weight:800;padding:10px 14px;">${payTotal} คน</td>
-      <td style="padding:10px 14px;"></td>
-      <td style="text-align:right;font-weight:900;color:#6d28d9;padding:10px 14px;">฿${(payTotal*_dashFee).toLocaleString('th-TH')}</td>
-    </tr>`;
+    }
   }
 
   // Claim type
