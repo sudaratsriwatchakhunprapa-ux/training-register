@@ -702,7 +702,35 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ==============================
 
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false
+  }
+});
+
+// จัดการ session อัตโนมัติ
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    if (!currentProfile) await loadProfile();
+  } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+    currentUser = null; currentProfile = null;
+    document.getElementById("loginPage").style.display = "flex";
+    document.getElementById("coursePage").style.display = "none";
+    document.getElementById("mainApp").style.display = "none";
+  }
+});
+
+// เช็ค session ที่มีอยู่แล้วตอนโหลดหน้า
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+  }
+})();
 
 let currentUser = null;
 let currentProfile = null;
