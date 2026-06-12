@@ -711,28 +711,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   }
 });
 
-// จัดการ session อัตโนมัติ
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session) {
-    currentUser = session.user;
-    if (!currentProfile) await loadProfile();
-  } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
-    currentUser = null; currentProfile = null;
-    document.getElementById("loginPage").style.display = "flex";
-    document.getElementById("coursePage").style.display = "none";
-    document.getElementById("mainApp").style.display = "none";
-  }
-});
-
-// เช็ค session ที่มีอยู่แล้วตอนโหลดหน้า
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await loadProfile();
-  }
-})();
-
+// ✅ ประกาศตัวแปรก่อน ก่อน callback ทุกตัว
 let currentUser = null;
 let currentProfile = null;
 let currentCourse = null;
@@ -740,6 +719,36 @@ let trainees = [];
 let currentIndex = null;
 let currentDay = 1;
 let realtimeChannel = null;
+let _authHandled = false; // ป้องกัน loadProfile ถูกเรียกซ้ำ
+
+// ✅ onAuthStateChange — จัดการ session เปลี่ยนแปลง
+sb.auth.onAuthStateChange(async (event, session) => {
+  const spinner = document.getElementById("loginSpinner");
+  if (spinner) spinner.style.display = "none";
+
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    if (_authHandled) return; // ป้องกัน call ซ้ำ
+    _authHandled = true;
+    currentUser = session.user;
+    currentProfile = null;
+    await loadProfile();
+  } else if (event === 'SIGNED_OUT') {
+    _authHandled = false;
+    currentUser = null;
+    currentProfile = null;
+    currentCourse = null;
+    trainees = [];
+    document.getElementById("loginPage").style.display = "flex";
+    document.getElementById("coursePage").style.display = "none";
+    document.getElementById("mainApp").style.display = "none";
+    if (document.getElementById("manageBar")) {
+      document.getElementById("manageBar").classList.remove("visible");
+    }
+  } else if (event === 'INITIAL_SESSION' && !session) {
+    // ไม่มี session — แสดงหน้า login ตามปกติ
+    _authHandled = false;
+  }
+});
 
 // ===== AUTH =====
 function toggleSignUp(){
@@ -799,27 +808,24 @@ async function doLogin(){
   const password = document.getElementById("loginPassword").value;
   const errEl = document.getElementById("loginErr");
   const spinner = document.getElementById("loginSpinner");
-  
+
   if(!email){ errEl.textContent="กรุณากรอกอีเมล"; errEl.style.display="block"; return; }
   if(!password){ errEl.textContent="กรุณากรอกรหัสผ่าน"; errEl.style.display="block"; return; }
-  
+
   errEl.style.display="none";
   spinner.style.display="block";
-  
+  _authHandled = false; // reset ก่อน login ใหม่ทุกครั้ง
+
   try {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    spinner.style.display="none";
-    if(error){ 
-      console.error("Login error full:", error);
-      errEl.textContent = "อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชียังไม่ได้สมัครสมาชิก";
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){
+      spinner.style.display="none";
+      errEl.textContent = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
       errEl.style.display="block";
-      return;
     }
-    currentUser = data.user;
-    await loadProfile();
+    // ✅ ถ้า success → onAuthStateChange จะ fire SIGNED_IN แล้วปิด spinner + loadProfile เอง
   } catch(err){
     spinner.style.display="none";
-    console.error("Login exception:", err);
     errEl.textContent = "เกิดข้อผิดพลาด: " + err.message;
     errEl.style.display="block";
   }
@@ -841,12 +847,9 @@ function showCoursePage(){
 async function doLogout(){
   if(realtimeChannel) sb.removeChannel(realtimeChannel);
   stopPolling();
+  _authHandled = false;
   await sb.auth.signOut();
-  currentUser=null; currentProfile=null; currentCourse=null; trainees=[];
-  document.getElementById("loginPage").style.display="flex";
-  document.getElementById("coursePage").style.display="none";
-  document.getElementById("mainApp").style.display="none";
-  document.getElementById("manageBar").classList.remove("visible");
+  // onAuthStateChange SIGNED_OUT จะจัดการ UI เอง
   document.getElementById("loginEmail").value="";
   document.getElementById("loginPassword").value="";
 }
@@ -1963,20 +1966,16 @@ function hideInitLoader(){
   if(el) el.remove();
 }
 
-sb.auth.onAuthStateChange(async(event, session)=>{
-  if(!_authInitDone){
-    _authInitDone = true;
-    hideInitLoader();
-  }
-  if((event==="SIGNED_IN" || event==="INITIAL_SESSION") && session && !sessionLoaded){
-    sessionLoaded = true;
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    document.getElementById("loginSpinner").style.display="none"; // ✅ ปิด spinner
     currentUser = session.user;
-    if(!currentProfile) await loadProfile();
-  }
-  if(event==="SIGNED_OUT"){
-    sessionLoaded = false;
-    currentUser = null;
-    currentProfile = null;
+    if (!currentProfile) await loadProfile();
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null; currentProfile = null;
+    document.getElementById("loginPage").style.display = "flex";
+    document.getElementById("coursePage").style.display = "none";
+    document.getElementById("mainApp").style.display = "none";
   }
 });
 
