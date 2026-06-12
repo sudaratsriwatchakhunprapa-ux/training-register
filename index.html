@@ -413,6 +413,7 @@ tr:hover td:nth-child(1),tr:hover td:nth-child(2),tr:hover td:nth-child(3){backg
     </div>
     <div class="topbar-right">
       <div class="user-badge">👤 <span id="topbarName">-</span> <span class="role-badge" id="topbarRole"></span></div>
+      <button class="topbar-btn" id="manageStaffBtn" style="display:none;" onclick="openUserModal()">👥 จัดการ Staff</button>
       <button class="topbar-btn" onclick="openDashboard()">📊 Dashboard</button>
       <button class="topbar-btn" onclick="goBackToCourseSelect()">🔄 เปลี่ยนรุ่น</button>
       <button class="topbar-btn" onclick="doLogout()">ออกจากระบบ</button>
@@ -916,7 +917,7 @@ async function selectCourse(id){
   const roleEl = document.getElementById("topbarRole");
   roleEl.textContent = role==="superadmin"?"Super Admin":"Staff";
   roleEl.className = "role-badge "+(role==="superadmin"?"role-superadmin":"role-staff");
-  if(role==="superadmin") document.getElementById("manageBar").classList.add("visible");
+
   // fill course header
   document.getElementById("courseTitleInput").value = data.title||"";
   document.getElementById("startDateInput").value = data.start_date||"";
