@@ -832,9 +832,22 @@ async function doLogin(){
 }
 
 async function loadProfile(){
-  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
-  currentProfile = data;
-  showCoursePage();
+  try {
+    const { data, error } = await sb.from("profiles").select("*").eq("id", currentUser.id).single();
+    if(error) throw error;
+    if(!data){
+      // ไม่มี profile → logout ออกแล้วให้ login ใหม่
+      await sb.auth.signOut();
+      return;
+    }
+    currentProfile = data;
+    showCoursePage();
+  } catch(err){
+    console.error("loadProfile error:", err);
+    // token เสีย → ล้างแล้ว redirect login
+    _authHandled = false;
+    await sb.auth.signOut();
+  }
 }
 
 function showCoursePage(){
