@@ -1346,9 +1346,19 @@ function openModal(index,day){
           <input type="text" id="editPositionInput" placeholder="ตำแหน่ง" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
         </div>
       </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เบอร์ติดต่อ</label>
-        <input type="text" id="editPhoneInput" placeholder="เบอร์ติดต่อ" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">เบอร์ติดต่อ</label>
+          <input type="text" id="editPhoneInput" placeholder="เบอร์ติดต่อ" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">ขนาดเสื้อ</label>
+          <select id="editShirtInput" style="width:100%;padding:10px;border-radius:10px;border:2px solid #f59e0b;font-size:14px;">
+            <option value="">-- เลือก --</option>
+            <option>S</option><option>M</option><option>L</option>
+            <option>XL</option><option>2XL</option><option>3XL</option>
+          </select>
+        </div>
       </div>
       <button class="btn btn-primary" style="width:100%;" onclick="saveEdits()">💾 บันทึกการแก้ไข</button>
     </div>
@@ -1676,13 +1686,13 @@ function saveEdits(){
   const a=document.getElementById("editAgencyInput").value.trim();
   const p=document.getElementById("editPositionInput").value.trim();
   const ph=document.getElementById("editPhoneInput").value.trim();
+  const sh=document.getElementById("editShirtInput").value.trim();
 
   const nameEl=document.getElementById("displayFullName");
   const agEl=document.getElementById("displayAgency");
   const posEl=document.getElementById("displayPosition");
   const phoneEl=document.getElementById("displayPhone");
 
-  // เทียบกับ originalValues ที่บันทึกตอนเปิด editSection
   const orig=window._editOriginals||{};
 
   const setRed=(el,val)=>{ if(el){el.textContent=val;el.style.color="#dc2626";el.style.fontWeight="800";} };
@@ -1693,6 +1703,7 @@ function saveEdits(){
   if(a!==orig.agency){ t.agency=a; edited.push('agency'); setRed(agEl,a); } else { setNormal(agEl,a); }
   if(p!==orig.position){ t.position=p; edited.push('position'); setRed(posEl,p); } else { setNormal(posEl,p||'-'); }
   if(ph!==orig.phone){ t.phone=ph; edited.push('phone'); setRed(phoneEl,ph); } else { setNormal(phoneEl,ph||'-'); }
+  if(sh!==orig.shirt_size){ t.shirt_size=sh; edited.push('shirt_size'); }
   t.editedFields=edited;
 
   document.getElementById("editSection").style.display="none";
